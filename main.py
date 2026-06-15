@@ -1,6 +1,8 @@
-def main():
-    print("Hello World!")
+from kivy.app import App
+from kivy.uix.label import Label
 
+class MyApp(App):
+    def build(self):
+        return Label(text="It's an app!")
 
-if __name__ == "__main__":
-    main()
+MyApp().run()

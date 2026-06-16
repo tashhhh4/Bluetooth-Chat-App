@@ -1,7 +1,8 @@
 from kivy.app import App
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.textinput import TextInput
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
 
 SAMPLE_MESSAGES = [
     {
@@ -22,11 +23,11 @@ SAMPLE_MESSAGES = [
 ]
 
 
-class DebugMessages(GridLayout):
+class DebugMessages(BoxLayout):
 
     def __init__(self, **kwargs):
         super(DebugMessages, self).__init__(**kwargs)
-        self.cols = 1
+        self.orientation = 'vertical'
         for msg in SAMPLE_MESSAGES:
             text = msg['text']
             sender = msg['from']
@@ -34,6 +35,7 @@ class DebugMessages(GridLayout):
             self.add_widget(Label(text=f'\"{text}\" -- Sent by {sender} {when}'))
         self.message_input = TextInput(multiline=True)
         self.add_widget(self.message_input)
+        self.add_widget(Button(text='Send Message'))
 
 
 class Blu2App(App):

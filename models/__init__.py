@@ -1,1 +1,1 @@
-from .models import Base, Message
+from .models import Base, Chat, Contact, Device, Member, Message

@@ -17,3 +17,19 @@ def add_new(text):
         session.commit()
     finally:
         session.close()
+
+
+# Message Operations
+def create_message():
+    """ Create a Message, sent to a particular Chat, from a sender (Device) or self (NULL)
+        automatically timestamped.
+    """
+
+def list_messages():
+    """ Get all of the Messages sent to a particular Chat. """
+
+def update_message():
+    """ Update the text content of a Message. """
+
+def delete_message():
+    """ Delete a Message. """

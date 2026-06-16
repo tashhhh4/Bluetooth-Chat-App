@@ -5,7 +5,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 
-from db.engine import get_all_messages, add_new_message
+import db.engine as db
 
 # Helper functions
 def pluralize(text, number):
@@ -36,12 +36,12 @@ class DebugMessages(BoxLayout):
 
     def __init__(self, **kwargs):
         super(DebugMessages, self).__init__(**kwargs)
-        self.messages = get_all_messages()
+        self.messages = db.get_all_messages()
         self.orientation = 'vertical'
         self.counter = Counter()
         self.add_widget(self.counter)
         for msg in self.messages:
-            text = msg.sender
+            text = msg.text
             sender = msg.sender
             when = 'just now'
             self.add_widget(Label(
@@ -58,13 +58,13 @@ class DebugMessages(BoxLayout):
     # Button Functions
     def push_button(self, button_instance):
         text = self.message_input.text
-        add_new_message(text)
+        db.add_new_message(text)
         self.counter.increment()
 
 
 class Blu2App(App):
     def build(self):
+        db.initialize_database()
         return DebugMessages()
-        # return Label(text='Simple Label')
 
 Blu2App().run()

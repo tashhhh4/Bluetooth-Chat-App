@@ -5,23 +5,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 
-SAMPLE_MESSAGES = [
-    {
-        'text': 'I\'m sitting in 45a. Wanna trade seats? I can offer you some peanuts.',
-        'from': 'Galaxy 500SE',
-        'send_date': '14 minutes ago'
-    },
-    {
-        'text': 'Hi, how are you?',
-        'from': 'Joe',
-        'send_date': '5 seconds ago',
-    },
-    {
-        'text': 'Can you come to my seat, honey? The baby is getting hungry.',
-        'from': 'Husband',
-        'send_date': 'Just now',
-    },
-]
+from db.engine import get_all_messages, add_new_message
 
 # Helper functions
 def pluralize(text, number):
@@ -52,13 +36,14 @@ class DebugMessages(BoxLayout):
 
     def __init__(self, **kwargs):
         super(DebugMessages, self).__init__(**kwargs)
+        self.messages = get_all_messages()
         self.orientation = 'vertical'
         self.counter = Counter()
         self.add_widget(self.counter)
-        for msg in SAMPLE_MESSAGES:
-            text = msg['text']
-            sender = msg['from']
-            when = msg['send_date']
+        for msg in self.messages:
+            text = msg.sender
+            sender = msg.sender
+            when = 'just now'
             self.add_widget(Label(
                     text=f'\"{text}\" -- Sent by {sender} {when}',
                     text_size=[300, 100]
@@ -72,6 +57,8 @@ class DebugMessages(BoxLayout):
 
     # Button Functions
     def push_button(self, button_instance):
+        text = self.message_input.text
+        add_new_message(text)
         self.counter.increment()
 
 

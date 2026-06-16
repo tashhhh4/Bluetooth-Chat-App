@@ -8,7 +8,7 @@
 uv run main.py
 ```
 
-### Build and Test using buildozer
+### Using buildozer
 To speed up development, skip building and deploying when adding additional iterations of existing types of functionality (CRUD operations, new UI designs, new error checks) instead testing locally using `uv run main.py`. Creating and testing a new build should be done after adding entirely new types of functionality to the app, especially things that may interact with the OS such as database, file I/O, bluetooth, or Android permissions.
 
 * Requires Java SDK 17
@@ -25,7 +25,20 @@ Run:
 * Set "Connected Devices > USB > USB Preferences > Use USB for" to "File Transfer".
 * May need to disable additional USB security settings.
 
+#### Install the app to the phone
 Run:
 ```fish
-uv run buildozer android deploy run
+uv run buildozer android deploy
+```
+
+#### Launch the app on the phone
+Run:
+```fish
+uv run buildozer android run
+```
+
+#### Clean the build cache
+⚠️ Deleting the build cache may cause the next build to take a very long time. But it might fix issues especially after changing around the dependencies.
+```fish
+uv run buildozer android clean
 ```

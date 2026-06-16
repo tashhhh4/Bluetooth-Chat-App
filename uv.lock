@@ -3,7 +3,7 @@ revision = 3
 requires-python = "==3.11.*"
 
 [[package]]
-name = "bluetooth-chat-app"
+name = "blu2"
 version = "0.0.0"
 source = { virtual = "." }
 dependencies = [

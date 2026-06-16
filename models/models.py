@@ -41,6 +41,13 @@ class Chat(Base):
     datetime = Column(DateTime(timezone=False), server_default=func.now())
     # picture = ... customize a pretty icon for this chat ...
 
+class Member(Base):
+    """ A Device which is a Member of a Chat. """
+    __tablename__ = 'chat_devices'
+
+    device = Column(ForeignKey('devices.id'), nullable=False)
+    chat = Column(ForeignKey('chats.id'), nullable=False)
+
 class Message(Base):
     """ The Message is the focus of the chat app. The "sender" column represents another Device running Blu2
         that the user has discovered and connected with. If the "sender" column is NULL then the Message object

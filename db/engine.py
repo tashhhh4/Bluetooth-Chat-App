@@ -1,24 +1,8 @@
 from pathlib import Path
 from kivy.app import App
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-Base = declarative_base()
-
-# Define models (move later)
-class Message(Base):
-    __tablename__ = "messages"
-
-    id = Column(Integer, primary_key=True)
-    text = Column(String)
-    sender = Column(String)
-    send_to = Column(String)
-
-    def __init__(self, text, sender, send_to):
-        self.text = text
-        self.sender = sender
-        self.send_to = send_to
+from models import Base, Message
 
 _engine = None
 _Session = None

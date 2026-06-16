@@ -1,5 +1,5 @@
 [project]
-name = "bluetooth-chat-app"
+name = "Blu2"
 version = "0.0.0"
 description = "Communicate with Android devices over a Bluetooth connection."
 readme = "README.md"

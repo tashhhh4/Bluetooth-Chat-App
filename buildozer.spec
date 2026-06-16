@@ -6,13 +6,14 @@
 [app]
 
 # (str) Title of your application
-title = My Application
+title = Blu2
 
 # (str) Package name
-package.name = myapp
+package.name = blu2chat
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.test
+# Real domain available as of 2026-06-16
+package.domain = com.blu2chat
 
 # (str) Source code where the main.py live
 source.dir = .

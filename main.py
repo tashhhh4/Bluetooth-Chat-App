@@ -1,4 +1,5 @@
 from kivy.app import App
+from kivy.properties import NumericProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -22,12 +23,38 @@ SAMPLE_MESSAGES = [
     },
 ]
 
+# Helper functions
+def pluralize(text, number):
+    if number == 1:
+        return text
+    return text + 's'
+
+class Counter(Label):
+
+    counter = NumericProperty(0)
+
+    def __init__(self, **kwargs):
+        super(Counter, self).__init__(**kwargs)
+        self.update_text()
+
+    def on_counter(self, instance_, value_):
+        self.update_text()
+
+    def update_text(self):
+        times = pluralize('time', self.counter)
+        self.text = f'The button has been pressed {self.counter} {times}.'
+
+    def increment(self):
+        self.counter += 1
+
 
 class DebugMessages(BoxLayout):
 
     def __init__(self, **kwargs):
         super(DebugMessages, self).__init__(**kwargs)
         self.orientation = 'vertical'
+        self.counter = Counter()
+        self.add_widget(self.counter)
         for msg in SAMPLE_MESSAGES:
             text = msg['text']
             sender = msg['from']
@@ -35,11 +62,18 @@ class DebugMessages(BoxLayout):
             self.add_widget(Label(text=f'\"{text}\" -- Sent by {sender} {when}'))
         self.message_input = TextInput(multiline=True)
         self.add_widget(self.message_input)
-        self.add_widget(Button(text='Send Message'))
+        self.send_button = Button(text='Send Message')
+        self.send_button.bind(on_press=self.push_button)
+        self.add_widget(self.send_button)
+
+    # Button Functions
+    def push_button(self, button_instance):
+        self.counter.increment()
 
 
 class Blu2App(App):
     def build(self):
         return DebugMessages()
+        # return Label(text='Simple Label')
 
 Blu2App().run()

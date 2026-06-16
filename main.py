@@ -59,7 +59,11 @@ class DebugMessages(BoxLayout):
             text = msg['text']
             sender = msg['from']
             when = msg['send_date']
-            self.add_widget(Label(text=f'\"{text}\" -- Sent by {sender} {when}'))
+            self.add_widget(Label(
+                    text=f'\"{text}\" -- Sent by {sender} {when}',
+                    text_size=[300, 100]
+                ),
+            )
         self.message_input = TextInput(multiline=True)
         self.add_widget(self.message_input)
         self.send_button = Button(text='Send Message')

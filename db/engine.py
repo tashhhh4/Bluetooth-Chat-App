@@ -26,20 +26,3 @@ def get_session():
     if _Session is None:
         raise RuntimeError('Database not initialized.')
     return _Session()
-
-# Crud - move later
-def get_all_messages():
-    session = get_session()
-    try:
-        return session.query(Message).all()
-    finally:
-        session.close()
-
-def add_new_message(text):
-    session = get_session()
-    try:
-        message = Message(text=text, sender='John Snow', send_to='Anonymous')
-        session.add(message)
-        session.commit()
-    finally:
-        session.close()

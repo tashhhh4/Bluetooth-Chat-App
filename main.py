@@ -6,6 +6,7 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 
 import db.engine as db
+from db.manager import messages
 
 # Helper functions
 def pluralize(text, number):
@@ -36,7 +37,7 @@ class DebugMessages(BoxLayout):
 
     def __init__(self, **kwargs):
         super(DebugMessages, self).__init__(**kwargs)
-        self.messages = db.get_all_messages()
+        self.messages = messages.get_all()
         self.orientation = 'vertical'
         self.counter = Counter()
         self.add_widget(self.counter)
@@ -58,7 +59,7 @@ class DebugMessages(BoxLayout):
     # Button Functions
     def push_button(self, button_instance):
         text = self.message_input.text
-        db.add_new_message(text)
+        messages.add_new(text)
         self.counter.increment()
 
 

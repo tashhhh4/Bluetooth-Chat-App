@@ -1,17 +1,25 @@
+from kivy.properties import BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from services.bluetooth import BLE
+from utils import schedule
 
 class DebugBluetoothDevices(BoxLayout):
+
+    is_scanning = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super(DebugBluetoothDevices, self).__init__(**kwargs)
 
         self.ble = BLE()
-        self.ble.on_devices_updated = self.update_devices
+        self.ble.on_device_discovered = self.display_devices
+
+        self.ble.on_begin_scan = self.start_scanning
+        self.ble.on_end_scan = self.stop_scanning
+        self.bind(is_scanning=self.update_scan_button)
 
         self.orientation = 'vertical'
         self.scroll = ScrollView()
@@ -32,17 +40,34 @@ class DebugBluetoothDevices(BoxLayout):
         self.check_button.bind(on_press=self.on_check_devices_button_pressed)
         self.add_widget(self.check_button)
 
-    def update_devices(self, devices):
-        # self.devices_container.clear_widgets()
-        # for device in devices:
-        #     self.devices_container.add_widget(Label(
-        #         text=device['name'],
-        #         size_hint_y=None,
-        #         halign='left',
-        #         valign='middle',
-        #         text_size=(280, None),
-        #     ))
-        pass
+    def start_scanning(self):
+        self.is_scanning = True
 
-    def on_check_devices_button_pressed(self, button_instance):
-        self.ble.scan()
+    def stop_scanning(self):
+        self.is_scanning = False
+
+    def update_scan_button(self, _, value):
+        if value is True:
+            self.check_button.text = 'Stop Scanning'
+        else:
+            self.check_button.text = 'Begin Scan'
+
+    def display_devices(self, devices):
+        def d(_):
+            self.devices_container.clear_widgets()
+            for i, device in enumerate(devices):
+                self.devices_container.add_widget(Label(
+                    text=f'{i + 1}. {device["name"]}\n{device["address"]}',
+                    size_hint_y=None,
+                    size_hint_x=1,
+                    height=200,
+                    halign='left',
+                    valign='middle',
+                ))
+        schedule(d)
+
+    def on_check_devices_button_pressed(self, _):
+        if self.is_scanning:
+            self.ble.stop()
+        else:
+            self.ble.scan()

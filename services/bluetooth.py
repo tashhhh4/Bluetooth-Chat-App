@@ -10,13 +10,25 @@ class BLE(BluetoothDispatcher):
         super().__init__()
 
         self.devices = []
-        self.on_devices_updated = None
+        self.on_device_discovered = None
+        self.on_begin_scan = None
+        self.on_end_scan = None
 
     def scan(self):
         """ Start BLE Scan. """
         print('Starting BLE Scan...')
+
         self.devices.clear()
         self.start_scan()
+        if self.on_begin_scan:
+            self.on_begin_scan()
+
+    def stop(self):
+        """ Stops BLE Scanning. """
+        print('Stopping BLE Scan.')
+        self.stop_scan()
+        if self.on_end_scan:
+            self.on_end_scan()
 
     def on_device(self, device, rssi, advertisement):
         """ Called automatically when a device is discovered.
@@ -34,10 +46,8 @@ class BLE(BluetoothDispatcher):
                 'signal': rssi,
             })
 
-        print('I have discovered', len(self.devices), 'devices.')
-
-        if self.on_devices_updated:
-            self.on_devices_updated(self.devices)
+        if self.on_device_discovered:
+            self.on_device_discovered(self.devices)
 
     def device_already_discovered(self, device):
         address = device.getAddress()
@@ -52,5 +62,3 @@ class BLE(BluetoothDispatcher):
     def on_scan_completed(self):
         """ Called when scan finishes. """
         print('BLE scan completed.')
-        if self.on_devices_updated:
-            self.on_devices_updated(self.devices)

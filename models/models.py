@@ -18,7 +18,10 @@ class Contact(Base):
 class Device(Base):
     """ A Device (for now only Android devices are supported) discovered on the network.
         Saves information on how to reconnect to this device in the future, as well as
-        who owns it, if applicable.
+        who owns it, if applicable. Upon database creation, the user's own instance of the app
+        generates a UUID to identify its own device, which is inserted as the first row in the
+        "devices" table. If a Message comes from a Device matching the id of the user's own Device,
+        That Message is shown in whatever special frontend formatting helps to distinguish it
     """
     __tablename__ = 'devices'
 
@@ -79,3 +82,10 @@ class Message(Base):
 
     device = relationship('Device', back_populates='messages')
     chat = relationship('Chat', back_populates='messages')
+
+class Setting(Base):
+    """" Application-level settings as key-value pairs. """
+    __tablename__ = 'settings'
+
+    key = Column(String, primary_key=True)
+    value = Column(String)

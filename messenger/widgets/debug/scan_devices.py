@@ -11,6 +11,7 @@ class DebugBluetoothDevices(BoxLayout):
         super(DebugBluetoothDevices, self).__init__(**kwargs)
 
         self.ble = BLE()
+        self.ble.on_devices_updated = self.update_devices
 
         self.orientation = 'vertical'
         self.scroll = ScrollView()
@@ -24,7 +25,7 @@ class DebugBluetoothDevices(BoxLayout):
         self.add_widget(self.scroll)
 
         self.check_button = Button(
-            text='Refresh Device List',
+            text='Begin Scan',
             size_hint_y=None,
             height=80
         )
@@ -35,7 +36,7 @@ class DebugBluetoothDevices(BoxLayout):
         self.devices_container.clear_widgets()
         for device in devices:
             self.devices_container.add_widget(Label(
-                text=device,
+                text=device['name'],
                 size_hint_y=None,
                 halign='left',
                 valign='middle',
@@ -44,5 +45,3 @@ class DebugBluetoothDevices(BoxLayout):
 
     def on_check_devices_button_pressed(self, button_instance):
         self.ble.scan()
-        print('Starting BLE scan.')
-        self.update_devices(['Device 1', 'Device 2', 'Device 3'])

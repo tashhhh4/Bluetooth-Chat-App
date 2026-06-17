@@ -2,7 +2,7 @@ from pathlib import Path
 from kivy.app import App
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, Message
+import models
 
 _engine = None
 _Session = None
@@ -20,7 +20,7 @@ def initialize_database():
     _engine = create_engine(f'sqlite:///{database_path}')
     _Session = sessionmaker(bind=_engine)
 
-    Base.metadata.create_all(_engine)
+    models.Base.metadata.create_all(_engine)
 
 def get_session():
     if _Session is None:

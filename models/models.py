@@ -58,8 +58,8 @@ class Member(Base):
     __tablename__ = 'chat_devices'
 
     id = Column(Integer, primary_key=True)
-    device_id = Column(ForeignKey('devices.id'), ondelete='CASCADE')
-    chat_id = Column(ForeignKey('chats.id'), ondelete='CASCADE')
+    device_id = Column(ForeignKey('devices.id', ondelete='CASCADE'))
+    chat_id = Column(ForeignKey('chats.id', ondelete='CASCADE'))
 
     device = relationship('Device', back_populates='memberships')
     chat = relationship('Chat', back_populates='members')
@@ -74,7 +74,7 @@ class Message(Base):
     id = Column(Integer, primary_key=True)
     text = Column(String)
     device_id = Column(ForeignKey('devices.id'))
-    chat_id = Column(ForeignKey('chats.id'), ondelete='CASCADE')
+    chat_id = Column(ForeignKey('chats.id', ondelete='CASCADE'))
     datetime = Column(DateTime(timezone=False), server_default=func.now())
 
     device = relationship('Device', back_populates='messages')

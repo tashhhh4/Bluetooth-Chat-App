@@ -8,6 +8,12 @@ from db.manager import messages
 
 class DebugMessages(BoxLayout):
 
+    MESSAGES = [
+        {'text': 'Message One', 'sender': 'unknown sender', 'time': '1 hour ago'},
+        {'text': 'Message Two', 'sender': 'Jane', 'time': '5 minutes ago'},
+        {'text': 'Message Three', 'sender': 'Bob', 'time': 'just now'},
+    ]
+
     def __init__(self, **kwargs):
         super(DebugMessages, self).__init__(**kwargs)
 
@@ -16,7 +22,7 @@ class DebugMessages(BoxLayout):
         self.padding = 5
 
         # Scrollable Message Container
-        self.messages = messages.get_all()
+        self.messages = self.MESSAGES
         self.scroll = ScrollView()
         self.message_container = GridLayout(
             cols=1,
@@ -57,11 +63,12 @@ class DebugMessages(BoxLayout):
         self.add_widget(input_bar)
 
     def add_message_widget(self, msg):
-        text = msg.text
-        sender = msg.sender
+        text = msg['text']
+        sender = msg['sender']
+        time = msg['time']
 
         label = Label(
-            text=f'"{text}"\n— {sender}',
+            text=f'"{text}"\n— {sender} {time}',
             size_hint_y=None,
             halign='left',
             valign='middle',
@@ -79,4 +86,4 @@ class DebugMessages(BoxLayout):
         if not text:
             return
 
-        messages.add_new(text)
+        print('Send Message - not yet implemented.')

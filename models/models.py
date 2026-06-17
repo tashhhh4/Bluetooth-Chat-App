@@ -1,5 +1,5 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql import func
 
 Base = declarative_base()
@@ -29,10 +29,13 @@ class Device(Base):
     # MAC address
     # Hotspot?
 
+    memberships = relationship('Member', back_populates='device')
+
 class Chat(Base):
     """ A Chat is a room to contain Messages involving the user and one or more other devices. Multiple
         chats with the same Device or Contact are allowed, enabling the user to create as many channels
-        for organization as they need.
+        for organization as they need. However a Chat must always have at least one Member (which is a
+        Device apart from the user's own).
     """
     __tablename__ = 'chats'
 
@@ -41,22 +44,37 @@ class Chat(Base):
     datetime = Column(DateTime(timezone=False), server_default=func.now())
     # picture = ... customize a pretty icon for this chat ...
 
+    members = relationship('Member', back_populates='chat', cascade='all, delete-orphan')
+    messages = relationship('Message', back_populates='chat', cascade='all, delete-orphan')
+
+    def __init__(self, devices):
+        if not devices:
+            raise ValueError('Chat requires at least one device.')
+        self.title = ', '.join(d.name for d in devices)
+        self.members = [Member(device=d) for d in devices]
+
 class Member(Base):
     """ A Device which is a Member of a Chat. """
     __tablename__ = 'chat_devices'
 
-    device = Column(ForeignKey('devices.id'), nullable=False)
-    chat = Column(ForeignKey('chats.id'), nullable=False)
+    device_id = Column(ForeignKey('devices.id'), primary_key=True, ondelete='CASCADE')
+    chat_id = Column(ForeignKey('chats.id'), primary_key=True, ondelete='CASCADE')
+
+    device = relationship('Device', back_populates='memberships')
+    chat = relationship('Chat', back_populates='members')
 
 class Message(Base):
-    """ The Message is the focus of the chat app. The "sender" column represents another Device running Blu2
-        that the user has discovered and connected with. If the "sender" column is NULL then the Message object
-        was sent by the user.
+    """ The Message is the focus of the chat app. The "device_id" column represents another Device running Blu2
+        which sent the Message. "device_id" can also be NULL, meaning that the Message is the user's own.
+        The "chat_id" column represents the Chat to which the Message will be sent.
     """
     __tablename__ = 'messages'
 
     id = Column(Integer, primary_key=True)
     text = Column(String)
-    sender = Column(ForeignKey('devices.id'))
-    send_to = Column(ForeignKey('chats.id'))
+    device_id = Column(ForeignKey('devices.id'))
+    chat_id = Column(ForeignKey('chats.id'), ondelete='CASCADE')
     datetime = Column(DateTime(timezone=False), server_default=func.now())
+
+    device = relationship('Device', back_populates='messages')
+    chat = relationship('Chat', back_populates='messages')

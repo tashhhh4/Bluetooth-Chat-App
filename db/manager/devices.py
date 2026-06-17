@@ -34,6 +34,7 @@ def delete_device(id):
     """ Forget a Device. """
     with get_session() as session:
         device = session.get(Device, id)
+        deleted_id = device.id
         session.delete(device)
         session.commit()
-        return device
+        return deleted_id

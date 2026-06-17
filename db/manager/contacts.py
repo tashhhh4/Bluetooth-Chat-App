@@ -32,6 +32,7 @@ def delete_contact(id):
     """ Remove a Contact from the user's Blu2 Contact list. """
     with get_session() as session:
         contact = session.get(Contact, id)
+        deleted_id = contact.id
         session.delete(contact)
         session.commit()
-        return contact
+        return deleted_id

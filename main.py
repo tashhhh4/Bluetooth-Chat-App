@@ -1,25 +1,29 @@
-import socket
+from android.permissions import request_permissions, Permission
 from kivy.app import App
+from messenger.widgets import DebugBluetoothDevices
 import db.engine as db
-from messenger.widgets import DebugMessages
 
-MY_BLUETOOTH_ADAPTER_MAC_ADDRESS = 'd0:39:57:9d:5f:78'
+# temp -- debug
+def report_permissions(permissions, results):
+    print('Running function report_permissions.')
+    print('Permissions', permissions)
+    print('... are...', results)
 
 class Blu2App(App):
     def build(self):
+
+        request_permissions([
+            Permission.BLUETOOTH,
+            Permission.BLUETOOTH_ADMIN,
+            Permission.BLUETOOTH_ADVERTISE,
+            Permission.BLUETOOTH_CONNECT,
+            Permission.BLUETOOTH_SCAN,
+            Permission.ACCESS_BACKGROUND_LOCATION,
+            Permission.ACCESS_COARSE_LOCATION,
+            Permission.ACCESS_FINE_LOCATION,
+        ], callback=report_permissions)
+
         db.initialize_database()
-
-        print('\n\n\n\n')
-        print('RUNNING BUILD')
-        print('-------------')
-        print('Excalibux Bluetooth MAC address:', MY_BLUETOOTH_ADAPTER_MAC_ADDRESS)
-        print('socket has AF_BLUETOOTH:', hasattr(socket, 'AF_BLUETOOTH'))
-
-        # Attempt to send a client connection
-        client = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-        print("Created client:", client, type(client))
-        print('\n\n\n\n')
-
-        return DebugMessages()
+        return DebugBluetoothDevices()
 
 Blu2App().run()

@@ -1,7 +1,9 @@
 from android.permissions import request_permissions, Permission
 from kivy.app import App
-from messenger.widgets import DebugBluetoothDevices
+from messenger.widgets import DebugNavigation, HomeView, RootLayout
 import db.engine as db
+
+DEBUG = True
 
 class Blu2App(App):
     def build(self):
@@ -18,6 +20,15 @@ class Blu2App(App):
         ])
 
         db.initialize_database()
-        return DebugBluetoothDevices()
+
+        root_widget = RootLayout()
+        home_widget = HomeView()
+
+        if DEBUG:
+            root_widget.add_header(DebugNavigation())
+
+        root_widget.set_page(home_widget)
+
+        return root_widget
 
 Blu2App().run()

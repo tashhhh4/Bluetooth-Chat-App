@@ -25,12 +25,10 @@ class Device(Base):
     """
     __tablename__ = 'devices'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(String, primary_key=True)
     name = Column(String)
+    address = Column(String)
     owner = Column(ForeignKey('contacts.id'))
-    # bluetooth_id ... or whatever I need here ...
-    # MAC address
-    # Hotspot?
 
     memberships = relationship('Member', back_populates='device')
 

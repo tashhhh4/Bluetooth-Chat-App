@@ -17,7 +17,7 @@ def list_members(chat_id):
         chat = session.get(Chat, chat_id)
         return chat.members
 
-def list_memberships(device_id)
+def list_memberships(device_id):
     """ List all Chats in which a Device is found. """
     with get_session() as session:
         device = session.get(Device, device_id)

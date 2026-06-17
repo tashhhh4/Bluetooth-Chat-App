@@ -5,6 +5,7 @@ description = "Communicate with Android devices over a Bluetooth connection."
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
+    "able>=0.3.4",
     "buildozer>=1.6.0",
     "kivy>=2.3.1",
     "kivymd>=1.2.0",

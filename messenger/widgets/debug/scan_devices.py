@@ -32,16 +32,17 @@ class DebugBluetoothDevices(BoxLayout):
         self.check_button.bind(on_press=self.on_check_devices_button_pressed)
         self.add_widget(self.check_button)
 
-    def update_devices(self, devices): # temp placeholder
-        self.devices_container.clear_widgets()
-        for device in devices:
-            self.devices_container.add_widget(Label(
-                text=device['name'],
-                size_hint_y=None,
-                halign='left',
-                valign='middle',
-                text_size=(280, None),
-            ))
+    def update_devices(self, devices):
+        # self.devices_container.clear_widgets()
+        # for device in devices:
+        #     self.devices_container.add_widget(Label(
+        #         text=device['name'],
+        #         size_hint_y=None,
+        #         halign='left',
+        #         valign='middle',
+        #         text_size=(280, None),
+        #     ))
+        pass
 
     def on_check_devices_button_pressed(self, button_instance):
         self.ble.scan()

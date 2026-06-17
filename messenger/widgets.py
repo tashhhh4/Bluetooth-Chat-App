@@ -87,3 +87,5 @@ class DebugMessages(BoxLayout):
             return
 
         print('Send Message - not yet implemented.')
+
+# class DebugBluetoothClient(BoxLayout):

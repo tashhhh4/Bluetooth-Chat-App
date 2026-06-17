@@ -25,7 +25,7 @@ class Blu2App(App):
         home_widget = HomeView()
 
         if DEBUG:
-            root_widget.add_header(DebugNavigation())
+            root_widget.add_header(DebugNavigation(root=root_widget))
 
         root_widget.set_page(home_widget)
 

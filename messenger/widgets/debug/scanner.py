@@ -7,12 +7,12 @@ from kivy.uix.label import Label
 from services.bluetooth import BLE
 from utils import schedule
 
-class DebugBluetoothDevices(BoxLayout):
+class DebugBluetooth(BoxLayout):
 
     is_scanning = BooleanProperty(False)
 
     def __init__(self, **kwargs):
-        super(DebugBluetoothDevices, self).__init__(**kwargs)
+        super(DebugBluetooth, self).__init__(**kwargs)
 
         self.ble = BLE()
         self.ble.on_device_discovered = self.display_devices

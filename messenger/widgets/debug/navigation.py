@@ -2,12 +2,15 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
+from messenger.pages import DEBUG_PAGES
 from utils import schedule
 
 class DebugNavigation(BoxLayout):
 
-    def __init__(self, **kwargs):
+    def __init__(self, root, **kwargs):
         super(DebugNavigation, self).__init__(**kwargs)
+
+        self.root = root
 
         self.orientation = 'horizontal'
         self.spacing = 5
@@ -27,23 +30,24 @@ class DebugNavigation(BoxLayout):
         self.add_widget(self.title)
 
         self.dropdown = DropDown(size_hint_x=None, width=500)
-        pages = [
-            'BLE Scanning',
-            'Devices',
-            'Messages',
-        ]
-        for i, label in enumerate(pages):
+        self.menu_button.bind(on_press=self.open_dropdown)
+
+        for title, widget in DEBUG_PAGES.items():
             button = Button(
-                text=label,
+                text=title,
                 size_hint_y=None,
                 size_hint_x=1,
                 height=100,
                 background_color=(0, 0, 0, 1),
             )
+            button.bind(on_press=lambda _, w=widget: self.open_page(w))
             self.dropdown.add_widget(button)
-        self.menu_button.bind(on_press=self.open_dropdown)
 
-    def open_dropdown(self, button_instance):
+    def open_page(self, widget_class):
+        self.dropdown.dismiss()
+        self.root.set_page(widget_class())
+
+    def open_dropdown(self, _):
         self.dropdown.open(self)
         schedule(self.position_dropdown)
 

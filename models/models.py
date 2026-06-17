@@ -57,8 +57,9 @@ class Member(Base):
     """ A Device which is a Member of a Chat. """
     __tablename__ = 'chat_devices'
 
-    device_id = Column(ForeignKey('devices.id'), primary_key=True, ondelete='CASCADE')
-    chat_id = Column(ForeignKey('chats.id'), primary_key=True, ondelete='CASCADE')
+    id = Column(Integer, primary_key=True)
+    device_id = Column(ForeignKey('devices.id'), ondelete='CASCADE')
+    chat_id = Column(ForeignKey('chats.id'), ondelete='CASCADE')
 
     device = relationship('Device', back_populates='memberships')
     chat = relationship('Chat', back_populates='members')

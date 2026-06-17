@@ -19,20 +19,32 @@ class BLE(BluetoothDispatcher):
         self.start_scan()
 
     def on_device(self, device, rssi, advertisement):
-        """ Called automatically when a device is discovered. """
-        print('A device was discovered:', f'{device.getName()} | RSSI <{rssi}> | AD {advertisement}')
+        """ Called automatically when a device is discovered.
+            RSSI: Signal strength indicator.
+        """
         name = device.getName()
         if not name:
             name = 'Unknown device'
+        address = device.getAddress()
 
-        self.devices.append({
-            'name': name,
-            'rssi': rssi,
-            'advertisement': advertisement,
-        })
+        if not self.device_already_discovered(device):
+            self.devices.append({
+                'name': name,
+                'address': address,
+                'signal': rssi,
+            })
+
+        print('I have discovered', len(self.devices), 'devices.')
 
         if self.on_devices_updated:
             self.on_devices_updated(self.devices)
+
+    def device_already_discovered(self, device):
+        address = device.getAddress()
+        for existing_device in self.devices:
+            if existing_device['address'] == address:
+                return True
+        return False
 
     def on_scan_failed(self, error_code):
         print('BLE scan failed. Error code:', error_code)

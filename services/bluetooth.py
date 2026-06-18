@@ -7,6 +7,7 @@ from able.advertising import (
     ServiceUUID,
     TXPower,
 )
+import config
 from db.manager import settings
 
 # Helper functions
@@ -23,6 +24,7 @@ def extract_service_uuids(advertisement):
 
         # 16-bit service UUIDs
         if ad.ad_type in (2, 3):
+            print('extracting 16-bit service UUID...')
             data = bytes(ad.data)
             for i in range(0, len(data), 2):
                 chunk = data[i:i+2]
@@ -34,6 +36,7 @@ def extract_service_uuids(advertisement):
 
         # 128-bit service UUIDs
         elif ad.ad_type in (6, 7):
+            print('extracting 128-bit service UUID...')
             data = bytes(ad.data)
             for i in range(0, len(data), 16):
                 chunk = data[i:i+16]
@@ -49,7 +52,7 @@ class BLE(BluetoothDispatcher):
         - Can advertise Blu2's service UUID.
     """
 
-    SERVICE_UUID = None
+    SERVICE_UUID = config.SERVICE_UUID
     DEVICE_UUID = None
 
     def __init__(self):
@@ -62,7 +65,6 @@ class BLE(BluetoothDispatcher):
         self.on_begin_scan = None
         self.on_end_scan = None
 
-        self.SERVICE_UUID = settings.get_service_uuid()
         self.DEVICE_UUID = settings.get_device_uuid()
 
     def start_advertising(self):
@@ -113,6 +115,11 @@ class BLE(BluetoothDispatcher):
         address = device.getAddress()
 
         service_uuids = extract_service_uuids(advertisement)
+
+        print(f'{address} ({name}) | Service UUID:', end='')
+        if service_uuids:
+            print(', '.join(service_uuids), end='')
+        print()
 
         if self.device_already_discovered(device):
             return

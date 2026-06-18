@@ -2,6 +2,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
+import config
 from db.manager import settings
 
 class ServiceIDCell(BoxLayout):
@@ -16,7 +17,7 @@ class ServiceIDCell(BoxLayout):
         self.run_settings_test()
 
     def run_settings_test(self):
-        service_uuid = settings.get_service_uuid()
+        service_uuid = config.SERVICE_UUID
         print('SERVICE UUID:', service_uuid)
         self.label.text = f'SERVICE UUID: {service_uuid}'
 

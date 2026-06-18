@@ -1,13 +1,13 @@
-from able import BluetoothDispatcher`
+from uuid import UUID
+from able import BluetoothDispatcher
 from able.advertising import (
     Advertiser,
     AdvertiseData,
-    ManufacturerData,
     Interval,
     ServiceUUID,
     TXPower,
-    TXPowerLevel,
 )
+from bleak import BleakScanner
 
 from db.manager import settings
 
@@ -17,6 +17,32 @@ def repr_advertisement(advertisement):
     for ad in advertisement.parse(advertisement.data):
         output += f'TYPE: {ad.ad_type}; LEN: {len(ad.data)}; DATA: {ad.data.hex()}\n'
     return output
+
+def extract_service_uuids(advertisement):
+    uuids = []
+
+    for ad in advertisement:
+
+        # 16-bit service UUIDs
+        if ad.ad_type in (2, 3):
+            data = bytes(ad.data)
+            for i in range(0, len(data), 2):
+                chunk = data[i:i+2]
+                if len(chunk) == 2:
+                    value = int.from_bytes(chunk, byteorder='little')
+                    uuids.append(
+                        f'0000{value:04x}-0000-1000-8000-00805f9b34fb'
+                    )
+
+        # 128-bit service UUIDs
+        elif ad.ad_type in (6, 7):
+            data = bytes(ad.data)
+            for i in range(0, len(data), 16):
+                chunk = data[i:i+16]
+                if len(chunk) == 16:
+                    uuids.append(str(UUID(bytes_le=chunk)))
+
+    return uuids
 
 class BLE(BluetoothDispatcher):
     """ BLE Service
@@ -81,14 +107,7 @@ class BLE(BluetoothDispatcher):
 
         address = device.getAddress()
 
-        service_uuids = []
-
-        info = repr_advertisement(advertisement)
-        print(info)
-        print("service data")
-        print(advertisement.ad_types.service_data)
-        print(type(advertisement.ad_types.service_data))
-        print(dir(advertisement.ad_types.service_data))
+        service_uuids = extract_service_uuids(advertisement)
 
         if not self.device_already_discovered(device):
             self.devices.append({

@@ -43,7 +43,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,sqlalchemy==1.4.49,sqlite3,typing_extensions,able_recipe
+requirements = python3,kivy,sqlalchemy==1.4.49,sqlite3,typing_extensions,able_recipe,bleak
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes

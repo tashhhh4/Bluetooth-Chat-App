@@ -6,3 +6,4 @@ from .debug.navigation import DebugNavigation
 from .debug.scanner import DebugBluetooth
 from .debug.settings import DebugSettings
 from .frontend.home import HomeView
+from .frontend.button_link import ButtonLink

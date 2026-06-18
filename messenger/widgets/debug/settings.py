@@ -9,8 +9,8 @@ class ServiceIDCell(BoxLayout):
     def __init__(self, **kwargs):
         super(ServiceIDCell, self).__init__(**kwargs)
 
-        self.orientation='vertical'
         self.label = Label(text='Print results here')
+        self.label.bind(width=lambda ins, val: setattr(ins, 'text_size', (val, None)))
         self.add_widget(self.label)
 
         self.run_settings_test()
@@ -19,6 +19,22 @@ class ServiceIDCell(BoxLayout):
         service_uuid = settings.get_service_uuid()
         print('SERVICE UUID:', service_uuid)
         self.label.text = f'SERVICE UUID: {service_uuid}'
+
+
+class DeviceIDCell(BoxLayout):
+
+    def __init__(self, **kwargs):
+        super(DeviceIDCell, self).__init__(**kwargs)
+
+        self.label = Label(text='Print results here')
+        self.label.bind(width=lambda ins, val: setattr(ins, 'text_size', (val, None)))
+        self.add_widget(self.label)
+
+        self.run_get_device_id()
+
+    def run_get_device_id(self):
+        device_id = settings.get_device_uuid()
+        self.label.text = f'DEVICE_UUID: {device_id}'
 
 
 class SettingsList(BoxLayout):
@@ -66,8 +82,9 @@ class SettingsList(BoxLayout):
             key_label.bind(width=lambda ins, val: setattr(ins, 'text_size', (val, None)))
             value_label.bind(width=lambda ins, val: setattr(ins, 'text_size', (val, None)))
             if setting.key in self.DELETABLE:
-                def delete(_):
-                    settings.delete(setting.key)
+                key = setting.key
+                def delete(_, key=key):
+                    settings.delete(key)
                     self.table.clear_widgets()
                     self.add_header()
                     self.add_rows()
@@ -90,7 +107,11 @@ class DebugSettings(BoxLayout):
         self.spacing = 5
         self.padding = 5
 
-        self.add_widget(SettingsList())
-        self.grid = GridLayout(cols=2, spacing=5, padding=5)
-        self.add_widget(self.grid)
-        self.grid.add_widget(ServiceIDCell())
+        settings_list = SettingsList()
+        settings_list.size_hint_y = 0.3
+        self.add_widget(settings_list)
+
+        self.row_1 = BoxLayout(spacing=5, padding=5, height=200)
+        self.add_widget(self.row_1)
+        self.row_1.add_widget(ServiceIDCell(size_hint_x=0.5))
+        self.row_1.add_widget(DeviceIDCell(size_hint_x=0.5))

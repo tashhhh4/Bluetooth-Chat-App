@@ -23,7 +23,7 @@ def get_device_uuid():
         device_uuid = session.get(Setting, 'DEVICE_UUID')
         if device_uuid is None:
             from uuid import uuid4
-            new_uuid = uuid4()
+            new_uuid = str(uuid4())
             new_setting = Setting(key='DEVICE_UUID', value=new_uuid)
             session.add(new_setting)
             session.commit()

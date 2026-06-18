@@ -7,7 +7,6 @@ from able.advertising import (
     ServiceUUID,
     TXPower,
 )
-
 from db.manager import settings
 
 # Helper functions
@@ -50,6 +49,9 @@ class BLE(BluetoothDispatcher):
         - Can advertise Blu2's service UUID.
     """
 
+    SERVICE_UUID = None
+    DEVICE_UUID = None
+
     def __init__(self):
         super().__init__()
 
@@ -60,11 +62,13 @@ class BLE(BluetoothDispatcher):
         self.on_begin_scan = None
         self.on_end_scan = None
 
+        self.SERVICE_UUID = settings.get_service_uuid()
+        self.DEVICE_UUID = settings.get_device_uuid()
+
     def start_advertising(self):
         """ Start advertising Blu2's BLE service. """
-        service_uuid = settings.get_service_uuid()
-        print('Starting BLE advertisement with service UUID', service_uuid)
-        data = AdvertiseData(ServiceUUID(service_uuid))
+        print('Starting BLE advertisement with service UUID', self.SERVICE_UUID)
+        data = AdvertiseData(ServiceUUID(self.SERVICE_UUID))
         self.advertiser = Advertiser(
             ble=self,
             data=data,
@@ -98,7 +102,9 @@ class BLE(BluetoothDispatcher):
 
     def on_device(self, device, rssi, advertisement):
         """ Called automatically when a device is discovered.
-            RSSI: Signal strength indicator.
+            device: object representing basic device info - name, address
+            rssi: Signal strength indicator.
+            advertisement: A tiny packet of data
         """
         name = device.getName()
         if not name:
@@ -108,13 +114,18 @@ class BLE(BluetoothDispatcher):
 
         service_uuids = extract_service_uuids(advertisement)
 
-        if not self.device_already_discovered(device):
-            self.devices.append({
-                'name': name,
-                'address': address,
-                'signal': rssi,
-                'service_uuids': service_uuids,
-            })
+        if self.device_already_discovered(device):
+            return
+
+        if not self.SERVICE_UUID in service_uuids:
+            return
+
+        self.devices.append({
+            'name': name,
+            'address': address,
+            'signal': rssi,
+            'service_uuids': service_uuids,
+        })
 
         if self.on_device_discovered:
             self.on_device_discovered(self.devices)

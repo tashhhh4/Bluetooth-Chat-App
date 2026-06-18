@@ -24,7 +24,7 @@ class ServiceIDCell(BoxLayout):
 class SettingsList(BoxLayout):
     """ Show all the Settings that exist and allow deleting them for testing purposes. """
 
-    DELETABLE = ['TEST_SETTING']
+    DELETABLE = ['APP_UUID', 'SERVICE_UUID']
 
     def __init__(self, **kwargs):
         super(SettingsList, self).__init__(**kwargs)
@@ -34,31 +34,50 @@ class SettingsList(BoxLayout):
         self.table = GridLayout(
             cols=3,
             size_hint_y=None,
-            row_default_height=80,
+            row_default_height=160,
             row_force_default=True,
             spacing=5,
             padding=5,
         )
         self.table.bind(minimum_height=self.table.setter('height'))
-
-        # Header row
-        for heading in ['KEY', 'VALUE', 'OPTIONS']:
-            self.table.add_widget(Label(text=f'[b]{heading}[/b]', markup=True))
-        self.add_rows()
         self.add_widget(self.table)
 
+        self.add_header()
+        self.add_rows()
+
+    def add_header(self):
+        for heading in ['KEY', 'VALUE', 'OPTIONS']:
+            self.table.add_widget(Label(text=f'[b]{heading}[/b]', markup=True))
+
     def add_rows(self):
-        app_settings = [
-            {'key': 'TEST_SETTING', 'value': 'example_value_123'},
-            {'key': 'OTHER_SETTING', 'value': 'password123'},
-        ]
+        app_settings = settings.list_all()
+
         for setting in app_settings:
-            if setting['key'] in self.DELETABLE:
+            key_label = Label(
+                text=setting.key,
+                halign='left',
+                valign='middle',
+            )
+            value_label = Label(
+                text=setting.value,
+                halign='left',
+                valign='middle',
+            )
+            key_label.bind(width=lambda ins, val: setattr(ins, 'text_size', (val, None)))
+            value_label.bind(width=lambda ins, val: setattr(ins, 'text_size', (val, None)))
+            if setting.key in self.DELETABLE:
+                def delete(_):
+                    settings.delete(setting.key)
+                    self.table.clear_widgets()
+                    self.add_header()
+                    self.add_rows()
                 delete_button = Button(text='Delete')
+                delete_button.bind(on_press=delete)
             else:
                 delete_button = Label(text='-')
-            self.table.add_widget(Label(text=setting['key']))
-            self.table.add_widget(Label(text=setting['value']))
+
+            self.table.add_widget(key_label)
+            self.table.add_widget(value_label)
             self.table.add_widget(delete_button)
 
 

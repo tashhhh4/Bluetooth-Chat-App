@@ -40,7 +40,7 @@ class DeviceIDCell(BoxLayout):
 class SettingsList(BoxLayout):
     """ Show all the Settings that exist and allow deleting them for testing purposes. """
 
-    DELETABLE = ['APP_UUID', 'SERVICE_UUID']
+    DELETABLE = ['SERVICE_UUID', 'DEVICE_UUID']
 
     def __init__(self, **kwargs):
         super(SettingsList, self).__init__(**kwargs)

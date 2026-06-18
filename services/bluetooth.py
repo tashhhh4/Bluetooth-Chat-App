@@ -1,4 +1,4 @@
-from able import BluetoothDispatcher
+from able import BluetoothDispatcher`
 from able.advertising import (
     Advertiser,
     AdvertiseData,
@@ -10,6 +10,13 @@ from able.advertising import (
 )
 
 from db.manager import settings
+
+# Helper functions
+def repr_advertisement(advertisement):
+    output = ''
+    for ad in advertisement.parse(advertisement.data):
+        output += f'TYPE: {ad.ad_type}; LEN: {len(ad.data)}; DATA: {ad.data.hex()}\n'
+    return output
 
 class BLE(BluetoothDispatcher):
     """ BLE Service
@@ -71,13 +78,24 @@ class BLE(BluetoothDispatcher):
         name = device.getName()
         if not name:
             name = 'Unknown device'
+
         address = device.getAddress()
+
+        service_uuids = []
+
+        info = repr_advertisement(advertisement)
+        print(info)
+        print("service data")
+        print(advertisement.ad_types.service_data)
+        print(type(advertisement.ad_types.service_data))
+        print(dir(advertisement.ad_types.service_data))
 
         if not self.device_already_discovered(device):
             self.devices.append({
                 'name': name,
                 'address': address,
                 'signal': rssi,
+                'service_uuids': service_uuids,
             })
 
         if self.on_device_discovered:

@@ -1,5 +1,6 @@
 .idea
 .venv
+env.py
 __pycache__
 *.pyc
 .buildozer

@@ -1,11 +1,17 @@
+from messenger.widgets.debug.devices import DebugDevices
+from messenger.widgets.debug.messages import DebugMessages
 from messenger.widgets.debug.scanner import DebugBluetooth
+from messenger.widgets.debug.settings import DebugSettings
+
+from messenger.widgets.frontend.home import HomeView
 
 DEBUG_PAGES = {
     'BLE Scanning': DebugBluetooth,
-    # 'Devices': messenger.widgets.debug.devices.DebugDevices,
-    # 'Messages': messenger.widgets.debug.messages.DebugMessages,
+    'Devices': DebugDevices,
+    'Messages': DebugMessages,
+    'Settings': DebugSettings,
 }
-#
-# PAGES = {
-#     'Home': messenger.widgets.frontend.home.HomeView,
-# }
+
+PAGES = {
+    'Home': HomeView,
+}

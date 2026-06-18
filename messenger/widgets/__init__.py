@@ -3,4 +3,5 @@ from .debug.devices import DebugDevices
 from .debug.messages import DebugMessages
 from .debug.navigation import DebugNavigation
 from .debug.scanner import DebugBluetooth
+from .debug.settings import DebugSettings
 from .frontend.home import HomeView

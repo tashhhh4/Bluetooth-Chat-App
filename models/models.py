@@ -31,6 +31,7 @@ class Device(Base):
     owner = Column(ForeignKey('contacts.id'))
 
     memberships = relationship('Member', back_populates='device')
+    messages = relationship('Message', back_populates='device')
 
 class Chat(Base):
     """ A Chat is a room to contain Messages involving the user and one or more other devices. Multiple

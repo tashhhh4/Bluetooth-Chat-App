@@ -7,24 +7,31 @@ from utils import schedule
 
 class DebugNavigation(BoxLayout):
 
+    HEIGHT = 90
+
     def __init__(self, root, **kwargs):
         super(DebugNavigation, self).__init__(**kwargs)
 
         self.root = root
 
         self.orientation = 'horizontal'
-        self.spacing = 5
-        self.padding = 5
         self.size_hint_y = None
-        self.height = 90
+        self.height = self.HEIGHT
 
         self.menu_button = Button(
             text='| | |',
             size_hint=(None, None),
             size=(80, 90),
             background_color=(0, 0, 0, 1),
+            height=self.HEIGHT,
         )
-        self.title = Label(text='Debug Views', size_hint_x=1)
+        self.title = Button(
+            text='Debug Views',
+            size_hint_x=1,
+            color=(1, 1, 1, 1),
+            background_color=(0, 0, 0, 1),
+            height = self.HEIGHT,
+        )
 
         self.add_widget(self.menu_button)
         self.add_widget(self.title)

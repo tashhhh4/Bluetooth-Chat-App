@@ -1,11 +1,12 @@
 from android.permissions import request_permissions, Permission
 from kivy.app import App
+from kivymd.app import MDApp
 from messenger.widgets import DebugNavigation, HomeView, RootLayout
 import db.engine as db
 
 DEBUG = True
 
-class Blu2App(App):
+class Blu2App(MDApp):
     def build(self):
 
         request_permissions([

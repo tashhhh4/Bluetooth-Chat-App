@@ -1,6 +1,6 @@
-from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.widget import MDWidget
 
-class RootLayout(BoxLayout):
+class RootLayout(MDWidget):
 
     def add_header(self, header_widget):
         """ APPENDS the target widget to the top of the RootLayout. """

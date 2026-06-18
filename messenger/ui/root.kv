@@ -1,12 +1,15 @@
 <RootLayout>:
 
-    orientation: "vertical"
-
-    BoxLayout:
-        id: header_container
+    MDBoxLayout:
         orientation: "vertical"
-        size_hint_y: None
-        height: self.minimum_height
+        size_hint: 1, 1
 
-    BoxLayout:
-        id: page_container
+        MDBoxLayout:
+            id: header_container
+            size_hint_y: None
+            height: self.minimum_height
+            size_hint_x: 1
+
+        Screen:
+            id: page_container
+            size_hint: 1, 1

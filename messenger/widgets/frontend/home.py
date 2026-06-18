@@ -1,4 +1,4 @@
-from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.widget import MDWidget
 
-class HomeView(BoxLayout):
+class HomeView(MDWidget):
     pass

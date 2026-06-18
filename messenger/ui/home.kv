@@ -1,11 +1,24 @@
 <HomeView>:
+    size_hint: 1, 1
 
-    orientation: "vertical"
-    padding: 20
-    spacing: 20
+    MDAnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
 
-    ButtonLink:
-        id: bluetooth_scanning_link
-        size_hint: None, None
-        height: 250
-        width: 600
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: dp(16)
+            size_hint: .7, None
+            height: self.minimum_height
+
+            ButtonLink:
+                id: bluetooth_scanning_link
+                text: "Scan and Connect Devices"
+
+            ButtonLink:
+                id: chat_list_link
+                text: "Chats"
+
+            ButtonLink:
+                id: group_chat_list_link
+                text: "Group Chats"

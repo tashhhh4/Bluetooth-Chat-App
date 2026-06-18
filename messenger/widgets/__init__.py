@@ -1,4 +1,5 @@
 from .root_widget import RootLayout
+from .debug.advertise import DebugAdvertiser
 from .debug.devices import DebugDevices
 from .debug.messages import DebugMessages
 from .debug.navigation import DebugNavigation

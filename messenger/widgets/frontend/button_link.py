@@ -1,4 +1,4 @@
-from kivy.uix.button import Button
+from kivymd.uix.button import MDRaisedButton
 
-class ButtonLink(Button):
+class ButtonLink(MDRaisedButton):
     pass

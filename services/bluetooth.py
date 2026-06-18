@@ -7,7 +7,6 @@ from able.advertising import (
     ServiceUUID,
     TXPower,
 )
-from bleak import BleakScanner
 
 from db.manager import settings
 

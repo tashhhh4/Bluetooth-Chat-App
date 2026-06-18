@@ -7,12 +7,29 @@ def get_service_uuid():
         service_uuid = session.get(Setting, 'SERVICE_UUID')
         if service_uuid is None:
             from env import SERVICE_UUID
-            service_uuid = Setting(key='SERVICE_UUID', value=SERVICE_UUID)
-            session.add(service_uuid)
+            new_setting = Setting(key='SERVICE_UUID', value=SERVICE_UUID)
+            session.add(new_setting)
             session.commit()
             service_uuid = session.get(Setting, 'SERVICE_UUID')
             return service_uuid.value
         return service_uuid.value
+
+def get_device_uuid():
+    """ Returns the unique identifier of the user's own device.
+        - Identifies the device on which this Blu2 app runs to other
+          Blu2 app instances.
+    """
+    with get_session() as session:
+        device_uuid = session.get(Setting, 'DEVICE_UUID')
+        if device_uuid is None:
+            from uuid import uuid4
+            new_uuid = uuid4()
+            new_setting = Setting(key='DEVICE_UUID', value=new_uuid)
+            session.add(new_setting)
+            session.commit()
+            device_uuid = session.get(Setting, 'DEVICE_UUID')
+            return device_uuid.value
+        return device_uuid.value
 
 def list_all():
     """ Returns a list of all the Settings. """

@@ -1,18 +1,52 @@
 from able import BluetoothDispatcher
+from able.advertising import (
+    Advertiser,
+    AdvertiseData,
+    ManufacturerData,
+    Interval,
+    ServiceUUID,
+    TXPower,
+    TXPowerLevel,
+)
+
+from db.manager import settings
 
 class BLE(BluetoothDispatcher):
     """ BLE Service
         Features:
-        - Can scan nearby BLE devices and report results.
+        - Can scan nearby BLE devices and save them to a list.
+        - Can advertise Blu2's service UUID.
     """
 
     def __init__(self):
         super().__init__()
 
         self.devices = []
+        self.advertiser = None
+
         self.on_device_discovered = None
         self.on_begin_scan = None
         self.on_end_scan = None
+
+    def start_advertising(self):
+        """ Start advertising Blu2's BLE service. """
+        service_uuid = settings.get_service_uuid()
+        print('Starting BLE advertisement with service UUID', service_uuid)
+        data = AdvertiseData(ServiceUUID(service_uuid))
+        self.advertiser = Advertiser(
+            ble=self,
+            data=data,
+            interval=Interval.MEDIUM,
+            tx_power=TXPower.MEDIUM,
+        )
+        self.advertiser.start()
+
+    def stop_advertising(self):
+        """ Stop BLE advertising. """
+        print('Stopping BLE advertisement.')
+        if self.advertiser:
+            self.advertiser.stop()
+            self.advertiser = None
 
     def scan(self):
         """ Start BLE Scan. """

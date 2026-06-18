@@ -1,15 +1,20 @@
 <RootLayout>:
 
     MDBoxLayout:
+
         orientation: "vertical"
-        size_hint: 1, 1
+        width: root.width
+        height: root.height
 
         MDBoxLayout:
             id: header_container
             size_hint_y: None
-            height: self.minimum_height
-            size_hint_x: 1
 
         Screen:
+            canvas.before:
+                Color:
+                    rgba: 8, 8, 0, .4
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
             id: page_container
-            size_hint: 1, 1

@@ -1,10 +1,10 @@
 from kivy.properties import BooleanProperty
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from .components.debug_layout import DebugLayout
 from services.bluetooth import BLE
 
-class DebugAdvertiser(BoxLayout):
+class DebugAdvertiser(DebugLayout):
 
     is_advertising = BooleanProperty(False)
 

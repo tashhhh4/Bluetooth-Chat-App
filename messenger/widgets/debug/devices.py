@@ -1,7 +1,7 @@
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
+from .components.debug_layout import DebugLayout
 
-class DebugDevices(BoxLayout):
+class DebugDevices(DebugLayout):
 
     def __init__(self, **kwargs):
         super(DebugDevices, self).__init__(**kwargs)

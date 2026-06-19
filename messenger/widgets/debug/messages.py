@@ -4,9 +4,10 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from .components.debug_layout import DebugLayout
 from db.manager import messages
 
-class DebugMessages(BoxLayout):
+class DebugMessages(DebugLayout):
 
     MESSAGES = [
         {'text': 'Message One', 'sender': 'unknown sender', 'time': '1 hour ago'},

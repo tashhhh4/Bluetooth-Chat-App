@@ -31,7 +31,7 @@ def extract_service_uuids(advertisement):
                 if len(chunk) == 2:
                     value = int.from_bytes(chunk, byteorder='little')
                     uuids.append(
-                        f'0000{value:04x}-0000-1000-8000-00805f9b34fb'
+                        UUID(f'0000{value:04x}-0000-1000-8000-00805f9b34fb')
                     )
 
         # 128-bit service UUIDs
@@ -41,7 +41,7 @@ def extract_service_uuids(advertisement):
             for i in range(0, len(data), 16):
                 chunk = data[i:i+16]
                 if len(chunk) == 16:
-                    uuids.append(str(UUID(bytes_le=chunk)))
+                    uuids.append(UUID(bytes_le=chunk))
 
     return uuids
 
@@ -70,7 +70,7 @@ class BLE(BluetoothDispatcher):
     def start_advertising(self):
         """ Start advertising Blu2's BLE service. """
         print('Starting BLE advertisement with service UUID', self.SERVICE_UUID)
-        data = AdvertiseData(ServiceUUID(self.SERVICE_UUID))
+        data = AdvertiseData(ServiceUUID(str(self.SERVICE_UUID)))
         self.advertiser = Advertiser(
             ble=self,
             data=data,
@@ -118,13 +118,13 @@ class BLE(BluetoothDispatcher):
 
         print(f'{address} ({name}) | Service UUID:', end='')
         if service_uuids:
-            print(', '.join(service_uuids), end='')
+            print(', '.join(str(u) for u in service_uuids), end='')
         print()
 
         if self.device_already_discovered(device):
             return
 
-        if not self.SERVICE_UUID in service_uuids:
+        if self.SERVICE_UUID not in service_uuids:
             return
 
         self.devices.append({

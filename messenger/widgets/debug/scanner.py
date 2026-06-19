@@ -1,13 +1,13 @@
 from kivy.properties import BooleanProperty
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from .components.debug_layout import DebugLayout
 from services.bluetooth import BLE
 from utils import schedule
 
-class DebugBluetooth(BoxLayout):
+class DebugBluetooth(DebugLayout):
 
     is_scanning = BooleanProperty(False)
 

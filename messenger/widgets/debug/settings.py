@@ -2,6 +2,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
+from .components.debug_layout import DebugLayout
 import config
 from db.manager import settings
 
@@ -99,7 +100,7 @@ class SettingsList(BoxLayout):
             self.table.add_widget(delete_button)
 
 
-class DebugSettings(BoxLayout):
+class DebugSettings(DebugLayout):
 
     def __init__(self, **kwargs):
         super(DebugSettings, self).__init__(**kwargs)

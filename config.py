@@ -1,2 +1,3 @@
-# SERVICE_UUID = '10002e1f-3d7b-4200-a112-bdc54faf6f23'
-SERVICE_UUID = '4faf6f23-bdc5-a112-0042-7b3d1f2e0010'
+from uuid import UUID
+
+SERVICE_UUID = UUID('10002e1f-3d7b-4200-a112-bdc54faf6f23')

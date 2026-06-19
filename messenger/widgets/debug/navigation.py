@@ -1,11 +1,11 @@
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
+from .components.debug_layout import DebugLayout
 from messenger.pages import DEBUG_PAGES
 from utils import schedule
 
-class DebugNavigation(BoxLayout):
+class DebugNavigation(DebugLayout):
 
     HEIGHT = 90
 
@@ -25,13 +25,7 @@ class DebugNavigation(BoxLayout):
             background_color=(0, 0, 0, 1),
             height=self.HEIGHT,
         )
-        self.title = Button(
-            text='Debug Views',
-            size_hint_x=1,
-            color=(1, 1, 1, 1),
-            background_color=(0, 0, 0, 1),
-            height = self.HEIGHT,
-        )
+        self.title = Label(text='Debug Views', size_hint_x=1)
 
         self.add_widget(self.menu_button)
         self.add_widget(self.title)

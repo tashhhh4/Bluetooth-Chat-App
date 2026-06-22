@@ -1,10 +1,5 @@
 import config
 
-import kivymd
-print('Imported kivymd.')
-print('Version:', kivymd.__version__)
-print('Path:', kivymd.__file__)
-
 from kivymd.app import MDApp
 from messenger.widgets import DebugNavigation, HomeView, RootLayout
 from messenger.ui.loader import load_ui
@@ -17,6 +12,9 @@ DEBUG = True
 
 class Blu2App(MDApp):
     def build(self):
+        self.theme_cls.material_style = 'M3'
+        self.theme_cls.theme_style = 'Light'
+        self.theme_cls.primary_palette = 'Blue'
 
         load_ui()
 

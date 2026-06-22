@@ -8,5 +8,6 @@ dependencies = [
     "buildozer>=1.6.0",
     "kivy>=2.3.1",
     "kivymd>=1.2.0",
+    "pip>=26.1.2",
     "sqlalchemy==1.4.49",
 ]

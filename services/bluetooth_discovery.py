@@ -41,15 +41,15 @@ def extract_service_uuids(advertisement):
             for i in range(0, len(data), 16):
                 chunk = data[i:i+16]
                 if len(chunk) == 16:
-                    uuids.append(UUID(bytes_le=chunk))
+                    uuids.append(UUID(bytes=chunk[::-1]))
 
     return uuids
 
-class BLE(BluetoothDispatcher):
-    """ BLE Service
+class BLEDiscoverer(BluetoothDispatcher):
+    """ BLE Scanning and Advertising Service
         Features:
-        - Can scan nearby BLE devices and save them to a list.
         - Can advertise Blu2's service UUID.
+        - Can scan and identify nearby BLE devices which are advertising Blu2's service UUID.
     """
 
     SERVICE_UUID = config.SERVICE_UUID
@@ -114,18 +114,19 @@ class BLE(BluetoothDispatcher):
 
         address = device.getAddress()
 
+        if self.device_already_discovered(device):
+            return
+
         service_uuids = extract_service_uuids(advertisement)
 
-        print(f'{address} ({name}) | Service UUID:', end='')
-        if service_uuids:
-            print(', '.join(str(u) for u in service_uuids), end='')
-        print()
-
-        if self.device_already_discovered(device):
+        if not service_uuids:
             return
 
         if self.SERVICE_UUID not in service_uuids:
             return
+
+        uuid_list = ', '.join(str(u) for u in service_uuids)
+        print(f'Device found: {address} ({name}) | Service UUIDs: {uuid_list}')
 
         self.devices.append({
             'name': name,

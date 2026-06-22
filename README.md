@@ -3,52 +3,78 @@
 
 ## Development
 
-### Test locally (Linux)
+### The different development environments
+#### Local
+_Runs on my local development machine, (CachyOS Linux with KDE desktop environment)._
+- A window pops up over the desktop when this version is run.
+- Bluetooth adapters for Android are excluded from this build.
+- Useful for rapid development/debugging of the UI widgets.
+Command to test the app:
 ```fish
 uv run main.py
 ```
 
-### Using buildozer
-To speed up development, skip building and deploying when adding additional iterations of existing types of functionality (CRUD operations, new UI designs, new error checks) instead testing locally using `uv run main.py`. Creating and testing a new build should be done after adding entirely new types of functionality to the app, especially things that may interact with the OS such as database, file I/O, bluetooth, or Android permissions.
-
-* Requires Java SDK 17
-
-#### Debug Build
-Run:
+#### Debug (installs and runs through Android Bridge Debug (adb))
+1. Build the app:
 ```fish
 ./build.sh
+# The build script is necessary to ensure that the correct Java SDK
+# is activated before the build command is executed.
 ```
 
+2. Check if the device is connected:
+_So far it only seems to work with a USBC to USBC connection._
+```fish
+adb devices
+# should see some ID number or something
+```
+
+3. Activate the logs, filtering for logs coming from the Python app:
+```fish
+adb logcat | grep python
+```
+
+4. Install the app:
+```fish
+buildozer android deploy
+```
+
+5. Make the app on the phone start:
+_You can also click on the app from the phone._
+```fish
+buildozer android run
+```
+
+Bonus: Install the latest build and launch the app in one step (speeds up development cycle):
+```fish
+buildozer android deploy run
+```
+
+
+#### Troubleshooting
+_Fixes for issues encountered while developing._
+
+###### pip
 Sometimes pip is not installed when dependencies are managed with uv. But pip is needed for buildozer. To fix:
 ```fish
 uv run python -m ensurepip --upgrade
 ```
 
-#### How to test the build
+###### USB Bridge Setup
 * The phone must be plugged into the computer with a USB cable.
 * Enable developer mode by tapping on the build number in Settings.
 * Set "Connected Devices > USB > USB Preferences > Use USB for" to "File Transfer".
 * May need to disable additional USB security settings.
 
-#### Install the app to the phone
-Run:
-```fish
-uv run buildozer android deploy
-```
 
-#### Launch the app on the phone
-Run:
-```fish
-uv run buildozer android run
-```
-
-#### Clean the build cache
+###### Clean the build cache
 ⚠️ Deleting the build cache may cause the next build to take a very long time. But it might fix issues especially after changing around the dependencies.
+⚠️ After running clean, a lot of random dependencies are sometimes deleted and need to be manually reinstalled. Make sure to fix these with `uv pip install ...` instead of `uv add ...`, to keep the project dependency list in check.
 ```fish
 uv run buildozer android clean
 ```
 
-## Building Python with Bluetooth
+###### Building Python with Bluetooth
 Python was not installed with bluetooth headers by default on my development machine. The following may not be extremely useful as a tutorial yet, but for now I'm just writing down the steps I took to fix this.
 
 |                 |               |
@@ -57,7 +83,7 @@ Python was not installed with bluetooth headers by default on my development mac
 | Package Manager | paru          |
 | Shell           | fish          |
 
-#### Install Bluetooth libs
+**Install Bluetooth libs**
 ```fish
 paru bluez
 ```
@@ -68,7 +94,7 @@ It was already installed:
    Deprecated libraries for the bluetooth protocol stack
 ```
 
-#### Verify that the Bluetooth headers exist in the system
+**Verify that the Bluetooth headers exist in the system**
 These are the files that CPython looks for when deciding whether to enable Bluetooth socket support.
 ```fish
 ls /usr/include/bluetooth/bluetooth.h
@@ -77,7 +103,8 @@ ls /usr/include/bluetooth/rfcomm.h
 # It is there.
 ```
 
-At this point I learned that Bluetooth is usually included by default in Python. I installed Python 3.11 globally.
+**Obtaining a complete version of Python 3.11**
+_At this point I learned that Bluetooth is usually included by default in Python. The main issue seems to be that a version without Bluetooth headers was installed when using uv to set the project's Python version to 3.11. The fix is to install Python 3.11 from my OS's robust and well-maintained default package list, and then make sure the local interpreter for the project is using that one._
 ```fish
 paru python311
 1 cachyos/python311 3.11.14-1 [13.34 MiB 74.12 MiB]
@@ -86,12 +113,15 @@ paru python311
     The Python programming language (version 3.11)
 ```
 
-I tried (1) and it STILL didn't have the Bluetooth stuff, so I tried (2).
+_I tried (1) and it STILL didn't have the Bluetooth stuff, so I tried (2)._
 
-#### Verify that Python's socket library has Bluetooth support enabled
+###### Verify Bluetooth socket support
 ```fish
 python3.11
 >>> import socket
 >>> hasattr(socket, 'AF_BLUETOOTH')
 True
 ```
+
+**Note**
+This entire sidequest of updating the local interpreter with Python3.11 with Bluetooth support is ONLY RELEVANT to the "local" version of the project, as a completely different Python runtime is used to actually build the final app when buildozer pulls from the "python-for-android" GitHub repository.

@@ -4,7 +4,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from .components.debug_layout import DebugLayout
-from services.bluetooth import BLE
+from services.bluetooth_discovery import BLEDiscoverer
 from utils import schedule
 
 class DebugBluetooth(DebugLayout):
@@ -14,7 +14,7 @@ class DebugBluetooth(DebugLayout):
     def __init__(self, **kwargs):
         super(DebugBluetooth, self).__init__(**kwargs)
 
-        self.ble = BLE()
+        self.ble = BLEDiscoverer()
         self.ble.on_device_discovered = self.display_devices
 
         self.ble.on_begin_scan = self.start_scanning

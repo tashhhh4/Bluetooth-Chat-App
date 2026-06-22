@@ -1,3 +1,5 @@
+import config
+
 from android.permissions import request_permissions, Permission
 from kivy.app import App
 from kivymd.app import MDApp

@@ -2,7 +2,7 @@ from kivy.properties import BooleanProperty
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from .components.debug_layout import DebugLayout
-from services.bluetooth_discovery import BLEDiscoverer
+from services.platform import get_ble_scanner
 
 class DebugAdvertiser(DebugLayout):
 
@@ -11,7 +11,7 @@ class DebugAdvertiser(DebugLayout):
     def __init__(self, **kwargs):
         super(DebugAdvertiser, self).__init__(**kwargs)
 
-        self.ble = BLEDiscoverer()
+        self.ble = get_ble_scanner()
 
         self.orientation = 'vertical'
 

@@ -11,12 +11,6 @@ import config
 from db.manager import settings
 
 # Helper functions
-def repr_advertisement(advertisement):
-    output = ''
-    for ad in advertisement.parse(advertisement.data):
-        output += f'TYPE: {ad.ad_type}; LEN: {len(ad.data)}; DATA: {ad.data.hex()}\n'
-    return output
-
 def extract_service_uuids(advertisement):
     uuids = []
 

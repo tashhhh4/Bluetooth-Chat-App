@@ -1,3 +1,7 @@
+from services.platform import initialize_window
+
+initialize_window()
+
 from kivymd.app import MDApp
 from messenger.widgets import HomeView, RootLayout
 from messenger.ui.loader import load_ui

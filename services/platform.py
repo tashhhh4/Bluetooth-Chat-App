@@ -5,6 +5,13 @@ from config import ENVIRONMENT
 Wraps Android-specific operations and provides fallbacks for testing.
 """
 
+def initialize_window():
+    if ENVIRONMENT == 'local':
+        from kivy.config import Config
+        Config.set('graphics', 'width', '360')
+        Config.set('graphics', 'height', '740')
+
+
 def initialize_permissions():
     """ Runs request_permissions() if running on Android, else does nothing. """
     if ENVIRONMENT != 'local':

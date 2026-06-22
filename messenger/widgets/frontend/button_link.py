@@ -1,6 +1,7 @@
-from kivy.properties import ObjectProperty
-from kivymd.uix.button import MDRaisedButton
+from kivy.properties import ObjectProperty, StringProperty
+from kivymd.uix.button import MDButton
 
-class ButtonLink(MDRaisedButton):
+class ButtonLink(MDButton):
 
     linked_screen = ObjectProperty()
+    button_text = StringProperty()

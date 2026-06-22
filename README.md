@@ -68,7 +68,7 @@ uv run python -m ensurepip --upgrade
 
 
 ###### Clean the build cache
-⚠️ Deleting the build cache may cause the next build to take a very long time. But it might fix issues especially after changing around the dependencies.
+⚠️ Deleting the build cache may cause the next build to take a very long time. But it might fix issues especially when changing the specific version of a dependency.
 ⚠️ After running clean, a lot of random dependencies are sometimes deleted and need to be manually reinstalled. Make sure to fix these with `uv pip install ...` instead of `uv add ...`, to keep the project dependency list in check.
 ```fish
 uv run buildozer android clean

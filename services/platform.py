@@ -35,8 +35,8 @@ def get_ble_scanner():
         but it may work differently depending on the environment.
     """
     if ENVIRONMENT == 'local':
-        from services.fake_bluetooth_discovery import FakeBLEDiscoverer
-        return FakeBLEDiscoverer()
+        from services.fake_bluetooth_discovery import FakeBLEScanner
+        return FakeBLEScanner()
 
-    from services.bluetooth_discovery import BLEDiscoverer
-    return BLEDiscoverer()
+    from services.bluetooth_discovery import BLEScanner
+    return BLEScanner()

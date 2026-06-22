@@ -1,19 +1,12 @@
 import logging
 
-EXPLANATION = ' — not implemented in FakeBLEDiscoverer'
+EXPLANATION = ' — not implemented in FakeBLEScanner'
 
-class FakeBLEDiscoverer():
+class FakeBLEScanner():
     """ BLE Scanning and Advertising Service with most of its functionality removed. """
 
     def __init__(self):
         super().__init__()
-
-        self.devices = []
-        self.advertiser = None
-
-        self.on_device_discovered = None
-        self.on_begin_scan = None
-        self.on_end_scan = None
 
     def start_advertising(self):
         logging.info('Start BLE Advertising' + EXPLANATION)

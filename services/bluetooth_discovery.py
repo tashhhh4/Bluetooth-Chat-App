@@ -39,7 +39,7 @@ def extract_service_uuids(advertisement):
 
     return uuids
 
-class BLEDiscoverer(BluetoothDispatcher):
+class BLEScanner(BluetoothDispatcher):
     """ BLE Scanning and Advertising Service
         Features:
         - Can advertise Blu2's service UUID.

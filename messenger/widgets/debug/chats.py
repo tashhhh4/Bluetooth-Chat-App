@@ -5,6 +5,8 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from .components.debug_layout import DebugLayout
 from db.manager import chats, devices
+from ..utils import add_background
+
 
 class DebugChats(DebugLayout):
     def __init__(self, **kwargs):
@@ -27,7 +29,7 @@ class DebugChats(DebugLayout):
         self.chat_list_container.add_widget(self.list_title)
 
         # List of Chats
-        self.chat_list = BoxLayout(orientation='vertical', spacing=5)
+        self.chat_list = BoxLayout(orientation='vertical', spacing=20)
         self.chat_list_container.add_widget(self.chat_list)
 
         self.populate_chat_list()
@@ -77,8 +79,45 @@ class DebugChats(DebugLayout):
 
     def populate_chat_list(self):
         self.chat_list.clear_widgets()
+        add_background(self.chat_list, (0, 1, 0, 0.3))
 
         chat_rooms = chats.list_chats()
 
         for room in chat_rooms:
-            self.chat_list.add_widget(Label(text='Chat Object here!', size_hint_y=None, height=90))
+            # Card Container
+            card = BoxLayout(orientation='vertical', size_hint_y=None, height=160)
+            add_background(card, (.3, .2, .1, 1))
+            self.chat_list.add_widget(card)
+
+            # Header with Title and ID
+            header = BoxLayout(size_hint_y=None, height=24)
+            card.add_widget(header)
+            title = Label(text=room.title, font_size=16, size_hint_x=.9)
+            id_label = Label(text=str(room.id), size_hint_x=.1)
+            header.add_widget(title)
+            header.add_widget(id_label)
+
+            # Body with 2 columns
+            body = BoxLayout()
+            col_1 = BoxLayout(orientation='vertical')
+            col_2 = BoxLayout(orientation='vertical')
+            card.add_widget(body)
+            body.add_widget(col_1)
+            body.add_widget(col_2)
+
+            # Devices List
+            devices_title = Label(text='Devices', size_hint_y=None, height=24, font_size=16)
+            col_1.add_widget(devices_title)
+            devices_list = BoxLayout(orientation='vertical')
+            col_1.add_widget(devices_list)
+
+            # Latest Message
+            latest_message_title = Label(text='Latest Message', size_hint_y=None, height=24, font_size=16)
+            col_2.add_widget(latest_message_title)
+            latest_message = Label(text='... Latest Message Here ...', font_size=12)
+            col_2.add_widget(latest_message)
+
+            # Delete Button
+            delete_button = Button(text='Delete this Room', size_hint_y=None, height=36, background_color='red')
+            col_2.add_widget(delete_button)
+

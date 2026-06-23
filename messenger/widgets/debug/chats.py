@@ -1,8 +1,10 @@
+import logging
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from .components.debug_layout import DebugLayout
+from db.manager import chats, devices
 
 class DebugChats(DebugLayout):
     def __init__(self, **kwargs):
@@ -56,5 +58,27 @@ class DebugChats(DebugLayout):
         self.chat_form.add_widget(self.chat_form_devices_input)
         self.chat_form.add_widget(self.chat_form_button)
 
+
+        ######## ACTIONS ########
+
+        # Add Chat Button
+        def submit_chat(_):
+            title = self.chat_form_title_input.text.strip()
+            device_list_str = self.chat_form_devices_input.text.strip()
+            device_uuid_str_list = device_list_str.splitlines()
+            device_objs = []
+            for uuid_str in device_uuid_str_list:
+                device = devices.get_device(uuid_str)
+                logging.info(f'Debug Chats View: Retrieved Device info: {device.name} UUID(\'{device.uuid}\') | address: {device.address} owner: {device.owner}')
+                device_objs.append(device)
+            chats.create_chat(device_objs) # TODO: get properties of newly created object back from create_chat()
+            logging.info(f'Debug Chats View: Created a new chat: "{title}"')
+        self.chat_form_button.bind(on_press=submit_chat)
+
     def populate_chat_list(self):
-        pass
+        self.chat_list.clear_widgets()
+
+        chat_rooms = chats.list_chats()
+
+        for room in chat_rooms:
+            self.chat_list.add_widget(Label(text='Chat Object here!', size_hint_y=None, height=90))

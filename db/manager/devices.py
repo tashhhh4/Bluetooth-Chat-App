@@ -37,7 +37,6 @@ def get_my_device():
     """
     with get_session() as session:
         device_id = session.get(Setting, 'MY_DEVICE_ID')
-        print('device_id is', device_id)
 
 def update_device(device_uuid, name=None, owner=None, remove_owner=False):
     """ Update the name or owner of a Device. """

@@ -102,6 +102,8 @@ class DebugDevices(DebugLayout):
         self.populate_contacts()
 
 
+        ######## ACTIONS ########
+
         # Refresh Button
         def refresh(_):
             self.populate_devices()
@@ -135,7 +137,12 @@ class DebugDevices(DebugLayout):
         # Get all devices
         list_ = devices.list_devices()
         data = [(d.uuid, d.name, d.address) for d in list_]
-        actions = [{ 'X': lambda _: devices.delete_device(d.uuid) for d in list_ }]
+        # actions = [{ 'X': lambda _: devices.delete_device(d.uuid) for d in list_ }]
+        actions = []
+        for device in list_:
+            def delete_device(_):
+                devices.delete_device(device.uuid)
+            actions.append({'X': delete_device})
 
         # Add a row for each device
         add_rows(self.devices_list, data, col_widths=col_widths, actions=actions)

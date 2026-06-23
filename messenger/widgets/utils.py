@@ -1,5 +1,6 @@
 from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 from kivy.uix.label import Label
 
 def add_background(widget, color):
@@ -14,18 +15,26 @@ def add_background(widget, color):
 
     widget.bind(pos=update, size=update)
 
-def add_rows(parent_widget, data, height=50, col_widths=None):
+def add_rows(parent_widget, data, height=50, col_widths=None, actions=None):
     """ Adds a child row with multiple columns, setting a consistent width for each field.
         'data' must be a list of values that have a __str__ method.
         if 'col_widths' is not None, it must be equal in length to 'data'.
     """
     if col_widths is not None:
         if data:
-            num_fields = len(data[0])
-            if not len(col_widths) == num_fields:
-                raise TypeError('Expected', num_fields, 'col_widths.')
+            expected_num_fields = len(data[0])
+            if actions:
+                expected_num_fields += len(actions[0].keys())
+            if not len(col_widths) == expected_num_fields:
+                raise TypeError('Expected', expected_num_fields, 'col_widths.')
 
-    for item in data:
+    if actions is not None:
+        if data:
+            num_rows = len(data)
+            if not len(actions) == num_rows:
+                raise TypeError('Expected', num_rows, 'action functions.')
+
+    for row, item in enumerate(data):
         row_widget = BoxLayout()
         parent_widget.add_widget(row_widget)
         for col, value in enumerate(item):
@@ -33,8 +42,27 @@ def add_rows(parent_widget, data, height=50, col_widths=None):
             if col_widths:
                 kwargs['width'] = col_widths[col]
                 kwargs['size_hint_x'] = None
-            cell_widget = Label(text=value, height=height, **kwargs)
+            cell_widget = Label(
+                text=str(value),
+                height=height,
+                size_hint_y=None,
+                text_size=(col_widths[col] if col_widths else 200, None),
+                halign='left',
+                valign='middle',
+                **kwargs,
+            )
+            cell_widget.bind(
+                size=lambda inst, val: setattr(
+                    inst, 'text_size', (inst.width, None)
+                )
+            )
             row_widget.add_widget(cell_widget)
+        if actions:
+            action_dict = actions[row]
+            for key in action_dict:
+                action_button = Button(text=key)
+                action_button.bind(on_press=action_dict[key])
+                row_widget.add_widget(action_button)
 
 def fit_height(widget):
     """ Sets a widget to grow its height according to its children. """

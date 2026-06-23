@@ -72,6 +72,7 @@ class DebugDevices(DebugLayout):
             row_force_default=True,
             size_hint_y=None,
         )
+        fit_height(self.devices_list)
         add_background(self.devices_list, (1, 0, 0, .3))
         self.content_container.add_widget(self.devices_list)
         self.populate_devices()
@@ -112,8 +113,9 @@ class DebugDevices(DebugLayout):
             uuid = self.devices_form_uuid_input.text.strip()
             name = self.devices_form_name_input.text.strip()
             address = self.devices_form_address_input.text.strip()
-            owner = self.devices_form_owner_input.text.strip()
+            owner = self.devices_form_contact_input.text.strip()
             devices.create_device(uuid, name, address, owner)
+        self.devices_form_button.bind(on_press=add_device)
 
         # Contacts Form Button
 
@@ -121,17 +123,23 @@ class DebugDevices(DebugLayout):
         self.devices_list.clear_widgets()
 
         # Add header row
-        # col_widths = [20, 50, 90, 20]
+        col_widths = [100, 90, 90, 60, 30]
         fields = ['uuid', 'name', 'address', 'contact', '']
         data = [fields]
-        add_rows(self.devices_list, data, col_widths=None)
+        add_rows(self.devices_list, data, col_widths=col_widths, height=50)
 
         # Get all devices
         list_ = devices.list_devices()
-        # list_ = []
+        print('devices list_ is', list_)
+        data = [(d.uuid, d.name, d.address, d.owner) for d in list_]
+        print('data is', data)
+        actions = []
+        for device in list_:
+            def delete_device(_): devices.delete_device(device.uuid)
+            actions.append({ 'X': delete_device })
 
         # Add a row for each device
-        add_rows(self.devices_list, list_, col_widths=None)
+        add_rows(self.devices_list, data, col_widths=col_widths, actions=actions)
 
     def populate_contacts(self):
         self.contacts_list.clear_widgets()

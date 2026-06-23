@@ -2,7 +2,7 @@ from uuid import UUID
 from kivy.utils import platform
 
 # Delete all the tables upon launching
-DELETE_TABLES = False1
+DELETE_TABLES = False
 
 # Determine execution environment
 if platform == 'android':

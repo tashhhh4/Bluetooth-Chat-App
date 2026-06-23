@@ -26,6 +26,11 @@ def list_devices():
     with get_session() as session:
         return session.query(Device).all()
 
+def get_device(device_uuid):
+    """ Returns a single Device by uuid. """
+    with get_session() as session:
+        return session.get(Device, device_uuid)
+
 def get_my_device():
     """ Gets the Device that represents the Device running this instance of the app.
         The first time the app is run, this function will create the record for MY_DEVICE_ID.
@@ -34,10 +39,10 @@ def get_my_device():
         device_id = session.get(Setting, 'MY_DEVICE_ID')
         print('device_id is', device_id)
 
-def update_device(uuid, name=None, owner=None, remove_owner=False):
+def update_device(device_uuid, name=None, owner=None, remove_owner=False):
     """ Update the name or owner of a Device. """
     with get_session() as session:
-        device = session.get(Device, uuid)
+        device = session.get(Device, device_uuid)
         if name:
             device.name = name
         if owner:

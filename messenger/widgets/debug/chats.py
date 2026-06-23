@@ -79,13 +79,12 @@ class DebugChats(DebugLayout):
 
     def populate_chat_list(self):
         self.chat_list.clear_widgets()
-        add_background(self.chat_list, (0, 1, 0, 0.3))
 
         chat_rooms = chats.list_chats()
 
         for room in chat_rooms:
             # Card Container
-            card = BoxLayout(orientation='vertical', size_hint_y=None, height=160)
+            card = BoxLayout(orientation='vertical', size_hint_y=None, height=120)
             add_background(card, (.3, .2, .1, 1))
             self.chat_list.add_widget(card)
 
@@ -111,6 +110,8 @@ class DebugChats(DebugLayout):
             devices_list = BoxLayout(orientation='vertical')
             col_1.add_widget(devices_list)
 
+            # for device in room.members: # TODO: Make this work
+
             # Latest Message
             latest_message_title = Label(text='Latest Message', size_hint_y=None, height=24, font_size=16)
             col_2.add_widget(latest_message_title)
@@ -121,3 +122,10 @@ class DebugChats(DebugLayout):
             delete_button = Button(text='Delete this Room', size_hint_y=None, height=36, background_color='red')
             col_2.add_widget(delete_button)
 
+            # Delete Button Behavior
+            def delete_chat(_):
+                chats.delete_chat(room.id)
+            delete_button.bind(on_press=delete_chat)
+
+        # Final empty widget to push space upwards
+        self.chat_list.add_widget(BoxLayout())

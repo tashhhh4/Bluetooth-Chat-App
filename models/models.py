@@ -25,7 +25,7 @@ class Device(Base):
     """
     __tablename__ = 'devices'
 
-    id = Column(String, primary_key=True)
+    uuid = Column(String, primary_key=True)
     name = Column(String)
     address = Column(String)
     owner = Column(ForeignKey('contacts.id'))
@@ -60,14 +60,14 @@ class Member(Base):
     __tablename__ = 'chat_devices'
 
     id = Column(Integer, primary_key=True)
-    device_id = Column(ForeignKey('devices.id', ondelete='CASCADE'))
+    device_uuid = Column(ForeignKey('devices.uuid', ondelete='CASCADE'))
     chat_id = Column(ForeignKey('chats.id', ondelete='CASCADE'))
 
     device = relationship('Device', back_populates='memberships')
     chat = relationship('Chat', back_populates='members')
 
 class Message(Base):
-    """ The Message is the focus of the chat app. The "device_id" column represents another Device running Blu2
+    """ The Message is the focus of the chat app. The "device_uuid" column represents another Device running Blu2
         which sent the Message. "device_id" can also be NULL, meaning that the Message is the user's own.
         The "chat_id" column represents the Chat to which the Message will be sent.
     """
@@ -75,7 +75,7 @@ class Message(Base):
 
     id = Column(Integer, primary_key=True)
     text = Column(String)
-    device_id = Column(ForeignKey('devices.id'))
+    device_uuid = Column(ForeignKey('devices.uuid'))
     chat_id = Column(ForeignKey('chats.id', ondelete='CASCADE'))
     datetime = Column(DateTime(timezone=False), server_default=func.now())
 

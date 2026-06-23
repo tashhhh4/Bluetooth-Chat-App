@@ -127,8 +127,8 @@ class DebugDevices(DebugLayout):
         add_rows(self.devices_list, data, col_widths=None)
 
         # Get all devices
-        # list_ = devices.list_devices()
-        list_ = []
+        list_ = devices.list_devices()
+        # list_ = []
 
         # Add a row for each device
         add_rows(self.devices_list, list_, col_widths=None)

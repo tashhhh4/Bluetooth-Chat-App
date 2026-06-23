@@ -3,7 +3,7 @@ from kivy.uix.boxlayout import BoxLayout
 
 class DebugLayout(BoxLayout):
     def __init__(self, **kwargs):
-        super().__init__(*kwargs)
+        super(DebugLayout, self).__init__(**kwargs)
         with self.canvas.before:
             Color(0, 0, 0, 1)
             self.bg_rect = Rectangle(pos=self.pos, size=self.size)

@@ -8,7 +8,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 from .components.debug_layout import DebugLayout
 from ..utils import add_background, add_rows, fit_height
-from db.manager import devices
+from db.manager import contacts, devices
 
 class DebugDevices(DebugLayout):
     def __init__(self, **kwargs):
@@ -118,25 +118,24 @@ class DebugDevices(DebugLayout):
         self.devices_form_button.bind(on_press=add_device)
 
         # Contacts Form Button
+        def add_contact(_):
+            name = self.contacts_form_name_input.text.strip()
+            contacts.create_contact(name)
+        self.contacts_form_button.bind(on_press=add_contact)
 
     def populate_devices(self):
         self.devices_list.clear_widgets()
 
         # Add header row
-        col_widths = [100, 90, 90, 60, 30]
-        fields = ['uuid', 'name', 'address', 'contact', '']
+        col_widths = [110, 90, 90, 30]
+        fields = ['uuid', 'name', 'address', '']
         data = [fields]
         add_rows(self.devices_list, data, col_widths=col_widths, height=50)
 
         # Get all devices
         list_ = devices.list_devices()
-        print('devices list_ is', list_)
-        data = [(d.uuid, d.name, d.address, d.owner) for d in list_]
-        print('data is', data)
-        actions = []
-        for device in list_:
-            def delete_device(_): devices.delete_device(device.uuid)
-            actions.append({ 'X': delete_device })
+        data = [(d.uuid, d.name, d.address) for d in list_]
+        actions = [{ 'X': lambda _: devices.delete_device(d.uuid) for d in list_ }]
 
         # Add a row for each device
         add_rows(self.devices_list, data, col_widths=col_widths, actions=actions)
@@ -145,13 +144,15 @@ class DebugDevices(DebugLayout):
         self.contacts_list.clear_widgets()
 
         # Add header row
-        # col_widths = [30, 150]
-        fields = ['id', 'name', '']
+        col_widths = [50, 270, 50]
+        fields = ['id', 'name', 'x']
         data = [fields]
-        add_rows(self.contacts_list, data, col_widths=None)
+        add_rows(self.contacts_list, data, col_widths=col_widths)
 
         # Get all contacts
-        list_ = []
+        list_ = contacts.list_contacts()
+        data = [(c.id, c.name) for c in list_]
+        actions = [{ 'X': lambda _: contacts.delete_contact(c.id) for c in list_ }]
 
         # Add a row for each contact
-        add_rows(self.contacts_list, list_, col_widths=None)
+        add_rows(self.contacts_list, data, col_widths=col_widths, actions=actions)

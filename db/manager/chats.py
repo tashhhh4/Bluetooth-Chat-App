@@ -16,6 +16,11 @@ def list_chats():
     with get_session() as session:
         return session.query(Chat).all()
 
+def get_chat(id):
+    """ Returns a Chat by id. """
+    with get_session() as session:
+        return session.get(Chat, id)
+
 def update_chat(id, title):
     """ Change the title of the Chat. """
     with get_session() as session:

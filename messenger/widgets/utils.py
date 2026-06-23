@@ -3,6 +3,20 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 
+def fit_height(widget):
+    """ Sets a widget to grow its height according to its children. """
+    widget.bind(minimum_height=widget.setter('height'))
+
+def wrap_text(widget):
+    """ Wraps text in the given widget.
+        Only works if the widget has a fixed width.
+    """
+    widget.bind(
+        size=lambda ins, _: setattr(
+            ins, 'text_size', (ins.width, None)
+        )
+    )
+
 def add_background(widget, color):
     """ Adds a color background to 'widget'. Expects a 4-value tuple for the color. """
     with widget.canvas.before:
@@ -35,27 +49,18 @@ def add_rows(parent_widget, data, height=50, col_widths=None, actions=None):
                 raise TypeError('Expected', num_rows, 'action functions.')
 
     for row, item in enumerate(data):
-        row_widget = BoxLayout()
+        row_widget = BoxLayout(size_hint_y=None, height=height)
         parent_widget.add_widget(row_widget)
         for col, value in enumerate(item):
-            kwargs = {}
-            if col_widths:
-                kwargs['width'] = col_widths[col]
-                kwargs['size_hint_x'] = None
             cell_widget = Label(
                 text=str(value),
                 height=height,
                 size_hint_y=None,
-                text_size=(col_widths[col] if col_widths else 200, None),
                 halign='left',
                 valign='middle',
-                **kwargs,
+                width=col_widths[col] if col_widths else 200,
             )
-            cell_widget.bind(
-                size=lambda inst, val: setattr(
-                    inst, 'text_size', (inst.width, None)
-                )
-            )
+            wrap_text(cell_widget)
             row_widget.add_widget(cell_widget)
         if actions:
             action_dict = actions[row]
@@ -63,7 +68,3 @@ def add_rows(parent_widget, data, height=50, col_widths=None, actions=None):
                 action_button = Button(text=key)
                 action_button.bind(on_press=action_dict[key])
                 row_widget.add_widget(action_button)
-
-def fit_height(widget):
-    """ Sets a widget to grow its height according to its children. """
-    widget.bind(minimum_height=widget.setter('height'))

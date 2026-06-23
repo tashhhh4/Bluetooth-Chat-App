@@ -35,3 +35,7 @@ def add_rows(parent_widget, data, height=50, col_widths=None):
                 kwargs['size_hint_x'] = None
             cell_widget = Label(text=value, height=height, **kwargs)
             row_widget.add_widget(cell_widget)
+
+def fit_height(widget):
+    """ Sets a widget to grow its height according to its children. """
+    widget.bind(minimum_height=widget.setter('height'))

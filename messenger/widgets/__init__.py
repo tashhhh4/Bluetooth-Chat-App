@@ -6,6 +6,7 @@ from .debug.devices import DebugDevices
 from .debug.messages import DebugMessages
 from .debug.navigation import DebugNavigation
 from .debug.settings import DebugSettings
+from .debug.transport import DebugTransport
 from .frontend.home import HomeView
 from .frontend.button_link import ButtonLink
 

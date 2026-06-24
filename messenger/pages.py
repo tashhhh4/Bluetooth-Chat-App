@@ -4,9 +4,11 @@ from messenger.widgets.debug.messages import DebugMessages
 from messenger.widgets.debug.settings import DebugSettings
 from messenger.widgets.debug.advertise import DebugAdvertiser
 from messenger.widgets.debug.scanner import DebugBluetooth
+from messenger.widgets.debug.transport import DebugTransport
 from messenger.widgets.frontend.home import HomeView
 
 DEBUG_PAGES = {
+    'Transport': DebugTransport,
     'Devices and Contacts': DebugDevices,
     'Messages': DebugMessages,
     'Chats': DebugChats,

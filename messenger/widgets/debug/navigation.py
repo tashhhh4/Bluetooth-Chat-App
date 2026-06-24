@@ -30,7 +30,7 @@ class DebugNavigation(DebugLayout):
         self.add_widget(self.menu_button)
         self.add_widget(self.title)
 
-        self.dropdown = DropDown(size_hint_x=None, width=500)
+        self.dropdown = DropDown()
         self.menu_button.bind(on_press=self.open_dropdown)
 
         for title, widget in DEBUG_PAGES.items():
@@ -38,8 +38,9 @@ class DebugNavigation(DebugLayout):
                 text=title,
                 size_hint_y=None,
                 size_hint_x=1,
-                height=100,
+                height=50,
                 background_color=(0, 0, 0, 1),
+                background_normal='',
             )
             button.bind(on_press=lambda _, w=widget: self.open_page(w))
             self.dropdown.add_widget(button)

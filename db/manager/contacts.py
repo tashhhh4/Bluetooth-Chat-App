@@ -1,7 +1,7 @@
 from db.engine import get_session
 from models import Contact
 
-def create_contact(name):
+def create(name):
     """ Create a record of a human being known to the user. """
     with get_session() as session:
         contact = Contact(name=name)
@@ -14,12 +14,12 @@ def list_contacts():
     with get_session() as session:
         return session.query(Contact).all()
 
-def get_contact(id):
+def get(id):
     """ Retrieves a single Contact record by id. """
     with get_session() as session:
         return session.get(Contact, id)
 
-def update_contact(id, name):
+def update(id, name):
     """ Update details of a Contact. """
     with get_session() as session:
         contact = session.get(Contact, id)
@@ -28,7 +28,7 @@ def update_contact(id, name):
         session.commit()
         return contact
 
-def delete_contact(id):
+def delete(id):
     """ Remove a Contact from the user's Blu2 Contact list. """
     with get_session() as session:
         contact = session.get(Contact, id)

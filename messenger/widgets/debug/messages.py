@@ -56,7 +56,7 @@ class DebugMessages(DebugLayout):
         # Load Chat
         def load_chat(_):
             chat_id = self.chat_room_loader_input.text
-            self.chat = chats.get_chat(chat_id)
+            self.chat = chats.get(chat_id)
         self.chat_room_loader_button.bind(on_press=load_chat)
 
         # Refresh Messages
@@ -69,8 +69,8 @@ class DebugMessages(DebugLayout):
             if not self.chat:
                 return
             text = self.text_input.text
-            my_device = devices.get_my_device()
-            messages.create_message(chat_id=self.chat.id, device_uuid=my_device.uuid, text=text)
+            my_device = devices.get_mine()
+            messages.create(chat_id=self.chat.id, device_uuid=my_device.uuid, text=text)
         self.submit_button.bind(on_press=submit_message)
 
     def populate_messages(self):
@@ -80,7 +80,7 @@ class DebugMessages(DebugLayout):
         latest_messages = messages.list_messages(self.chat.id)
         device_names = []
         for message in latest_messages:
-            device = devices.get_device(message.device_uuid)
+            device = devices.get(message.device_uuid)
             device_names.append(device.name)
 
         self.message_container.clear_widgets()
@@ -121,12 +121,12 @@ class DebugMessages(DebugLayout):
             # E Button Action
             def e(_):
                 new_text = message.text + ' (edited)'
-                messages.update_message(message.id, new_text)
+                messages.update(message.id, new_text)
             e_button.bind(on_press=e)
 
             # X Button Action
             def x(_):
-                messages.delete_message(message.id)
+                messages.delete(message.id)
             x_button.bind(on_press=x)
 
         # Spacer

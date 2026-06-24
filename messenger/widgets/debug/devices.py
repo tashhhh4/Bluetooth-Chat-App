@@ -116,13 +116,13 @@ class DebugDevices(DebugLayout):
             name = self.devices_form_name_input.text.strip()
             address = self.devices_form_address_input.text.strip()
             owner = self.devices_form_contact_input.text.strip()
-            devices.create_device(uuid, name, address, owner)
+            devices.create(uuid, name, address, owner)
         self.devices_form_button.bind(on_press=add_device)
 
         # Contacts Form Button
         def add_contact(_):
             name = self.contacts_form_name_input.text.strip()
-            contacts.create_contact(name)
+            contacts.create(name)
         self.contacts_form_button.bind(on_press=add_contact)
 
     def populate_devices(self):
@@ -159,7 +159,7 @@ class DebugDevices(DebugLayout):
         # Get all contacts
         list_ = contacts.list_contacts()
         data = [(c.id, c.name) for c in list_]
-        actions = [{ 'X': lambda _: contacts.delete_contact(c.id) for c in list_ }]
+        actions = [{ 'X': lambda _: contacts.delete(c.id) for c in list_}]
 
         # Add a row for each contact
         add_rows(self.contacts_list, data, col_widths=col_widths, actions=actions)

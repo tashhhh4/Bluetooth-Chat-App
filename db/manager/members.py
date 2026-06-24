@@ -1,7 +1,7 @@
 from db.engine import get_session
 from models import Chat, Device, Member
 
-def create_member(device_id, chat_id):
+def create(device_id, chat_id):
     """ Adds a Device to a Chat. """
     with get_session() as session:
         device = session.get(Device, device_id)
@@ -23,7 +23,7 @@ def list_memberships(device_id):
         device = session.get(Device, device_id)
         return device.memberships
 
-def delete_member(device_id, chat_id):
+def delete(device_id, chat_id):
     """ Remove a Device from a Chat. """
     with get_session() as session:
         member = session.get(Member, {'device_id': device_id, 'chat_id': chat_id})

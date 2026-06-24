@@ -1,7 +1,7 @@
 from db.engine import get_session
 from models import Chat, Member
 
-def create_chat(devices):
+def create(devices):
     """ Creates a new Chat. A Chat must be initialized with at least 1 Device (-> Member) or else it's an error!
         (Currently the App does not support being used as a notepad.)
     """
@@ -16,12 +16,12 @@ def list_chats():
     with get_session() as session:
         return session.query(Chat).all()
 
-def get_chat(id):
+def get(id):
     """ Returns a Chat by id. """
     with get_session() as session:
         return session.get(Chat, id)
 
-def update_chat(id, title):
+def update(id, title):
     """ Change the title of the Chat. """
     with get_session() as session:
         chat = session.get(Chat, id)
@@ -30,7 +30,7 @@ def update_chat(id, title):
         session.commit()
         return chat
 
-def delete_chat(id):
+def delete(id):
     """ Delete a Chat, along with all of its Messages, and all of its Member associations. """
     with get_session() as session:
         chat = session.get(Chat, id)

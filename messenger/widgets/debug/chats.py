@@ -70,10 +70,10 @@ class DebugChats(DebugLayout):
             device_uuid_str_list = device_list_str.splitlines()
             device_objs = []
             for uuid_str in device_uuid_str_list:
-                device = devices.get_device(uuid_str)
+                device = devices.get(uuid_str)
                 logging.info(f'Debug Chats View: Retrieved Device info: {device.name} UUID(\'{device.uuid}\') | address: {device.address} owner: {device.owner}')
                 device_objs.append(device)
-            chats.create_chat(device_objs) # TODO: get properties of newly created object back from create_chat()
+            chats.create(device_objs) # TODO: get properties of newly created object back from create_chat()
             logging.info(f'Debug Chats View: Created a new chat: "{title}"')
         self.chat_form_button.bind(on_press=submit_chat)
 
@@ -124,7 +124,7 @@ class DebugChats(DebugLayout):
 
             # Delete Button Behavior
             def delete_chat(_):
-                chats.delete_chat(room.id)
+                chats.delete(room.id)
             delete_button.bind(on_press=delete_chat)
 
         # Final empty widget to push space upwards

@@ -1,7 +1,7 @@
 from db.engine import get_session
 from models import Chat, Device, Message
 
-def create_message(chat_id, device_uuid, text):
+def create(chat_id, device_uuid, text):
     """ Create a Message, sent to a particular Chat, from a sender (Device) or self (NULL)
         automatically timestamped.
     """
@@ -19,7 +19,7 @@ def list_messages(chat_id):
         chat = session.get(Chat, chat_id)
         return chat.messages
 
-def update_message(id, text):
+def update(id, text):
     """ Update the text content of a Message. """
     with get_session() as session:
         message = session.get(Message, id)
@@ -27,7 +27,7 @@ def update_message(id, text):
         session.commit()
         return message
 
-def delete_message(id):
+def delete(id):
     """ Delete a Message. """
     with get_session() as session:
         message = session.get(Message, id)

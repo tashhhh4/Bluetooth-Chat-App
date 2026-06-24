@@ -1,6 +1,7 @@
 import uuid
-from db.engine import get_session
 from models import Device, Setting
+from db.engine import get_session
+from db.manager import settings
 
 def create_my_device(name, address):
     """ Initializes and adds the Device running this instance of Blu2. """
@@ -33,10 +34,16 @@ def get_device(device_uuid):
 
 def get_my_device():
     """ Gets the Device that represents the Device running this instance of the app.
-        The first time the app is run, this function will create the record for MY_DEVICE_ID.
+        The first time the app is run, this function will create the record for MY_DEVICE_UUID.
     """
     with get_session() as session:
-        device_id = session.get(Setting, 'MY_DEVICE_ID')
+        device_uuid = settings.get_device_uuid()
+        my_device = session.get(Device, device_uuid)
+        if my_device is None:
+            session.add(Device(uuid=device_uuid, name='My Device'))
+            session.commit()
+            my_device = session.get(Device, device_uuid)
+        return my_device
 
 def update_device(device_uuid, name=None, owner=None, remove_owner=False):
     """ Update the name or owner of a Device. """

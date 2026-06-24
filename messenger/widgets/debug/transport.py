@@ -10,12 +10,13 @@ from messenger.widgets.utils import fit_height
 # Todo: move this stuff out of the frontend
 from config import ENVIRONMENT
 if ENVIRONMENT == 'debug':
+    from pprint import pprint
     import socket
-    print('Imported socket:', socket)
     import jnius
-    print('Imported jnius:', jnius)
     from jnius import autoclass
-    print('Imported autoclass:', autoclass)
+    from config import SERVICE_UUID
+    BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
+    adapter = BluetoothAdapter.getDefaultAdapter()
 
     def send(address, message):
         pass

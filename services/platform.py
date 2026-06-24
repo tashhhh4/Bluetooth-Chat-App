@@ -40,3 +40,8 @@ def get_ble_scanner():
 
     from services.bluetooth_discovery import BLEScanner
     return BLEScanner()
+
+def get_transport():
+    """ Returns something (a class) that can be used to initiate send() and recv(),
+        or a fake class allowing the code to continue to be debugged on desktop.
+    """

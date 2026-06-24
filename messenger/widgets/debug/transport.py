@@ -6,6 +6,24 @@ from kivy.uix.widget import Widget
 from messenger.widgets.debug.components.debug_layout import DebugLayout
 from messenger.widgets.utils import fit_height
 
+# TEMP BACKEND
+# Todo: move this stuff out of the frontend
+from config import ENVIRONMENT
+if ENVIRONMENT == 'debug':
+    import socket
+    print('Imported socket:', socket)
+    import jnius
+    print('Imported jnius:', jnius)
+    from jnius import autoclass
+    print('Imported autoclass:', autoclass)
+
+    def send(address, message):
+        pass
+
+    def recv():
+        pass
+
+
 class DebugTransport(DebugLayout):
     def __init__(self, **kwargs):
         super(DebugTransport, self).__init__(**kwargs)

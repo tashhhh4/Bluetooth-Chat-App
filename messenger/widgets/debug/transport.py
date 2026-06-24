@@ -8,15 +8,19 @@ from messenger.widgets.utils import fit_height
 
 # TEMP BACKEND
 # Todo: move this stuff out of the frontend
+from config import SERVICE_UUID
 from config import ENVIRONMENT
 if ENVIRONMENT == 'debug':
     from pprint import pprint
     import socket
     import jnius
     from jnius import autoclass
-    from config import SERVICE_UUID
+    JavaUUID = autoclass('java.util.UUID')
+    java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
     BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
     adapter = BluetoothAdapter.getDefaultAdapter()
+    server = adapter.listenUsingRfcommWithServiceRecord('Blu2', java_uuid)
+    pprint(dir(server))
 
     def send(address, message):
         pass

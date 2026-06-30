@@ -7,12 +7,12 @@ from .components.debug_layout import DebugLayout
 from services.platform import get_ble_scanner
 from utils import schedule
 
-class DebugBluetooth(DebugLayout):
+class DebugBLEScanner(DebugLayout):
 
     is_scanning = BooleanProperty(False)
 
     def __init__(self, **kwargs):
-        super(DebugBluetooth, self).__init__(**kwargs)
+        super(DebugBLEScanner, self).__init__(**kwargs)
 
         self.ble = get_ble_scanner()
         self.ble.on_device_discovered = self.display_devices

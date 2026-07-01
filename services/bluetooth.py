@@ -1,9 +1,24 @@
+from android.broadcast import BroadcastReceiver
 from jnius import autoclass
 
-PythonActivity = autoclass('org.kivy.android.PythonActivity')
-Intent = autoclass('android.content.Intent')
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
-print('BluetoothAdapter is a', type(BluetoothAdapter))
+BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
+Intent = autoclass('android.content.Intent')
+PythonActivity = autoclass('org.kivy.android.PythonActivity')
+
+def handle_intent(context, intent):
+    print('Running handle_intent')
+    print('context is:', context)
+    print('intent is:', intent)
+    print('action is:', intent.getAction())
+
+device_receiver = BroadcastReceiver(
+    callback=handle_intent,
+    actions=[
+        BluetoothDevice.ACTION_FOUND,
+        BluetoothAdapter.ACTION_DISCOVERY_FINISHED,
+    ]
+)
 
 def turn_discoverability_on():
     activity = PythonActivity.mActivity
@@ -13,11 +28,11 @@ def turn_discoverability_on():
     activity.startActivity(intent)
 
 def turn_discovery_on():
-    print('Running turn_discovery_on')
+    device_receiver.start()
     bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
     bluetooth_adapter.startDiscovery()
 
 def turn_discovery_off():
-    print('Running turn_discovery_off')
+    device_receiver.stop()
     bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
     bluetooth_adapter.cancelDiscovery()

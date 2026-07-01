@@ -51,7 +51,7 @@ class BluetoothService:
     def __init__(self):
         self.device_receiver = get_device_receiver()
 
-    def turn_discoverability_on():
+    def turn_discoverability_on(self):
         activity = PythonActivity.mActivity
         intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
         intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
@@ -59,11 +59,19 @@ class BluetoothService:
         activity.startActivity(intent)
 
     def turn_discovery_on(self):
+        print('Running turn_discovery_on')
+        print('receiver is', self.device_receiver)
+        self.device_receiver = get_device_receiver()
         self.device_receiver.start()
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
         bluetooth_adapter.startDiscovery()
 
     def turn_discovery_off(self):
-        self.device_receiver.stop()
+        print('Running turn_discovery_off')
+        print('receiver is', self.device_receiver)
+        if self.device_receiver:
+            self.device_receiver.stop()
+            self.device_receiver = None
+        print('receiver is', self.device_receiver)
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
         bluetooth_adapter.cancelDiscovery()

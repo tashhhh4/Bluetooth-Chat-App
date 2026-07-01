@@ -10,3 +10,7 @@ def turn_discoverability_on():
     intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
 
     activity.startActivity(intent)
+
+
+def turn_scanning_on():
+    print('We want to turn Bluetooth scanning on!')

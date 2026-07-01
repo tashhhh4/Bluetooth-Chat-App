@@ -3,6 +3,7 @@ from jnius import autoclass
 PythonActivity = autoclass('org.kivy.android.PythonActivity')
 Intent = autoclass('android.content.Intent')
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
+print('BluetoothAdapter is a', type(BluetoothAdapter))
 
 def turn_discoverability_on():
     activity = PythonActivity.mActivity
@@ -11,9 +12,12 @@ def turn_discoverability_on():
 
     activity.startActivity(intent)
 
+def turn_discovery_on():
+    print('Running turn_discovery_on')
+    bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+    bluetooth_adapter.startDiscovery()
 
-def turn_scanning_on():
-    print('We want to turn Bluetooth scanning on! (Not yet implemented')
-
-def turn_scanning_off():
-    print('We want to turn Bluetooth scanning off! (Not yet implemented)')
+def turn_discovery_off():
+    print('Running turn_discovery_off')
+    bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+    bluetooth_adapter.cancelDiscovery()

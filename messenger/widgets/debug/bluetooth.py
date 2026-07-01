@@ -56,11 +56,11 @@ class DebugBluetooth(DebugLayout):
         # Test Turn Scanning On and Off
         def toggle_scanning(_):
             if not self.is_scanning:
-                bluetooth.turn_scanning_on()
+                bluetooth.turn_discovery_on()
                 self.is_scanning = True
                 self.scan_button.text = SCAN_ON_TEXT
             else:
-                bluetooth.turn_scanning_off()
+                bluetooth.turn_discovery_off()
                 self.is_scanning = False
                 self.scan_button.text = SCAN_OFF_TEXT
 

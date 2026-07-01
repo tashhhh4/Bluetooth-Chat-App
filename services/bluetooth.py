@@ -14,11 +14,6 @@ def handle_device_found(intent):
     device.fetchUuidsWithSdp()
 
 def handle_uuid_fetched(intent):
-    print('Running handle_uuid_fetched...')
-    print('dir(intent) is:')
-    pprint(dir(intent))
-    parcelable = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-    device = cast(BluetoothDevice, parcelable)
     raw_uuids = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID)
     if not raw_uuids:
         print('No UUIDs found.')
@@ -36,8 +31,8 @@ def handle_intent(_, intent):
     if action == BluetoothDevice.ACTION_FOUND:
         handle_device_found(intent)
 
-    if action == BluetoothDevice.ACTION_UUID:
-        handle_uuid_fetched(intent)
+    # elif action == BluetoothDevice.ACTION_UUID:
+    #    handle_uuid_fetched(intent)
 
 def get_device_receiver():
     device_receiver = BroadcastReceiver(

@@ -3,13 +3,14 @@ import threading
 import time
 from android.broadcast import BroadcastReceiver
 from jnius import autoclass, cast
+from config import SERVICE_UUID
 
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
 Intent = autoclass('android.content.Intent')
 ParcelUuid = autoclass('android.os.ParcelUuid')
 PythonActivity = autoclass('org.kivy.android.PythonActivity')
-UUID = autoclass('java.util.UUID')
+JavaUUID = autoclass('java.util.UUID')
 
 def handle_device_found(intent):
     parcelable = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
@@ -56,8 +57,34 @@ class BluetoothService:
         self.device_receiver = get_device_receiver()
 
     def create_service_listener_socket(self, ttl):
-        logging.info('Running service listener socket for', ttl, 'seconds.')
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+        bluetooth_adapter.cancelDiscovery()
+        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
+        print('Creating socket...')
+        service_listener_socket = bluetooth_adapter.listenUsingRfcommWithServiceRecord('Blu2', java_uuid)
+        print('Service Listener socket created.')
+        def listen():
+            try:
+                start_time = time.time()
+                while time.time() - start_time < ttl:
+                    try:
+                        client = service_listener_socket.accept(1000) # 1 second timeout
+                        print('Connection accepted!')
+                        client.close()
+                    except Exception as e:
+                        print(e)
+                print('Listener loop closed after time limit.')
+            finally:
+                service_listener_socket.close()
+                print('Service Listener socket closed.')
+
+        # start thread
+        print('Starting listener thread....')
+        thread = threading.Thread(target=listen)
+        thread.daemon = True
+        thread.start()
+
+
 
 
     def turn_discoverability_on(self, ttl): # max 300

@@ -1,10 +1,10 @@
 from kivy.metrics import dp
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from .components.debug_layout import DebugLayout
-from services import bluetooth
+from services.bluetooth import BluetoothService
 
 SCAN_ON_TEXT = 'Stop scanning'
 SCAN_OFF_TEXT = 'Scan'
@@ -12,9 +12,12 @@ SCAN_OFF_TEXT = 'Scan'
 class DebugBluetooth(DebugLayout):
 
     is_scanning = BooleanProperty(False)
+    bluetooth_service = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(DebugBluetooth, self).__init__(**kwargs)
+
+        self.bluetooth_service = BluetoothService()
 
         # Top-level page container
         self.container = BoxLayout(orientation='vertical', spacing=dp(20))
@@ -49,18 +52,18 @@ class DebugBluetooth(DebugLayout):
 
         # Test Turn Discovery On
         def discoverability_on(_):
-            bluetooth.turn_discoverability_on()
+            self.bluetooth_service.turn_discoverability_on()
             print('Activated Android Bluetooth discoverability mode.')
         self.make_visible_button.bind(on_press=discoverability_on)
 
         # Test Turn Scanning On and Off
         def toggle_scanning(_):
             if not self.is_scanning:
-                bluetooth.turn_discovery_on()
+                self.bluetooth_service.turn_discovery_on()
                 self.is_scanning = True
                 self.scan_button.text = SCAN_ON_TEXT
             else:
-                bluetooth.turn_discovery_off()
+                self.bluetooth_service.turn_discovery_off()
                 self.is_scanning = False
                 self.scan_button.text = SCAN_OFF_TEXT
 

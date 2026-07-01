@@ -1,4 +1,5 @@
 from kivy.graphics import Color, Rectangle
+from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -58,7 +59,7 @@ def add_rows(parent_widget, data, height=50, col_widths=None, actions=None):
                 size_hint_y=None,
                 halign='left',
                 valign='middle',
-                width=col_widths[col] if col_widths else 200,
+                width=col_widths[col] if col_widths else dp(200),
             )
             wrap_text(cell_widget)
             row_widget.add_widget(cell_widget)

@@ -13,4 +13,7 @@ def turn_discoverability_on():
 
 
 def turn_scanning_on():
-    print('We want to turn Bluetooth scanning on!')
+    print('We want to turn Bluetooth scanning on! (Not yet implemented')
+
+def turn_scanning_off():
+    print('We want to turn Bluetooth scanning off! (Not yet implemented)')

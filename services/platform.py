@@ -11,6 +11,10 @@ def initialize_window():
         Config.set('graphics', 'width', '360')
         Config.set('graphics', 'height', '740')
 
+    else:
+        # Todo: Fix the app being drawn underneath the top status bar
+        pass
+
 
 def initialize_permissions():
     """ Runs request_permissions() if running on Android, else does nothing. """

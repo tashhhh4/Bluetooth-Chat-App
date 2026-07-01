@@ -1,3 +1,4 @@
+from kivy.metrics import dp
 from kivy.properties import BooleanProperty
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -18,11 +19,11 @@ class DebugAdvertiser(DebugLayout):
         self.label = Label(
             text=self.get_label_text(),
             size_hint_y=None,
-            height=100
+            height=dp(100)
         )
         self.add_widget(self.label)
 
-        self.button = Button(text=self.get_button_text(), size_hint_y=None, height=300)
+        self.button = Button(text=self.get_button_text(), size_hint_y=None, height=dp(300))
         self.add_widget(self.button)
         self.button.bind(on_press=self.toggle_advertising)
 

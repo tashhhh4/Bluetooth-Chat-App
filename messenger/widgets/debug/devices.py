@@ -1,5 +1,6 @@
 # Manually edit database entries for Devices and Contacts
 
+from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -19,7 +20,7 @@ class DebugDevices(DebugLayout):
         self.add_widget(self.container)
 
         # Header with Refresh Button
-        self.header = BoxLayout(size_hint_y=None, height=50)
+        self.header = BoxLayout(size_hint_y=None, height=dp(50))
         self.refresh_button = Button(text='Refresh Page')
         self.header.add_widget(self.refresh_button)
         self.container.add_widget(self.header)
@@ -78,7 +79,13 @@ class DebugDevices(DebugLayout):
         self.populate_devices()
 
         # Contacts Form
-        self.contacts_form = BoxLayout(orientation='vertical', spacing=10, padding=10, size_hint_y=None, height=170)
+        self.contacts_form = BoxLayout(
+            orientation='vertical',
+            spacing=dp(10),
+            padding=dp(10),
+            size_hint_y=None,
+            height=dp(170)
+        )
         add_background(self.contacts_form, (0, 0, 1, .3))
         self.contacts_form_title = Label(text='CONTACTS')
         self.contacts_form.add_widget(self.contacts_form_title)
@@ -93,7 +100,7 @@ class DebugDevices(DebugLayout):
         # Contacts List
         self.contacts_list = GridLayout(
             cols=1,
-            row_default_height=50,
+            row_default_height=dp(50),
             row_force_default=True,
             size_hint_y=None,
         )
@@ -129,10 +136,10 @@ class DebugDevices(DebugLayout):
         self.devices_list.clear_widgets()
 
         # Add header row
-        col_widths = [110, 90, 90, 30]
+        col_widths = [dp(110), dp(90), dp(90), dp(30)]
         fields = ['uuid', 'name', 'address', '']
         data = [fields]
-        add_rows(self.devices_list, data, col_widths=col_widths, height=50)
+        add_rows(self.devices_list, data, col_widths=col_widths, height=dp(50))
 
         # Get all devices
         list_ = devices.list_devices()
@@ -151,7 +158,7 @@ class DebugDevices(DebugLayout):
         self.contacts_list.clear_widgets()
 
         # Add header row
-        col_widths = [50, 270, 50]
+        col_widths = [dp(50), dp(270), dp(50)]
         fields = ['id', 'name', 'x']
         data = [fields]
         add_rows(self.contacts_list, data, col_widths=col_widths)

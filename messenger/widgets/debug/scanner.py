@@ -1,3 +1,4 @@
+from kivy.metrics import dp
 from kivy.properties import BooleanProperty
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
@@ -25,7 +26,7 @@ class DebugBLEScanner(DebugLayout):
         self.scroll = ScrollView()
         self.devices_container = GridLayout(
             cols=1,
-            spacing=4,
+            spacing=dp(4),
             size_hint_y=None,
         )
         self.devices_container.bind(minimum_height=self.devices_container.setter('height'))
@@ -35,7 +36,7 @@ class DebugBLEScanner(DebugLayout):
         self.check_button = Button(
             text='Begin Scan',
             size_hint_y=None,
-            height=80
+            height=dp(80)
         )
         self.check_button.bind(on_press=self.on_check_devices_button_pressed)
         self.add_widget(self.check_button)
@@ -60,7 +61,7 @@ class DebugBLEScanner(DebugLayout):
                     text=f'{i + 1}. {device["name"]}\n{device["address"]}',
                     size_hint_y=None,
                     size_hint_x=1,
-                    height=200,
+                    height=dp(200),
                     halign='left',
                     valign='middle',
                 ))

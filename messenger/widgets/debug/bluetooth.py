@@ -1,18 +1,23 @@
+from kivy.metrics import dp
+from kivy.properties import BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from .components.debug_layout import DebugLayout
 from services import bluetooth
 
+SCAN_ON_TEXT = 'Stop scanning'
+SCAN_OFF_TEXT = 'Scan'
+
 class DebugBluetooth(DebugLayout):
 
-    is_scanning = False
+    is_scanning = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super(DebugBluetooth, self).__init__(**kwargs)
 
         # Top-level page container
-        self.container = BoxLayout(orientation='vertical', spacing=20)
+        self.container = BoxLayout(orientation='vertical', spacing=dp(20))
         self.add_widget(self.container)
 
         # Make Visible Button
@@ -20,17 +25,17 @@ class DebugBluetooth(DebugLayout):
             text='Turn discoverability on',
             size_hint_x=0.5,
             size_hint_y=None,
-            height=50,
+            height=dp(50),
             pos_hint={'center_x': 0.5},
         )
         self.container.add_widget(self.make_visible_button)
 
         # Scan Button
         self.scan_button = Button(
-            text='Turn scanning on',
+            text=SCAN_OFF_TEXT,
             size_hint_x=0.5,
             size_hint_y=None,
-            height=50,
+            height=dp(50),
             pos_hint={'center_x': 0.5},
         )
         self.container.add_widget(self.scan_button)
@@ -48,7 +53,15 @@ class DebugBluetooth(DebugLayout):
             print('Activated Android Bluetooth discoverability mode.')
         self.make_visible_button.bind(on_press=discoverability_on)
 
-        # Test Turn Scanning On
-        def scanning_on(_):
-            bluetooth.turn_scanning_on()
-        self.scan_button.bind(on_press=scanning_on)
+        # Test Turn Scanning On and Off
+        def toggle_scanning(_):
+            if not self.is_scanning:
+                bluetooth.turn_scanning_on()
+                self.is_scanning = True
+                self.scan_button.text = SCAN_ON_TEXT
+            else:
+                bluetooth.turn_scanning_off()
+                self.is_scanning = False
+                self.scan_button.text = SCAN_OFF_TEXT
+
+        self.scan_button.bind(on_press=toggle_scanning)

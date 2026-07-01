@@ -1,3 +1,4 @@
+from kivy.metrics import dp
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
@@ -7,7 +8,7 @@ from utils import schedule
 
 class DebugNavigation(DebugLayout):
 
-    HEIGHT = 90
+    HEIGHT = dp(90)
 
     def __init__(self, root, **kwargs):
         super(DebugNavigation, self).__init__(**kwargs)
@@ -21,7 +22,7 @@ class DebugNavigation(DebugLayout):
         self.menu_button = Button(
             text='| | |',
             size_hint=(None, None),
-            size=(80, 90),
+            size=(dp(80), dp(90)),
             background_color=(0, 0, 0, 1),
             height=self.HEIGHT,
         )
@@ -38,7 +39,7 @@ class DebugNavigation(DebugLayout):
                 text=title,
                 size_hint_y=None,
                 size_hint_x=1,
-                height=50,
+                height=dp(50),
                 background_color=(0, 0, 0, 1),
                 background_normal='',
             )

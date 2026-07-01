@@ -1,3 +1,4 @@
+from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -52,10 +53,10 @@ class SettingsList(BoxLayout):
         self.table = GridLayout(
             cols=3,
             size_hint_y=None,
-            row_default_height=160,
+            row_default_height=dp(160),
             row_force_default=True,
-            spacing=5,
-            padding=5,
+            spacing=dp(5),
+            padding=dp(5),
         )
         self.table.bind(minimum_height=self.table.setter('height'))
         self.add_widget(self.table)
@@ -106,14 +107,14 @@ class DebugSettings(DebugLayout):
         super(DebugSettings, self).__init__(**kwargs)
 
         self.orientation = 'vertical'
-        self.spacing = 5
-        self.padding = 5
+        self.spacing = dp(5)
+        self.padding = dp(5)
 
         settings_list = SettingsList()
         settings_list.size_hint_y = 0.3
         self.add_widget(settings_list)
 
-        self.row_1 = BoxLayout(spacing=5, padding=5, height=200)
+        self.row_1 = BoxLayout(spacing=dp(5), padding=dp(5), height=dp(200))
         self.add_widget(self.row_1)
         self.row_1.add_widget(ServiceIDCell(size_hint_x=0.5))
         self.row_1.add_widget(DeviceIDCell(size_hint_x=0.5))

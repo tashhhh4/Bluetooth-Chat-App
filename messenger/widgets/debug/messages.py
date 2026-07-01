@@ -1,3 +1,4 @@
+from kivy.metrics import dp
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -17,11 +18,11 @@ class DebugMessages(DebugLayout):
         super(DebugMessages, self).__init__(**kwargs)
 
         # Top-level page container
-        self.container = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        self.container = BoxLayout(orientation='vertical', padding=dp(10), spacing=dp(10))
         self.add_widget(self.container)
 
         # Chat Room Loader
-        self.chat_room_loader = BoxLayout(size_hint_y=None, height=30, spacing=10)
+        self.chat_room_loader = BoxLayout(size_hint_y=None, height=dp(30), spacing=dp(10))
         self.container.add_widget(self.chat_room_loader)
         self.chat_room_loader_label = Label(text='Chat room:', size_hint_x=.3)
         self.chat_room_loader_input = TextInput(size_hint_x=.2)
@@ -31,7 +32,7 @@ class DebugMessages(DebugLayout):
         self.chat_room_loader.add_widget(self.chat_room_loader_button)
 
         # Refresh Button
-        self.refresh_button = Button(text='Refresh Messages', size_hint_y=None, height=50)
+        self.refresh_button = Button(text='Refresh Messages', size_hint_y=None, height=dp(50))
         self.container.add_widget(self.refresh_button)
 
         # Scrolling Container
@@ -39,12 +40,12 @@ class DebugMessages(DebugLayout):
         self.container.add_widget(self.scroll_view)
 
         # Messages section
-        self.message_container = BoxLayout(orientation='vertical', spacing=10)
+        self.message_container = BoxLayout(orientation='vertical', spacing=dp(10))
         fit_height(self.message_container)
         self.scroll_view.add_widget(self.message_container)
 
         # Input Form
-        self.form = BoxLayout(size_hint_y=None, height=80, spacing=10)
+        self.form = BoxLayout(size_hint_y=None, height=dp(80), spacing=dp(10))
         self.container.add_widget(self.form)
         self.text_input = TextInput(multiline=True, size_hint_x=.8)
         self.submit_button = Button(text='Send', size_hint_x=.2)
@@ -86,13 +87,13 @@ class DebugMessages(DebugLayout):
         self.message_container.clear_widgets()
         for i, message in enumerate(latest_messages):
             # Card Wrapper
-            card = BoxLayout(orientation='vertical', size_hint_y=None, padding=5)
+            card = BoxLayout(orientation='vertical', size_hint_y=None, padding=dp(5))
             fit_height(card)
             add_background(card, (.1, 0, 1, .5))
             self.message_container.add_widget(card)
 
             # Card Header
-            card_header = BoxLayout(size_hint_y=None, height=20)
+            card_header = BoxLayout(size_hint_y=None, height=dp(20))
             card.add_widget(card_header)
 
             # Name of the Device that sent the Message
@@ -104,15 +105,15 @@ class DebugMessages(DebugLayout):
             card_header.add_widget(timestamp)
 
             # E Button
-            e_button = Button(text='E', background_color='yellow', size_hint_x=None, width=22)
+            e_button = Button(text='E', background_color='yellow', size_hint_x=None, width=dp(22))
             card_header.add_widget(e_button)
 
             # X Button
-            x_button = Button(text='X', background_color='red', size_hint_x=None, width=22)
+            x_button = Button(text='X', background_color='red', size_hint_x=None, width=dp(22))
             card_header.add_widget(x_button)
 
             # Card Body
-            card_body = BoxLayout(size_hint_y=None, height=50)
+            card_body = BoxLayout(size_hint_y=None, height=dp(50))
             card_text = Label(text=message.text)
             wrap_text(card_text)
             card.add_widget(card_body)

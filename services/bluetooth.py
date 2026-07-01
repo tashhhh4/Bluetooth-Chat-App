@@ -1,4 +1,6 @@
-from pprint import pprint
+import logging
+import threading
+import time
 from android.broadcast import BroadcastReceiver
 from jnius import autoclass, cast
 
@@ -7,6 +9,7 @@ BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
 Intent = autoclass('android.content.Intent')
 ParcelUuid = autoclass('android.os.ParcelUuid')
 PythonActivity = autoclass('org.kivy.android.PythonActivity')
+UUID = autoclass('java.util.UUID')
 
 def handle_device_found(intent):
     parcelable = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
@@ -47,14 +50,20 @@ def get_device_receiver():
 class BluetoothService:
 
     device_receiver = None
+    service_listener_socket = None
 
     def __init__(self):
         self.device_receiver = get_device_receiver()
 
-    def turn_discoverability_on(self):
+    def create_service_listener_socket(self, ttl):
+        logging.info('Running service listener socket for', ttl, 'seconds.')
+        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+
+
+    def turn_discoverability_on(self, ttl): # max 300
         activity = PythonActivity.mActivity
         intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
-        intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
+        intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, ttl)
 
         activity.startActivity(intent)
 

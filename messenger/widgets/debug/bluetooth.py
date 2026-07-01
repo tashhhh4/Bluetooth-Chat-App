@@ -52,8 +52,8 @@ class DebugBluetooth(DebugLayout):
 
         # Test Turn Discovery On
         def discoverability_on(_):
-            self.bluetooth_service.turn_discoverability_on()
-            print('Activated Android Bluetooth discoverability mode.')
+            self.bluetooth_service.turn_discoverability_on(300)
+            self.bluetooth_service.create_service_listener_socket(300)
         self.make_visible_button.bind(on_press=discoverability_on)
 
         # Test Turn Scanning On and Off

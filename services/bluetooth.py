@@ -5,25 +5,30 @@ from jnius import autoclass, cast
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
 Intent = autoclass('android.content.Intent')
+ParcelUuid = autoclass('android.os.ParcelUuid')
 PythonActivity = autoclass('org.kivy.android.PythonActivity')
 
 def handle_device_found(intent):
     parcelable = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-    device = cast(
-        'android.bluetooth.BluetoothDevice',
-        parcelable
-    )
+    device = cast(BluetoothDevice, parcelable)
     device.fetchUuidsWithSdp()
 
 def handle_uuid_fetched(intent):
     print('Running handle_uuid_fetched...')
-    # parcelable = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-    # device = cast(
-    #     BluetoothDevice,
-    #     parcelable
-    # )
-    # print('Fetched a UUID.')
-    # print('device is:', device)
+    print('dir(intent) is:')
+    pprint(dir(intent))
+    parcelable = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+    device = cast(BluetoothDevice, parcelable)
+    raw_uuids = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID)
+    if not raw_uuids:
+        print('No UUIDs found.')
+        return
+    uuids = []
+    for u in raw_uuids:
+        uuid_obj = cast(ParcelUuid, u)
+        uuid_str = str(uuid_obj.toString())
+        uuids.append(uuid_str)
+    print('Extracted UUIDs are:', uuids)
 
 def handle_intent(_, intent):
     action = intent.getAction()

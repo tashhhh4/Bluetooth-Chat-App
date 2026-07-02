@@ -35,7 +35,7 @@ def initialize_permissions():
 
 
 def get_ble_scanner():
-    """ Returns a class that implements all the methods of `/services/blueetooth_discovery.py`,
+    """ Returns a class that implements all the methods of `/services/bluetooth_discovery.py`,
         but it may work differently depending on the environment.
     """
     if ENVIRONMENT == 'local':
@@ -44,6 +44,17 @@ def get_ble_scanner():
 
     from services.bluetooth_discovery import BLEScanner
     return BLEScanner()
+
+def get_bluetooth_service():
+    """ Returns an instance of `services.bluetooth.BluetoothService,
+        or a fake placeholder class.
+    """
+    if ENVIRONMENT == 'local':
+        from services.fake_bluetooth import FakeBluetoothService
+        return FakeBluetoothService()
+
+    from services.bluetooth import BluetoothService
+    return BluetoothService()
 
 def get_transport():
     """ Returns something (a class) that can be used to initiate send() and recv(),

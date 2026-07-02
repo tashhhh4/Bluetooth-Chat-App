@@ -84,9 +84,6 @@ class BluetoothService:
         thread.daemon = True
         thread.start()
 
-
-
-
     def turn_discoverability_on(self, ttl): # max 300
         activity = PythonActivity.mActivity
         intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)

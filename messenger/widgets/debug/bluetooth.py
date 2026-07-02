@@ -4,7 +4,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from .components.debug_layout import DebugLayout
-from services.bluetooth import BluetoothService
+from services.platform import get_bluetooth_service
 
 SCAN_ON_TEXT = 'Stop scanning'
 SCAN_OFF_TEXT = 'Scan'
@@ -17,7 +17,7 @@ class DebugBluetooth(DebugLayout):
     def __init__(self, **kwargs):
         super(DebugBluetooth, self).__init__(**kwargs)
 
-        self.bluetooth_service = BluetoothService()
+        self.bluetooth_service = get_bluetooth_service()
 
         # Top-level page container
         self.container = BoxLayout(orientation='vertical', spacing=dp(20))

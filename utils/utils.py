@@ -1,8 +1,8 @@
+import threading
 import time
 from kivy.clock import Clock
 
-def listen(socket, ttl, name=None):
-    if name is None: name = "socket"
+def listen(socket, ttl=30, name='socket'):
     try:
         start_time = time.time()
         print(f'Opening listener loop with {name}.')
@@ -17,6 +17,20 @@ def listen(socket, ttl, name=None):
     finally:
         socket.close()
         print(f'{name.capitalize()} closed.')
+
+def listen_on_thread(socket, ttl=30, name='socket'):
+    """ Creates a thread that runs `listen` with the desired parameters.
+        Returns the new active thread.
+    """
+
+    thread = threading.Thread(
+        target=listen,
+        args=(socket, ttl, name),
+        daemon=True,
+        name=name + ' thread'
+    )
+    thread.start()
+    return thread
 
 def pluralize(text, number):
     if number == 1:

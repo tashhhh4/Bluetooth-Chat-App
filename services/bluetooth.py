@@ -1,8 +1,7 @@
-import threading
 from android.broadcast import BroadcastReceiver
 from jnius import autoclass, cast
 from config import SERVICE_UUID
-from utils import listen
+from utils import listen_on_thread
 
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
@@ -63,13 +62,12 @@ class BluetoothService:
 
         service_listener_socket = bluetooth_adapter.listenUsingRfcommWithServiceRecord('Blu2', java_uuid)
 
-        def start_service_listener_socket():
-            listen(service_listener_socket, ttl, name='Service Listener Socket')
-
-        # start thread
-        thread = threading.Thread(target=start_service_listener_socket)
-        thread.daemon = True
-        thread.start()
+        thread = listen_on_thread(
+            service_listener_socket,
+            ttl=ttl,
+            name='Service Listener'
+        )
+        print('Started thread:', thread)
 
     @staticmethod
     def turn_discoverability_on(ttl): # max 300

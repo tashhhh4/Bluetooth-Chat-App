@@ -1,9 +1,8 @@
-import logging
 import threading
-import time
 from android.broadcast import BroadcastReceiver
 from jnius import autoclass, cast
 from config import SERVICE_UUID
+from utils import listen
 
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
@@ -56,35 +55,24 @@ class BluetoothService:
     def __init__(self):
         self.device_receiver = get_device_receiver()
 
-    def create_service_listener_socket(self, ttl):
+    @staticmethod
+    def create_service_listener_socket(ttl):
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
         bluetooth_adapter.cancelDiscovery()
         java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
-        print('Creating socket...')
+
         service_listener_socket = bluetooth_adapter.listenUsingRfcommWithServiceRecord('Blu2', java_uuid)
-        print('Service Listener socket created.')
-        def listen():
-            try:
-                start_time = time.time()
-                while time.time() - start_time < ttl:
-                    try:
-                        client = service_listener_socket.accept(1000) # 1 second timeout
-                        print('Connection accepted!')
-                        client.close()
-                    except Exception as e:
-                        print(e)
-                print('Listener loop closed after time limit.')
-            finally:
-                service_listener_socket.close()
-                print('Service Listener socket closed.')
+
+        def start_service_listener_socket():
+            listen(service_listener_socket, ttl, name='Service Listener Socket')
 
         # start thread
-        print('Starting listener thread....')
-        thread = threading.Thread(target=listen)
+        thread = threading.Thread(target=start_service_listener_socket)
         thread.daemon = True
         thread.start()
 
-    def turn_discoverability_on(self, ttl): # max 300
+    @staticmethod
+    def turn_discoverability_on(ttl): # max 300
         activity = PythonActivity.mActivity
         intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
         intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, ttl)

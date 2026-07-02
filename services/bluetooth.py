@@ -49,13 +49,12 @@ def get_device_receiver():
 class BluetoothService:
 
     device_receiver = None
-    service_listener_socket = None
 
     def __init__(self):
         self.device_receiver = get_device_receiver()
 
     @staticmethod
-    def create_service_listener_socket(ttl):
+    def listen_for_service_record(ttl):
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
         bluetooth_adapter.cancelDiscovery()
         java_uuid = JavaUUID.fromString(str(SERVICE_UUID))

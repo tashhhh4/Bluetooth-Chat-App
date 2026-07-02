@@ -53,7 +53,7 @@ class DebugBluetooth(DebugLayout):
         # Test Turn Discovery On
         def discoverability_on(_):
             self.bluetooth_service.turn_discoverability_on(15)
-            self.bluetooth_service.create_service_listener_socket(15)
+            self.bluetooth_service.listen_for_service_record(15)
         self.make_visible_button.bind(on_press=discoverability_on)
 
         # Test Turn Scanning On and Off

@@ -18,6 +18,7 @@ class DebugBluetooth(DebugLayout):
         super(DebugBluetooth, self).__init__(**kwargs)
 
         self.bluetooth_service = get_bluetooth_service()
+        self.bluetooth_service.register_event_callback('DEVICE_DISCOVERED', lambda: print('Hello I see you have discovered a device...'))
 
         # Top-level page container
         self.container = BoxLayout(orientation='vertical', spacing=dp(20))
@@ -52,19 +53,22 @@ class DebugBluetooth(DebugLayout):
 
         # Test Turn Discovery On
         def discoverability_on(_):
-            self.bluetooth_service.turn_discoverability_on(15)
-            self.bluetooth_service.listen_for_service_record(15)
+            self.bluetooth_service.turn_discoverability_on(60)
+            self.bluetooth_service.listen_for_service_record(60)
         self.make_visible_button.bind(on_press=discoverability_on)
 
         # Test Turn Scanning On and Off
         def toggle_scanning(_):
             if not self.is_scanning:
-                self.bluetooth_service.turn_discovery_on()
+                self.bluetooth_service.scan_for_devices()
                 self.is_scanning = True
                 self.scan_button.text = SCAN_ON_TEXT
             else:
-                self.bluetooth_service.turn_discovery_off()
+                self.bluetooth_service.stop_scanning()
                 self.is_scanning = False
                 self.scan_button.text = SCAN_OFF_TEXT
 
         self.scan_button.bind(on_press=toggle_scanning)
+
+    def populate_available_devices_list(self):
+        pass

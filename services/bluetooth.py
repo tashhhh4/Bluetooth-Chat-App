@@ -10,48 +10,17 @@ ParcelUuid = autoclass('android.os.ParcelUuid')
 PythonActivity = autoclass('org.kivy.android.PythonActivity')
 JavaUUID = autoclass('java.util.UUID')
 
-def handle_device_found(intent):
-    parcelable = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-    device = cast(BluetoothDevice, parcelable)
-    device.fetchUuidsWithSdp()
-
-def handle_uuid_fetched(intent):
-    raw_uuids = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID)
-    if not raw_uuids:
-        print('No UUIDs found.')
-        return
-    uuids = []
-    for u in raw_uuids:
-        uuid_obj = cast(ParcelUuid, u)
-        uuid_str = str(uuid_obj.toString())
-        uuids.append(uuid_str)
-    print('Extracted UUIDs are:', uuids)
-
-def handle_intent(_, intent):
-    action = intent.getAction()
-
-    if action == BluetoothDevice.ACTION_FOUND:
-        handle_device_found(intent)
-
-    # elif action == BluetoothDevice.ACTION_UUID:
-    #    handle_uuid_fetched(intent)
-
-def get_device_receiver():
-    device_receiver = BroadcastReceiver(
-        callback=handle_intent,
-        actions=[
-            BluetoothDevice.ACTION_FOUND,
-            BluetoothDevice.ACTION_UUID,
-        ],
-    )
-    return device_receiver
-
 class BluetoothService:
 
     device_receiver = None
+    is_scanning = False
+    discovered_devices = {}
+    events = {
+        'DEVICE_DISCOVERED': [],
+    }
 
     def __init__(self):
-        self.device_receiver = get_device_receiver()
+        self.device_receiver = self._get_device_receiver()
 
     @staticmethod
     def listen_for_service_record(ttl):
@@ -69,6 +38,21 @@ class BluetoothService:
         print('Started thread:', thread)
 
     @staticmethod
+    def query_device_for_service_record(device):
+        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
+        service_query_socket = device.createRfcommSocketToServiceRecord(java_uuid)
+        print('Created socket:', service_query_socket)
+        try:
+            result = service_query_socket.connect()
+            print('After attempting to use connect()')
+            print('Socket is:', service_query_socket)
+            print('Result is:', result)
+            return result
+        except Exception as e:
+            print(e)
+        return None
+
+    @staticmethod
     def turn_discoverability_on(ttl): # max 300
         activity = PythonActivity.mActivity
         intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
@@ -76,20 +60,69 @@ class BluetoothService:
 
         activity.startActivity(intent)
 
-    def turn_discovery_on(self):
-        print('Running turn_discovery_on')
-        print('receiver is', self.device_receiver)
-        self.device_receiver = get_device_receiver()
+    def scan_for_devices(self):
+        print('Scanning for devices...')
+        self.is_scanning = True
+        self._turn_discovery_on()
+
+    def stop_scanning(self):
+        self._turn_discovery_off()
+        self.is_scanning = False
+        print('Scanning stopped.')
+
+    def register_event_callback(self, event_name, callback):
+        if event_name not in self.events:
+            raise TypeError(f'No event called {event_name} for service BluetoothService')
+        self.events[event_name].append(callback)
+
+    def _turn_discovery_on(self):
+        self.device_receiver = self._get_device_receiver()
         self.device_receiver.start()
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
         bluetooth_adapter.startDiscovery()
+        print('Discovery started.')
 
-    def turn_discovery_off(self):
-        print('Running turn_discovery_off')
-        print('receiver is', self.device_receiver)
+    def _turn_discovery_off(self):
         if self.device_receiver:
             self.device_receiver.stop()
             self.device_receiver = None
-        print('receiver is', self.device_receiver)
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
         bluetooth_adapter.cancelDiscovery()
+        print('Discovery cancelled.')
+
+    def _add_discovered_device(self, device):
+        # check if a device with this address is already in our discovered_devices
+        if device.address not in self.discovered_devices:
+            self.discovered_devices[device.address] = {
+                'name': device.name,
+            }
+            print(f'Discovered device ({device.name}): {device.address})')
+        for callback in self.device_discovered_callbacks:
+            callback()
+
+    def _get_device_receiver(self):
+        device_receiver = BroadcastReceiver(
+            callback=self._handle_intent,
+            actions=[
+                BluetoothDevice.ACTION_FOUND,
+            ],
+        )
+        return device_receiver
+
+    def _handle_device_found(self, intent):
+        # self._turn_discovery_off()
+        print('Running _handle_device_found.')
+
+        parcelable = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+        device = cast(BluetoothDevice, parcelable)
+
+        self._add_discovered_device(device)
+        # result = self.query_device_for_service_record(device)
+        # if self.is_scanning:
+        #     self._turn_discovery_on()
+
+    def _handle_intent(self, _, intent):
+        action = intent.getAction()
+
+        if action == BluetoothDevice.ACTION_FOUND:
+            self._handle_device_found(intent)

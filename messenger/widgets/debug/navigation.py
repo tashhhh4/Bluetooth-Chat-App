@@ -3,7 +3,8 @@ from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
 from .components.debug_layout import DebugLayout
-from messenger.pages import change_page, DEBUG_PAGES
+from messenger.pages import DEBUG_PAGES
+from messenger.utils import change_page
 from utils import schedule
 
 class DebugNavigation(DebugLayout):

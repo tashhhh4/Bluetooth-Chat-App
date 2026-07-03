@@ -62,6 +62,13 @@ class BluetoothService:
 
         activity.startActivity(intent)
 
+    @staticmethod
+    def get_paired_devices():
+        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+        devices_set = bluetooth_adapter.getBondedDevices()
+        devices_list = [{'name': d.name, 'address': d.address} for d in devices_set]
+        return devices_list
+
     def scan_for_devices(self):
         print('Scanning for devices...')
         self.is_scanning = True
@@ -102,7 +109,6 @@ class BluetoothService:
             self.discovered_devices[device.address] = {
                 'name': device.name,
             }
-            print(f'Discovered device ({device.name}): {device.address})')
         list_ = [{'name': n['name'], 'address': a} for a, n in self.discovered_devices.items()]
         self._emit_event('DISCOVERED_DEVICES_UPDATED', list_)
 

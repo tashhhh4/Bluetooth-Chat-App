@@ -5,8 +5,9 @@ from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
+from utils import schedule
 from .components.debug_layout import DebugLayout
-from ..utils import fit_height
+from ..utils import add_background, fit_height
 from services.platform import get_bluetooth_service
 
 SCAN_ON_TEXT = 'Stop scanning'
@@ -21,7 +22,6 @@ class DebugBluetooth(DebugLayout):
         super(DebugBluetooth, self).__init__(**kwargs)
 
         self.bluetooth_service = get_bluetooth_service()
-        self.bluetooth_service.register_event_callback('DEVICE_DISCOVERED', lambda: print('Hello I see you have discovered a device...'))
 
         # Top-level page container
         self.container = BoxLayout(orientation='vertical', spacing=dp(20))
@@ -69,6 +69,7 @@ class DebugBluetooth(DebugLayout):
             row_default_height=dp(40),
             row_force_default=True,
         )
+        fit_height(self.paired_devices_container)
         self.paired_devices_container.add_widget(self.paired_devices_list)
 
         # Available Devices
@@ -87,18 +88,13 @@ class DebugBluetooth(DebugLayout):
         self.available_devices_container.add_widget(self.available_devices_label)
 
         # List
-        self.available_devices_list = GridLayout(
-            cols=1,
-            size_hint_y=None,
-            row_default_height=dp(40),
-            row_force_default=True,
-        )
+        self.available_devices_list = BoxLayout(orientation='vertical', size_hint_y=None)
+        fit_height(self.available_devices_list)
         self.available_devices_container.add_widget(self.available_devices_list)
 
         # Spacer
         self.spacer = Widget()
         self.container.add_widget(self.spacer)
-
 
         ### Bind Actions ###
 
@@ -121,5 +117,27 @@ class DebugBluetooth(DebugLayout):
 
         self.scan_button.bind(on_press=toggle_scanning)
 
-    def populate_available_devices_list(self):
-        pass
+        ### Bind Events ###
+
+        self.bluetooth_service.register_event_callback(
+            'DISCOVERED_DEVICES_UPDATED',
+            self.populate_available_devices_list
+        )
+
+    def populate_available_devices_list(self, devices):
+        print('running populate_available_devices_list')
+        self.available_devices_container.clear_widgets()
+        print('devices are')
+        def d(_):
+            print('Going through list.')
+            for device in devices:
+                print('device is', device)
+                # Card
+                card = BoxLayout(orientation='vertical', size_hint_y=None, height=dp(40))
+                add_background(card, (.2, .2, .2, 1))
+                self.available_devices_container.add_widget(card)
+
+                # Device Name
+                card.add_widget(Label(text=str(device['name'])))
+                card.add_widget(Label(text=str(device['address'])))
+        schedule(d)

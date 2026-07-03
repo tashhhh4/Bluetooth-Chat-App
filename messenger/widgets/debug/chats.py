@@ -85,7 +85,7 @@ class DebugChats(DebugLayout):
 
         for room in chat_rooms:
             # Card Container
-            card = BoxLayout(orientation='vertical', size_hint_y=None, height=120)
+            card = BoxLayout(orientation='vertical', size_hint_y=None, height=dp(120))
             add_background(card, (.3, .2, .1, 1))
             self.chat_list.add_widget(card)
 

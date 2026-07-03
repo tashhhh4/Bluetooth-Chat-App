@@ -13,10 +13,12 @@ JavaUUID = autoclass('java.util.UUID')
 class BluetoothService:
 
     device_receiver = None
+
     is_scanning = False
+
     discovered_devices = {}
-    events = {
-        'DEVICE_DISCOVERED': [],
+    _callbacks = {
+        'DISCOVERED_DEVICES_UPDATED': [],
     }
 
     def __init__(self):
@@ -71,9 +73,13 @@ class BluetoothService:
         print('Scanning stopped.')
 
     def register_event_callback(self, event_name, callback):
-        if event_name not in self.events:
+        if event_name not in self._callbacks:
             raise TypeError(f'No event called {event_name} for service BluetoothService')
-        self.events[event_name].append(callback)
+        self._callbacks[event_name].append(callback)
+
+    def _emit_event(self, event_name, *args, **kwargs):
+        for callback in self._callbacks[event_name]:
+            callback(*args, **kwargs)
 
     def _turn_discovery_on(self):
         self.device_receiver = self._get_device_receiver()
@@ -97,8 +103,8 @@ class BluetoothService:
                 'name': device.name,
             }
             print(f'Discovered device ({device.name}): {device.address})')
-        for callback in self.device_discovered_callbacks:
-            callback()
+        list_ = [{'name': n['name'], 'address': a} for a, n in self.discovered_devices.items()]
+        self._emit_event('DISCOVERED_DEVICES_UPDATED', list_)
 
     def _get_device_receiver(self):
         device_receiver = BroadcastReceiver(

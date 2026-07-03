@@ -34,7 +34,7 @@ def listen_on_thread(socket, ttl=30, name='socket'):
     thread.start()
     return thread
 
-def accept(socket, name='accept socket'):
+def accept(socket, name='accept socket', on_connected=None):
     try:
         connected = False
         while not connected:
@@ -43,55 +43,50 @@ def accept(socket, name='accept socket'):
                 client = socket.accept()
                 print('Connection accepted!')
                 print('client is', client)
+                if on_connected:
+                    on_connected(client)
                 connected = True
             except Exception as e:
                 print(e)
     except Exception as e:
         print(e)
-    finally:
-        socket.close()
-        print(f'{name.capitalize()} closed.')
 
-def accept_on_thread(socket, name='accept socket'):
+def accept_on_thread(socket, name='accept socket', on_connected=None):
     """ Creates a thread that runs `accept` with the desired parameters.
         Returns the new active thread.
     """
     thread = threading.Thread(
         target=accept,
-        args=(socket, name),
+        args=(socket, name, on_connected),
         daemon=True,
         name=name + ' thread',
     )
     thread.start()
     return thread
 
-def connect(socket, name='connector socket'):
-    print('At the top of utils.connect(). socket is', socket)
-    print(dir(socket))
+def connect(socket, name='connector socket', on_connected=None):
     try:
         connected = False
         while not connected:
             print(f'Probing device for connection with {name}.')
             try:
-                server = socket.connect()
+                socket.connect()
                 print('Connection established!')
-                print('server is', server)
                 connected = True
+                if on_connected:
+                    on_connected(socket)
             except Exception as e:
                 print('Failed to connect this second.')
     except Exception as e:
         print(e)
-    finally:
-        socket.close()
-        print(f'{name.capitalize()} closed.')
 
-def connect_on_thread(socket, name='connector socket'):
+def connect_on_thread(socket, name='connector socket', on_connected=None):
     """ Creates a thread that runs `connect`.
         Returns the new active thread.
     """
     thread = threading.Thread(
         target=connect,
-        args=(socket, name),
+        args=(socket, name, on_connected),
         daemon=True,
         name=name + ' thread',
     )

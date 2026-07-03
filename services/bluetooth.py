@@ -13,6 +13,7 @@ JavaUUID = autoclass('java.util.UUID')
 class BluetoothService:
 
     device_receiver = None
+    connected_socket = None
 
     is_scanning = False
 
@@ -23,6 +24,22 @@ class BluetoothService:
 
     def __init__(self):
         self.device_receiver = self._get_device_receiver()
+        self.listen_for_connections()
+
+    @staticmethod
+    def turn_discoverability_on(ttl): # max 300
+        activity = PythonActivity.mActivity
+        intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
+        intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, ttl)
+
+        activity.startActivity(intent)
+
+    @staticmethod
+    def get_paired_devices():
+        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+        devices_set = bluetooth_adapter.getBondedDevices()
+        devices_list = [{'name': d.name, 'address': d.address} for d in devices_set]
+        return devices_list
 
     @staticmethod
     def listen_for_service_record(ttl):
@@ -40,39 +57,6 @@ class BluetoothService:
         print('Started thread:', thread)
 
     @staticmethod
-    def listen_for_connections():
-        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
-        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
-
-        connection_listener_socket = bluetooth_adapter.listenUsingRfcommWithServiceRecord('Blu', java_uuid)
-
-        thread = accept_on_thread(
-            connection_listener_socket,
-            name='Connection Listener',
-        )
-        alive = 'Alive' if thread.is_alive() else 'Unalive'
-        print(f'Started thread: {thread.name} ({alive}) with daemon {thread.daemon}. Ident: {thread.ident}')
-
-    @staticmethod
-    def connect_to_device(address):
-        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
-        device = bluetooth_adapter.getRemoteDevice(address)
-        if not device:
-            print('Device not found!')
-            return
-
-        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
-
-        connector_socket = device.createRfcommSocketToServiceRecord(java_uuid)
-
-        thread = connect_on_thread(
-            connector_socket,
-            name='Connection Initiator',
-        )
-        alive = 'Alive' if thread.is_alive() else 'Unalive'
-        print(f'Started thread: {thread.name} ({alive}) with daemon {thread.daemon}. Ident: {thread.ident}')
-
-    @staticmethod
     def query_device_for_service_record(device):
         java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
         service_query_socket = device.createRfcommSocketToServiceRecord(java_uuid)
@@ -87,20 +71,38 @@ class BluetoothService:
             print(e)
         return None
 
-    @staticmethod
-    def turn_discoverability_on(ttl): # max 300
-        activity = PythonActivity.mActivity
-        intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
-        intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, ttl)
-
-        activity.startActivity(intent)
-
-    @staticmethod
-    def get_paired_devices():
+    def listen_for_connections(self):
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
-        devices_set = bluetooth_adapter.getBondedDevices()
-        devices_list = [{'name': d.name, 'address': d.address} for d in devices_set]
-        return devices_list
+        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
+
+        connection_listener_socket = bluetooth_adapter.listenUsingRfcommWithServiceRecord('Blu', java_uuid)
+
+        thread = accept_on_thread(
+            connection_listener_socket,
+            name='Connection Listener',
+            on_connected=self._handle_connection,
+        )
+        alive = 'Alive' if thread.is_alive() else 'Unalive'
+        print(f'Started thread: {thread.name} ({alive}) with daemon {thread.daemon}. Ident: {thread.ident}')
+
+    def connect_to_device(self, address):
+        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+        device = bluetooth_adapter.getRemoteDevice(address)
+        if not device:
+            print('Device not found!')
+            return
+
+        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
+
+        connector_socket = device.createRfcommSocketToServiceRecord(java_uuid)
+
+        thread = connect_on_thread(
+            connector_socket,
+            name='Connection Initiator',
+            on_connected=self._handle_connection,
+        )
+        alive = 'Alive' if thread.is_alive() else 'Unalive'
+        print(f'Started thread: {thread.name} ({alive}) with daemon {thread.daemon}. Ident: {thread.ident}')
 
     def scan_for_devices(self):
         print('Scanning for devices...')
@@ -171,3 +173,12 @@ class BluetoothService:
 
         if action == BluetoothDevice.ACTION_FOUND:
             self._handle_device_found(intent)
+
+    def _handle_connection(self, socket):
+        print('Inside _handle_connection after a successful socket connection.')
+        self.connected_socket = socket
+        print('My connected_socket is now', self.connected_socket)
+        print('Device:', self.connected_socket.getRemoteDevice())
+        print('connected:', self.connected_socket.connected)
+        print('isConnected:', self.connected_socket.isConnected())
+        print('connectionType:', self.connected_socket.connectionType)

@@ -1,4 +1,5 @@
 import logging
+from kivy.app import App
 from config import ENVIRONMENT
 
 """
@@ -49,6 +50,10 @@ def get_bluetooth_service():
     """ Returns an instance of `services.bluetooth.BluetoothService,
         or a fake placeholder class.
     """
+    existing_obj = App.get_running_app().bluetooth_service
+    if existing_obj:
+        return existing_obj
+
     if ENVIRONMENT == 'local':
         from services.fake_bluetooth import FakeBluetoothService
         return FakeBluetoothService()
@@ -60,12 +65,3 @@ def get_transport():
     """ Returns something (a class) that can be used to initiate send() and recv(),
         or a fake class allowing the code to continue to be debugged on desktop.
     """
-
-def initialize_bluetooth_server():
-    """ Runs BluetoothService.listen_for_connections or prints a placeholder statement. """
-    if ENVIRONMENT == 'local':
-        print('Initialize Bluetooth Listener -- Not available on local.')
-        return
-
-    from services.bluetooth import BluetoothService
-    BluetoothService.listen_for_connections()

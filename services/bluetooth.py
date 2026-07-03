@@ -1,7 +1,7 @@
 from android.broadcast import BroadcastReceiver
 from jnius import autoclass, cast
 from config import SERVICE_UUID
-from utils import listen_on_thread
+from utils import accept_on_thread, connect_on_thread, listen_on_thread
 
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
@@ -38,6 +38,39 @@ class BluetoothService:
             name='Service Listener'
         )
         print('Started thread:', thread)
+
+    @staticmethod
+    def listen_for_connections():
+        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
+
+        connection_listener_socket = bluetooth_adapter.listenUsingRfcommWithServiceRecord('Blu', java_uuid)
+
+        thread = accept_on_thread(
+            connection_listener_socket,
+            name='Connection Listener',
+        )
+        alive = 'Alive' if thread.is_alive() else 'Unalive'
+        print(f'Started thread: {thread.name} ({alive}) with daemon {thread.daemon}. Ident: {thread.ident}')
+
+    @staticmethod
+    def connect_to_device(address):
+        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+        device = bluetooth_adapter.getRemoteDevice(address)
+        if not device:
+            print('Device not found!')
+            return
+
+        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
+
+        connector_socket = device.createRfcommSocketToServiceRecord(java_uuid)
+
+        thread = connect_on_thread(
+            connector_socket,
+            name='Connection Initiator',
+        )
+        alive = 'Alive' if thread.is_alive() else 'Unalive'
+        print(f'Started thread: {thread.name} ({alive}) with daemon {thread.daemon}. Ident: {thread.ident}')
 
     @staticmethod
     def query_device_for_service_record(device):

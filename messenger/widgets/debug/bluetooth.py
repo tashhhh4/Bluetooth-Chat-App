@@ -16,6 +16,8 @@ SCAN_OFF_TEXT = 'Scan'
 
 def open_chat_with_device(device):
     print('Opening a new chat.')
+    bluetooth_service = get_bluetooth_service()
+    bluetooth_service.connect_to_device(device['address'])
     change_page(DebugChat, device=device)
 
 class DeviceCard(BoxLayout):

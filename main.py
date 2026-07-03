@@ -5,7 +5,7 @@ initialize_window()
 from kivymd.app import MDApp
 from messenger.widgets import HomeView, RootLayout
 from messenger.ui.loader import load_ui
-from services.platform import initialize_permissions
+from services.platform import initialize_bluetooth_server, initialize_permissions
 from db.engine import initialize_database
 
 class Blu2App(MDApp):
@@ -20,6 +20,8 @@ class Blu2App(MDApp):
         initialize_permissions()
 
         initialize_database()
+
+        initialize_bluetooth_server()
 
         self.root = RootLayout()
         self.set_page(HomeView)

@@ -60,3 +60,12 @@ def get_transport():
     """ Returns something (a class) that can be used to initiate send() and recv(),
         or a fake class allowing the code to continue to be debugged on desktop.
     """
+
+def initialize_bluetooth_server():
+    """ Runs BluetoothService.listen_for_connections or prints a placeholder statement. """
+    if ENVIRONMENT == 'local':
+        print('Initialize Bluetooth Listener -- Not available on local.')
+        return
+
+    from services.bluetooth import BluetoothService
+    BluetoothService.listen_for_connections()

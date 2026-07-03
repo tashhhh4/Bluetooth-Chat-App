@@ -93,6 +93,33 @@ def connect_on_thread(socket, name='connector socket', on_connected=None):
     thread.start()
     return thread
 
+def read_input_stream(connected_socket, input_stream, name='input stream receiver', on_receive=None):
+    buffer = bytearray(1024)
+    while connected_socket:
+        try:
+            bytes_read = input_stream.read(buffer)
+            if bytes_read > 0:
+                data = buffer[:bytes_read].decode('utf-8')
+                print('RECEIVED:', data)
+                if on_receive:
+                    on_receive(data)
+        except Exception as e:
+            print('Receive error:', e)
+            break
+
+def read_input_stream_on_thread(connected_socket, input_stream, name='input stream receiver', on_receive=None):
+    """ Creates a thread to run `receive_and_read`.
+        Returns the new active thread.
+    """
+    thread = threading.Thread(
+        target=read_input_stream,
+        args=(connected_socket, input_stream, name, on_receive),
+        daemon=True,
+        name=name + ' thread',
+    )
+    thread.start()
+    return thread
+
 def pluralize(text, number):
     if number == 1:
         return text

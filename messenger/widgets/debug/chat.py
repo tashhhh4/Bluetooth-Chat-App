@@ -5,6 +5,7 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from .components.debug_layout import DebugLayout
+from services.platform import get_bluetooth_service
 
 class DebugChat(DebugLayout):
 
@@ -54,3 +55,13 @@ class DebugChat(DebugLayout):
         # Send Button
         self.send_button = Button(text='Send', size_hint_x=.2)
         self.send_message_form.add_widget(self.send_button)
+
+        ### Bind Actions ###
+
+        # Send Message
+        def s(_):
+            text = self.text_input.text
+            print('Sending message...')
+            bluetooth_adapter = get_bluetooth_service()
+            bluetooth_adapter.send_bytes(text)
+        self.send_button.bind(on_press=s)

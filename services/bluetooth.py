@@ -1,7 +1,7 @@
 from android.broadcast import BroadcastReceiver
 from jnius import autoclass, cast
 from config import SERVICE_UUID
-from utils import accept_on_thread, connect_on_thread, listen_on_thread
+from utils import accept_on_thread, connect_on_thread, listen_on_thread, read_input_stream_on_thread
 
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
@@ -104,6 +104,31 @@ class BluetoothService:
         alive = 'Alive' if thread.is_alive() else 'Unalive'
         print(f'Started thread: {thread.name} ({alive}) with daemon {thread.daemon}. Ident: {thread.ident}')
 
+    def start_reading_input_stream(self):
+        if self.connected_socket is None:
+            raise IOError('No connection.')
+        input_stream = self.connected_socket.getInputStream()
+        print('input_stream is', input_stream)
+        thread = read_input_stream_on_thread(
+            self.connected_socket,
+            input_stream,
+            name='Input Stream Reader',
+            on_receive=self._handle_receive,
+        )
+
+    def send_bytes(self, data):
+        print('running send_bytes')
+        if self.connected_socket is None:
+            raise IOError('No connection.')
+        output_stream = self.connected_socket.getOutputStream()
+        print('output_stream is', output_stream)
+        try:
+            output_stream.write(data.encode('utf-8'))
+            output_stream.flush()
+            print('SENT:', data)
+        except Exception as e:
+            print('send_bytes error:', e)
+
     def scan_for_devices(self):
         print('Scanning for devices...')
         self.is_scanning = True
@@ -182,3 +207,8 @@ class BluetoothService:
         print('connected:', self.connected_socket.connected)
         print('isConnected:', self.connected_socket.isConnected())
         print('connectionType:', self.connected_socket.connectionType)
+
+        self.start_reading_input_stream()
+
+    def _handle_receive(self, data):
+        print('Received data:', data)

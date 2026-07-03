@@ -1,9 +1,12 @@
-from kivy.metrics import dp
+from kivy.metrics import dp, sp
 from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from .components.debug_layout import DebugLayout
+from ..utils import fit_height
 from services.platform import get_bluetooth_service
 
 SCAN_ON_TEXT = 'Stop scanning'
@@ -43,6 +46,54 @@ class DebugBluetooth(DebugLayout):
             pos_hint={'center_x': 0.5},
         )
         self.container.add_widget(self.scan_button)
+
+        # Paired Devices
+        self.paired_devices_container = BoxLayout(orientation='vertical', size_hint_y=None)
+        fit_height(self.paired_devices_container)
+        self.container.add_widget(self.paired_devices_container)
+
+        # Heading
+        self.paired_devices_label = Label(
+            text='Paired Devices',
+            size_hint_y=None,
+            height=dp(20),
+            font_size=sp(12),
+            halign='left',
+        )
+        self.paired_devices_container.add_widget(self.paired_devices_label)
+
+        # List
+        self.paired_devices_list = GridLayout(
+            cols=1,
+            size_hint_y=None,
+            row_default_height=dp(40),
+            row_force_default=True,
+        )
+        self.paired_devices_container.add_widget(self.paired_devices_list)
+
+        # Available Devices
+        self.available_devices_container = BoxLayout(orientation='vertical', size_hint_y=None)
+        fit_height(self.available_devices_container)
+        self.container.add_widget(self.available_devices_container)
+
+        # Heading
+        self.available_devices_label = Label(
+            text='Available Devices',
+            size_hint_y=None,
+            height=dp(20),
+            font_size=sp(12),
+            halign='left',
+        )
+        self.available_devices_container.add_widget(self.available_devices_label)
+
+        # List
+        self.available_devices_list = GridLayout(
+            cols=1,
+            size_hint_y=None,
+            row_default_height=dp(40),
+            row_force_default=True,
+        )
+        self.available_devices_container.add_widget(self.available_devices_list)
 
         # Spacer
         self.spacer = Widget()

@@ -1,3 +1,4 @@
+from kivy.app import App
 from kivy.metrics import dp
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
@@ -10,10 +11,8 @@ class DebugNavigation(DebugLayout):
 
     HEIGHT = dp(90)
 
-    def __init__(self, root, **kwargs):
+    def __init__(self, **kwargs):
         super(DebugNavigation, self).__init__(**kwargs)
-
-        self.root = root
 
         self.orientation = 'horizontal'
         self.size_hint_y = None
@@ -48,7 +47,8 @@ class DebugNavigation(DebugLayout):
 
     def open_page(self, widget_class):
         self.dropdown.dismiss()
-        self.root.set_page(widget_class())
+        app = App.get_running_app()
+        app.set_page(widget_class())
 
     def open_dropdown(self, _):
         self.dropdown.open(self)

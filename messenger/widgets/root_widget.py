@@ -7,7 +7,7 @@ class RootLayout(MDWidget):
         super().__init__(RootLayout, **kwargs)
 
         if config.ENVIRONMENT in ['local', 'debug']:
-            self.ids.header_container.add_widget(DebugNavigation(root=self))
+            self.ids.header_container.add_widget(DebugNavigation())
 
     def set_page(self, page_widget):
         """ REPLACES the widget in the page area of the RootLayout. """

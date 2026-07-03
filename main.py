@@ -22,10 +22,11 @@ class Blu2App(MDApp):
         initialize_database()
 
         self.root = RootLayout()
-        self.set_page(HomeView())
+        self.set_page(HomeView)
         return self.root
 
-    def set_page(self, widget):
-        self.root.set_page(widget)
+    def set_page(self, widget, **kwargs):
+        page = widget(**kwargs)
+        self.root.set_page(page)
 
 Blu2App().run()

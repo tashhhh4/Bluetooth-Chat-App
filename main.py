@@ -3,8 +3,8 @@ from services.platform import initialize_window
 initialize_window()
 
 from kivymd.app import MDApp
-from messenger.widgets import HomeView, RootLayout
-from messenger.ui.loader import load_ui
+import messenger.widgets # for side effect
+from messenger.init import get_root_widget, load_ui
 from services.platform import get_bluetooth_service, initialize_permissions
 from db.engine import initialize_database
 
@@ -20,20 +20,22 @@ class Blu2App(MDApp):
         self.theme_cls.theme_style = 'Light'
         self.theme_cls.primary_palette = 'Blue'
 
-        load_ui()
-
         initialize_permissions()
 
         initialize_database()
 
         self.bluetooth_service = get_bluetooth_service()
 
-        self.root = RootLayout()
-        self.set_page(HomeView)
+        load_ui()
+
+        self.root = get_root_widget()
+        self.set_page('Home')
         return self.root
 
-    def set_page(self, widget, **kwargs):
-        page = widget(**kwargs)
-        self.root.set_page(page)
+    def set_page(self, page_name):
+        self.root.set_page(page_name)
+
+    def get_screen(self, page_name):
+        return self.root.ids.screen_manager.get_screen(page_name)
 
 Blu2App().run()

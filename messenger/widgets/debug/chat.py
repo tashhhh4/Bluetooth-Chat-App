@@ -11,20 +11,16 @@ class DebugChat(DebugLayout):
 
     device = DictProperty()
 
-    def __init__(self, device, **kwargs):
+    def __init__(self, **kwargs):
         super(DebugChat, self).__init__(**kwargs)
-
-        self.device = device
-        print('Initializing chat with', self.device['name'], self.device['address'])
 
         # Top-level page container
         self.container = BoxLayout(orientation='vertical', padding=dp(10), spacing=dp(10))
         self.add_widget(self.container)
 
         # Chat Title
-        device_name = self.device['name'] if self.device['name'] else 'Unknown Device'
         self.chat_title = Label(
-            text=f'Chat with {device_name}',
+            text='Chat with [loading device name]',
             font_size=sp(20),
             size_hint_y=None,
             height=dp(32)
@@ -65,3 +61,10 @@ class DebugChat(DebugLayout):
             bluetooth_adapter = get_bluetooth_service()
             bluetooth_adapter.send_bytes(text)
         self.send_button.bind(on_press=s)
+
+    def set_context(self, **context):
+        self.device = context.get('device')
+
+    def on_device(self, _, device):
+        device_name = device['name'] if device['name'] else 'Unknown Device'
+        self.chat_title.text = f'Chat with {device_name}'

@@ -1,6 +1,12 @@
 <HomeView>:
 
+    MDLabel:
+        text: "Home View here."
+        halign: "center"
+        theme_text_color: "Primary"
+
     MDAnchorLayout:
+
         anchor_x: "center"
         anchor_y: "center"
         height: root.height
@@ -14,12 +20,4 @@
 
             ButtonLink:
                 button_text: "               Scan and Connect Devices               "
-                id: bluetooth_scanning_link
-
-            ButtonLink:
-                button_text: "                                    Chats                                    "
-                id: chat_list_link
-
-            ButtonLink:
-                button_text: "                             Group Chats                             "
-                id: group_chat_list_link
+                target_page: "Bluetooth Manager"

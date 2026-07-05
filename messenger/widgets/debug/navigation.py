@@ -1,18 +1,21 @@
 from kivy.metrics import dp
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
-from .components.debug_layout import DebugLayout
 from messenger.pages import DEBUG_PAGES
 from messenger.utils import change_page
+from messenger.widgets.utils import add_background
 from utils import schedule
 
-class DebugNavigation(DebugLayout):
+class DebugNavigation(BoxLayout):
 
     HEIGHT = dp(90)
 
     def __init__(self, **kwargs):
         super(DebugNavigation, self).__init__(**kwargs)
+
+        add_background(self, (0, 0, 0, 1))
 
         self.orientation = 'horizontal'
         self.size_hint_y = None
@@ -33,21 +36,21 @@ class DebugNavigation(DebugLayout):
         self.dropdown = DropDown()
         self.menu_button.bind(on_press=self.open_dropdown)
 
-        for title, widget in DEBUG_PAGES.items():
+        for page_name in DEBUG_PAGES.keys():
             button = Button(
-                text=title,
+                text=page_name,
                 size_hint_y=None,
                 size_hint_x=1,
                 height=dp(50),
                 background_color=(0, 0, 0, 1),
                 background_normal='',
             )
-            button.bind(on_press=lambda _, w=widget: self.open_page(w))
+            button.bind(on_press=lambda _, n=page_name: self.open_page(n))
             self.dropdown.add_widget(button)
 
-    def open_page(self, widget_class):
+    def open_page(self, page_name):
         self.dropdown.dismiss()
-        change_page(widget_class)
+        change_page(page_name)
 
     def open_dropdown(self, _):
         self.dropdown.open(self)

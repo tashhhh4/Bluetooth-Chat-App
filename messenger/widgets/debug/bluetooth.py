@@ -5,7 +5,6 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from utils import schedule
-from .chat import DebugChat
 from .components.debug_layout import DebugLayout
 from ..utils import add_background, fit_height
 from messenger.utils import change_page
@@ -16,9 +15,12 @@ SCAN_OFF_TEXT = 'Scan'
 
 def open_chat_with_device(device):
     print('Opening a new chat.')
+    print('Running open_chat_with_device.')
     bluetooth_service = get_bluetooth_service()
     bluetooth_service.connect_to_device(device['address'])
-    change_page(DebugChat, device=device)
+    print('Before calling change_page')
+    change_page('Debug Chat', device=device)
+    print('After calling change_page')
 
 class DeviceCard(BoxLayout):
     def __init__(self, device, card_color=(.1, .1, .1, 1.), **kwargs):

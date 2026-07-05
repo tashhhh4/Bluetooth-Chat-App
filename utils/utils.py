@@ -120,6 +120,10 @@ def read_input_stream_on_thread(connected_socket, input_stream, name='input stre
     thread.start()
     return thread
 
+def device_java_obj_to_dict(device_obj):
+    """ Converts a BluetoothDevice from the Android Bluetooth API into a dictionary."""
+    return {'name': device_obj.name, 'address': device_obj.address}
+
 def pluralize(text, number):
     if number == 1:
         return text

@@ -1,6 +1,8 @@
 import logging
 from kivy.app import App
 from config import ENVIRONMENT
+from utils import device_java_obj_to_dict, schedule
+from messenger.utils import change_page
 
 """
 Wraps Android-specific operations and provides fallbacks for testing.
@@ -59,7 +61,16 @@ def get_bluetooth_service():
         return FakeBluetoothService()
 
     from services.bluetooth import BluetoothService
-    return BluetoothService()
+    bluetooth_service = BluetoothService()
+    def handler():
+        device = bluetooth_service.connected_socket.getRemoteDevice()
+        print('Handling connection established callback...')
+        device_dict = device_java_obj_to_dict(device)
+        def go(_):
+            change_page('Chat', device=device_dict)
+        schedule(go)
+    bluetooth_service.register_event_callback('CONNECTION_ESTABLISHED', handler)
+    return bluetooth_service
 
 def get_transport():
     """ Returns something (a class) that can be used to initiate send() and recv(),

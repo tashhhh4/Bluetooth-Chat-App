@@ -8,9 +8,8 @@ from messenger.utils import change_page
 
 def open_chat_with_device(device):
     print('Opening a new chat.')
-    print('Device is', device)
-    # bluetooth_service = get_bluetooth_service()
-    # bluetooth_service.connect_to_device(device['address'])
+    bluetooth_service = get_bluetooth_service()
+    bluetooth_service.connect_to_device(device['address'])
     change_page('Chat', device=device)
 
 class DeviceCard(MDCard):

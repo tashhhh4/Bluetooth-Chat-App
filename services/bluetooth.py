@@ -19,7 +19,9 @@ class BluetoothService:
 
     discovered_devices = {}
     _callbacks = {
+        'CONNECTION_ESTABLISHED': [],
         'DISCOVERED_DEVICES_UPDATED': [],
+        'MESSAGE_RECEIVED': [],
     }
 
     def __init__(self):
@@ -208,7 +210,11 @@ class BluetoothService:
         print('isConnected:', self.connected_socket.isConnected())
         print('connectionType:', self.connected_socket.connectionType)
 
+        self._emit_event('CONNECTION_ESTABLISHED')
+
         self.start_reading_input_stream()
 
     def _handle_receive(self, data):
         print('Received data:', data)
+
+        self._emit_event('MESSAGE_RECEIVED', data)

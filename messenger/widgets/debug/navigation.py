@@ -8,9 +8,9 @@ from messenger.utils import change_page
 from messenger.widgets.utils import add_background
 from utils import schedule
 
-class DebugNavigation(BoxLayout):
+print('After imports in navigation.py')
 
-    HEIGHT = dp(90)
+class DebugNavigation(BoxLayout):
 
     def __init__(self, **kwargs):
         super(DebugNavigation, self).__init__(**kwargs)
@@ -19,14 +19,14 @@ class DebugNavigation(BoxLayout):
 
         self.orientation = 'horizontal'
         self.size_hint_y = None
-        self.height = self.HEIGHT
+        self.height = dp(90)
 
         self.menu_button = Button(
             text='| | |',
             size_hint=(None, None),
             size=(dp(80), dp(90)),
             background_color=(0, 0, 0, 1),
-            height=self.HEIGHT,
+            height=dp(90),
         )
         self.title = Label(text='Debug Views', size_hint_x=1)
 
@@ -53,9 +53,11 @@ class DebugNavigation(BoxLayout):
         change_page(page_name)
 
     def open_dropdown(self, _):
+        print('Running open_dropdown')
         self.dropdown.open(self)
         schedule(self.position_dropdown)
 
     def position_dropdown(self, _):
+        print('Running position_dropdown')
         self.dropdown.x = 0
         self.dropdown.y = self.menu_button.y - self.dropdown.height

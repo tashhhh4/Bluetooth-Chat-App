@@ -16,7 +16,7 @@ class Blu2App(MDApp):
         self.bluetooth_service = None
 
     def build(self):
-        self.theme_cls.material_style = 'M2'
+        self.theme_cls.material_style = 'M3'
         self.theme_cls.theme_style = 'Light'
         self.theme_cls.primary_palette = 'Blue'
 
@@ -36,6 +36,6 @@ class Blu2App(MDApp):
         self.root.set_page(page_name)
 
     def get_screen(self, page_name):
-        return self.root.ids.screen_manager.get_screen(page_name)
+        return self.root.screen_manager.get_screen(page_name)
 
 Blu2App().run()

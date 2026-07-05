@@ -7,6 +7,7 @@ from messenger.widgets.debug.settings import DebugSettings
 from messenger.widgets.debug.advertise import DebugAdvertiser
 from messenger.widgets.debug.scanner import DebugBLEScanner
 from messenger.widgets.frontend.bluetooth_manager_view import BluetoothManagerView
+from messenger.widgets.frontend.chat_view import ChatView
 from messenger.widgets.frontend.home_view import HomeView
 
 DEBUG_PAGES = {
@@ -22,6 +23,7 @@ DEBUG_PAGES = {
 PAGES = {
     'Home': HomeView,
     'Bluetooth Manager': BluetoothManagerView,
+    'Chat': ChatView,
 }
 
 VIEWS = {

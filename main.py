@@ -3,8 +3,7 @@ from services.platform import initialize_window
 initialize_window()
 
 from kivymd.app import MDApp
-import messenger.widgets # for side effect
-from messenger.init import get_root_widget, load_ui
+from messenger.init import get_root_widget
 from services.platform import get_bluetooth_service, initialize_permissions
 from db.engine import initialize_database
 
@@ -25,8 +24,6 @@ class Blu2App(MDApp):
         initialize_database()
 
         self.bluetooth_service = get_bluetooth_service()
-
-        load_ui()
 
         self.root = get_root_widget()
         self.set_page('Home')

@@ -3,6 +3,15 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
+from services.platform import get_bluetooth_service
+from messenger.utils import change_page
+
+def open_chat_with_device(device):
+    print('Opening a new chat.')
+    print('Device is', device)
+    # bluetooth_service = get_bluetooth_service()
+    # bluetooth_service.connect_to_device(device['address'])
+    change_page('Chat', device=device)
 
 class DeviceCard(MDCard):
     def __init__(self, device, **kwargs):
@@ -38,3 +47,9 @@ class DeviceCard(MDCard):
         self.button_container.add_widget(self.button)
         self.button_text = MDButtonText(text='Connect')
         self.button.add_widget(self.button_text)
+
+        ### Bind Actions ###
+
+        def c(_):
+            open_chat_with_device(self.device)
+        self.button.bind(on_press=c)

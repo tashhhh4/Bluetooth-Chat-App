@@ -6,11 +6,10 @@ from kivymd.uix.label import MDLabel
 from services.platform import get_bluetooth_service
 from messenger.utils import change_page
 
-def open_chat_with_device(device):
-    print('Opening a new chat.')
+def connect_to_device(device):
+    print('Connecting to device...')
     bluetooth_service = get_bluetooth_service()
     bluetooth_service.connect_to_device(device['address'])
-    change_page('Chat', device=device)
 
 class DeviceCard(MDCard):
     def __init__(self, device, **kwargs):
@@ -50,5 +49,5 @@ class DeviceCard(MDCard):
         ### Bind Actions ###
 
         def c(_):
-            open_chat_with_device(self.device)
+            connect_to_device(self.device)
         self.button.bind(on_press=c)

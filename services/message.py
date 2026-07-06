@@ -10,8 +10,6 @@ from dataclasses import dataclass
 from db.manager import devices, messages, settings
 from utils import EventRegistry
 
-# temp
-FAKE_DEVICE_UUID = '49cb8896-d78d-463f-9d10-7f115bbdd924'
 FAKE_CHAT_ID = '1' # manually create with debug interface
 
 @dataclass
@@ -121,3 +119,10 @@ class MessageService:
         # Frontend part
         if message_obj.message:
             self.event_registry.emit_event('MESSAGE_RECEIVED', message_obj.message.text)
+
+# Chat logic
+# When we connect to a device
+# We check if we already have a chat with them.
+# If we do we load it into the chat_view interface.
+# If we don't we create a new Chat record and then
+# load it into our chat_view interface.

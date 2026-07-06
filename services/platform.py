@@ -69,14 +69,6 @@ def get_bluetooth_service():
 
     from services.bluetooth import BluetoothService
     bluetooth_service = BluetoothService()
-    def handler():
-        device = bluetooth_service.connected_socket.getRemoteDevice()
-        print('Handling connection established callback...')
-        device_dict = device_java_obj_to_dict(device)
-        def go(_):
-            change_page('Chat', device=device_dict)
-        schedule(go)
-    bluetooth_service.event_registry.register_event_callback('CONNECTION_ESTABLISHED', handler)
     return bluetooth_service
 
 def get_message_service():

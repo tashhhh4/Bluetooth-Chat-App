@@ -8,7 +8,8 @@
 import json
 from dataclasses import dataclass
 from db.manager import devices, messages, settings
-from utils import EventRegistry
+from utils import device_java_obj_to_dict, EventRegistry, schedule
+from messenger.utils import change_page
 
 FAKE_CHAT_ID = '1' # manually create with debug interface
 
@@ -78,16 +79,25 @@ class MessageService:
             self.bluetooth_service.send_bytes(message_json)
 
             # Database part
-            messages.create(FAKE_CHAT_ID, FAKE_DEVICE_UUID, text)
+            messages.create(FAKE_CHAT_ID, my_device_uuid, text)
         except Exception as e:
             print('MessageService.send_message:', e)
 
     def _handle_device_connected(self):
         print('MessageService._handle_device_connected: running.')
+
+        # Self Introduction Over Bluetooth
         my_device_uuid = settings.get_device_uuid()
         self_intro = MessageObject(message=None, sender_uuid=my_device_uuid)
         self_intro_json = self_intro.to_json()
         self.bluetooth_service.send_bytes(self_intro_json)
+
+        # Jump into Chat View with Remote Device
+        device = self.bluetooth_service.connected_socket.getRemoteDevice()
+        device_dict = device_java_obj_to_dict(device)
+        def go(_):
+            change_page('Chat', device=device_dict)
+        schedule(go)
 
     def _handle_message_received(self, data):
 
@@ -126,3 +136,8 @@ class MessageService:
 # If we do we load it into the chat_view interface.
 # If we don't we create a new Chat record and then
 # load it into our chat_view interface.
+
+# The Chat View should only load the chat and display the messages.
+
+# The MessageService should decide which chat to give the Chat View.
+# The MessageService not the BluetoothService should decide when to pop the Chat View into the user's face.

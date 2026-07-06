@@ -8,6 +8,7 @@
 import json
 from dataclasses import dataclass
 from db.manager import messages
+from db.manager import settings
 from utils import EventRegistry
 
 # temp
@@ -19,10 +20,21 @@ class Message:
     text: str
     chat_id: int
 
+    def to_dict(self):
+        return {'text': self.text, 'chat_id': self.chat_id}
+
 @dataclass
 class MessageObject:
     message: Message | None
     sender_uuid: str
+
+    def to_dict(self):
+        message = self.message.to_dict() if self.message else None
+        return {'message': message, 'sender_uuid': self.sender_uuid}
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
+
 
 class MessageService:
 
@@ -33,27 +45,31 @@ class MessageService:
     bluetooth_service = None
 
     def __init__(self, bluetooth_service):
-        bluetooth_service.event_registry.register_event_callback('CONNECTION_ESTABLISHED', self._handle_device_connected)
+        self.bluetooth_service = bluetooth_service
+        self.bluetooth_service.event_registry.register_event_callback('CONNECTION_ESTABLISHED', self._handle_device_connected)
 
         # Whenever the BluetoothService emits the MESSAGE_RECEIVED event,
         # the MessageService runs its own _handle_message_received function,
         # which also emits a MESSAGE_RECEIVED event from MessageService
-        bluetooth_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
+        self.bluetooth_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
 
     def send_message(self, text):
         """ Does socket message using the active BluetoothService.
             If there is an exception during transport,
             the message will not be added to the database.
         """
-        print('MessageService.send_message running.')
+        my_device_uuid = settings.get_device_uuid()
         try:
             # Transport part
-            message = {'message': {'text': text}}
-            message_json_str = json.dumps(message)
-            self.bluetooth_service.send_bytes(message_json_str)
+            message_obj = MessageObject(
+                message=Message(text=text, chat_id=FAKE_CHAT_ID),
+                sender_uuid=my_device_uuid
+            )
+            message_json = message_obj.to_json()
+            self.bluetooth_service.send_bytes(message_json)
 
             # Database part
-            messages.create(FAKE_CHAT_ID, FAKE_DEVICE_UUID, message['message']['text'])
+            messages.create(FAKE_CHAT_ID, FAKE_DEVICE_UUID, text)
         except Exception as e:
             print('MessageService.send_message:', e)
 
@@ -63,8 +79,12 @@ class MessageService:
         print('This is MessageService. I know that you connected a new device. I have to stop you here and ask some questions, but I\'ll figure out how to do that in a hot minute.')
 
     def _handle_message_received(self, data):
+
+        message_obj = json.loads(data)
+        text = message_obj['message']['text']
+
         # Database part
-        messages.create(FAKE_CHAT_ID, FAKE_DEVICE_UUID, data)
+        messages.create(FAKE_CHAT_ID, FAKE_DEVICE_UUID, text)
 
         # Frontend part
-        self.event_registry.emit_event('MESSAGE_RECEIVED', data)
+        self.event_registry.emit_event('MESSAGE_RECEIVED', text)

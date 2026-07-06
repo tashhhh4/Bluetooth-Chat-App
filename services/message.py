@@ -4,10 +4,14 @@
 
     Is this the 'protocol' layer?
 """
+# The ChatView should only load the chat and display the messages.
+
+# The MessageService should decide which chat to give the Chat View.
+# The MessageService not the BluetoothService should decide when to pop the Chat View into the user's face.
 
 import json
 from dataclasses import dataclass
-from db.manager import devices, messages, settings
+from db.manager import chats, devices, messages, settings
 from utils import device_java_obj_to_dict, EventRegistry, schedule
 from messenger.utils import change_page
 
@@ -92,20 +96,12 @@ class MessageService:
         self_intro_json = self_intro.to_json()
         self.bluetooth_service.send_bytes(self_intro_json)
 
-        # Jump into Chat View with Remote Device
-        device = self.bluetooth_service.connected_socket.getRemoteDevice()
-        device_dict = device_java_obj_to_dict(device)
-        def go(_):
-            change_page('Chat', device=device_dict)
-        schedule(go)
-
     def _handle_message_received(self, data):
 
         message_obj = MessageObject.from_json(data)
 
-        # Database part
+        # Database - Add Device if unknown
         sender_device = devices.get(message_obj.sender_uuid)
-        print('The sender of this message is', sender_device)
 
         if not sender_device:
             print('Device unknown. Adding new record...')
@@ -119,6 +115,24 @@ class MessageService:
             )
             sender_device = devices.get(message_obj.sender_uuid)
 
+        # Database - Create chat with device if not exists
+        existing_chats = chats.list_chats(device_uuid=message_obj.sender_uuid)
+        if len(existing_chats) > 1:
+            print('Warning: more than 1 chat with Device', sender_device.name, 'exists and multiple Chat channels with the same Device are not yet supported.')
+        if not existing_chats:
+            target_chat = chats.create([message_obj.sender_uuid])
+        else:
+            target_chat = existing_chats[0]
+
+        # Frontend - Jump into Chat View with Chat object
+        # (will currently happen on EVERY single message but I will optimize it later)
+        device = self.bluetooth_service.connected_socket.getRemoteDevice()
+        device_dict = device_java_obj_to_dict(device)
+        def go(_):
+            change_page('Chat', device=device_dict)
+        schedule(go)
+
+        # Database - Add message content
         if message_obj.message:
             messages.create(
                 chat_id=message_obj.message.chat_id,
@@ -126,18 +140,7 @@ class MessageService:
                 text=message_obj.message.text,
             )
 
-        # Frontend part
+        # Frontend - emit message received event
         if message_obj.message:
             self.event_registry.emit_event('MESSAGE_RECEIVED', message_obj.message.text)
 
-# Chat logic
-# When we connect to a device
-# We check if we already have a chat with them.
-# If we do we load it into the chat_view interface.
-# If we don't we create a new Chat record and then
-# load it into our chat_view interface.
-
-# The Chat View should only load the chat and display the messages.
-
-# The MessageService should decide which chat to give the Chat View.
-# The MessageService not the BluetoothService should decide when to pop the Chat View into the user's face.

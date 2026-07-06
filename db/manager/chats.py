@@ -7,10 +7,6 @@ def create(device_uuids):
         (Currently the App does not support being used as a notepad.)
     """
     with get_session() as session:
-        # devices = []
-        # for device_uuid in device_uuids:
-        #     device = devices.get(device_uuid)
-        #     devices.append(device)
         device_models = [devices.get(u) for u in device_uuids]
         chat = Chat(device_models)
         session.add(chat)
@@ -19,10 +15,8 @@ def create(device_uuids):
 
 def list_chats(device_uuid=None):
     """ Lists all the user's Chats, optionally filtering by device. """
-    print('Running list_chats')
     with get_session() as session:
         if device_uuid:
-            print('device_uuid to filter by is', device_uuid)
             return (
                 session.query(Chat)
                 .filter(Chat.devices.any(Device.uuid == device_uuid))

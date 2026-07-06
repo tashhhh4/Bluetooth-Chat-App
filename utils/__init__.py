@@ -6,4 +6,5 @@ from .utils import (
     pluralize,
     read_input_stream_on_thread,
     schedule,
+    EventRegistry,
 )

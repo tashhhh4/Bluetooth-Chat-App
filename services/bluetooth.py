@@ -1,7 +1,13 @@
 from android.broadcast import BroadcastReceiver
 from jnius import autoclass, cast
 from config import SERVICE_UUID
-from utils import accept_on_thread, connect_on_thread, listen_on_thread, read_input_stream_on_thread
+from utils import (
+    accept_on_thread,
+    connect_on_thread,
+    listen_on_thread,
+    read_input_stream_on_thread,
+    EventRegistry
+)
 
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
@@ -18,11 +24,13 @@ class BluetoothService:
     is_scanning = False
 
     discovered_devices = {}
-    _callbacks = {
-        'CONNECTION_ESTABLISHED': [],
-        'DISCOVERED_DEVICES_UPDATED': [],
-        'MESSAGE_RECEIVED': [],
-    }
+
+    event_registry = EventRegistry([
+        'CONNECTION_ESTABLISHED',
+        'DISCOVERED_DEVICES_UPDATED',
+        'MESSAGE_RECEIVED',
+        ], 'BluetoothService.event_registry'
+    )
 
     def __init__(self):
         self.device_receiver = self._get_device_receiver()
@@ -141,15 +149,6 @@ class BluetoothService:
         self.is_scanning = False
         print('Scanning stopped.')
 
-    def register_event_callback(self, event_name, callback):
-        if event_name not in self._callbacks:
-            raise TypeError(f'No event called {event_name} for service BluetoothService')
-        self._callbacks[event_name].append(callback)
-
-    def _emit_event(self, event_name, *args, **kwargs):
-        for callback in self._callbacks[event_name]:
-            callback(*args, **kwargs)
-
     def _turn_discovery_on(self):
         self.device_receiver = self._get_device_receiver()
         self.device_receiver.start()
@@ -172,7 +171,7 @@ class BluetoothService:
                 'name': device.name,
             }
         list_ = [{'name': n['name'], 'address': a} for a, n in self.discovered_devices.items()]
-        self._emit_event('DISCOVERED_DEVICES_UPDATED', list_)
+        self.event_registry.emit_event('DISCOVERED_DEVICES_UPDATED', list_)
 
     def _get_device_receiver(self):
         device_receiver = BroadcastReceiver(
@@ -202,19 +201,16 @@ class BluetoothService:
             self._handle_device_found(intent)
 
     def _handle_connection(self, socket):
-        print('Inside _handle_connection after a successful socket connection.')
         self.connected_socket = socket
-        print('My connected_socket is now', self.connected_socket)
-        print('Device:', self.connected_socket.getRemoteDevice())
-        print('connected:', self.connected_socket.connected)
-        print('isConnected:', self.connected_socket.isConnected())
-        print('connectionType:', self.connected_socket.connectionType)
-
-        self._emit_event('CONNECTION_ESTABLISHED')
+        self.event_registry.emit_event('CONNECTION_ESTABLISHED')
 
         self.start_reading_input_stream()
 
-    def _handle_receive(self, data):
-        print('Received data:', data)
+        print('Inside _handle_connection.')
+        print('My socket is', self.connected_socket)
+        print('Connected device is', self.connected_socket.getRemoteDevice())
+        print('Introduce myself')
+        print('Who are you?')
 
-        self._emit_event('MESSAGE_RECEIVED', data)
+    def _handle_receive(self, data):
+        self.event_registry.emit_event('MESSAGE_RECEIVED', data)

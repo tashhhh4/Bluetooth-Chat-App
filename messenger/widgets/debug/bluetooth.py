@@ -167,7 +167,7 @@ class DebugBluetooth(DebugLayout):
 
         ### Bind Events ###
 
-        self.bluetooth_service.register_event_callback(
+        self.bluetooth_service.event_registry.register_event_callback(
             'DISCOVERED_DEVICES_UPDATED',
             self.populate_available_devices_list
         )

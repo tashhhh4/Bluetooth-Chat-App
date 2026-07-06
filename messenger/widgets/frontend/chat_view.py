@@ -6,8 +6,8 @@ from kivymd.uix.divider import MDDivider
 from kivymd.uix.label import MDLabel
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.widget import MDWidget
-from services.platform import get_bluetooth_service
 from utils import schedule
+from services.platform import get_message_service
 from ..app_screen import AppScreen
 from .components.back_link import BackLink
 from .components.message_card import MessageCard
@@ -19,8 +19,8 @@ class ChatView(AppScreen):
 
     def __init__(self, **kwargs):
 
-        bluetooth_service = get_bluetooth_service()
-        bluetooth_service.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
+        message_service = get_message_service()
+        message_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
 
         super(ChatView, self).__init__(**kwargs)
 
@@ -80,8 +80,8 @@ class ChatView(AppScreen):
         def s(_):
             print('Sending message...')
             text = self.text_input.text
-            bluetooth_adapter = get_bluetooth_service()
-            bluetooth_adapter.send_bytes(text)
+            message_service = get_message_service()
+            message_service.send_message(text)
             message_from_self = {'text': text, 'sender': 'You', 'time': 'Just now'}
             self.messages.append(message_from_self)
         self.send_button.bind(on_press=s)

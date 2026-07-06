@@ -4,7 +4,7 @@ initialize_window()
 
 from kivymd.app import MDApp
 from messenger.init import get_root_widget
-from services.platform import get_bluetooth_service, initialize_permissions
+from services.platform import get_bluetooth_service, get_message_service, initialize_permissions
 from db.engine import initialize_database
 
 class Blu2App(MDApp):
@@ -13,6 +13,7 @@ class Blu2App(MDApp):
         super().__init__()
 
         self.bluetooth_service = None
+        self.message_service = None
 
     def build(self):
         self.theme_cls.material_style = 'M3'
@@ -24,6 +25,7 @@ class Blu2App(MDApp):
         initialize_database()
 
         self.bluetooth_service = get_bluetooth_service()
+        self.message_service = get_message_service()
 
         self.root = get_root_widget()
         self.set_page('Home')

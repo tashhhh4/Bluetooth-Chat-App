@@ -141,3 +141,24 @@ def repr_advertisement(advertisement):
     for ad in advertisement.parse(advertisement.data):
         output += f'TYPE: {ad.ad_type}; LEN: {len(ad.data)}; DATA: {ad.data.hex()}\n'
     return output
+
+class EventRegistry:
+    def __init__(self, event_names, name='EventRegistry'):
+        self.name = name
+        self._callbacks = {}
+        for name in event_names:
+            self._add_event(name)
+
+    def register_event_callback(self, event_name, callback):
+        if event_name not in self._callbacks:
+            raise TypeError(f'No event called {event_name} in {self.name}')
+        self._callbacks[event_name].append(callback)
+
+    def emit_event(self, event_name, *args, **kwargs):
+        """ Calls all the functions at _callbacks[event_name], with arguments if applicable. """
+        for callback in self._callbacks[event_name]:
+            callback(*args, **kwargs)
+
+    def _add_event(self, event_name):
+        """ Adds a new key (event_name) and value (empty list) to _callbacks dictionary. """
+        self._callbacks[event_name] = []

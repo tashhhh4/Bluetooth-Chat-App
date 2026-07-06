@@ -8,8 +8,6 @@ from messenger.utils import change_page
 from messenger.widgets.utils import add_background
 from utils import schedule
 
-print('After imports in navigation.py')
-
 class DebugNavigation(BoxLayout):
 
     def __init__(self, **kwargs):

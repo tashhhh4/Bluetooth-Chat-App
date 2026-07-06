@@ -19,7 +19,7 @@ def initialize_database():
     data_dir = Path(app.user_data_dir)
     database_path = data_dir / 'b2.sqlite'
     _engine = create_engine(f'sqlite:///{database_path}')
-    _Session = sessionmaker(bind=_engine)
+    _Session = sessionmaker(bind=_engine, expire_on_commit=False)
     if DELETE_TABLES:
         models.Base.metadata.drop_all(_engine)
     models.Base.metadata.create_all(_engine)

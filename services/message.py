@@ -7,8 +7,7 @@
 
 import json
 from dataclasses import dataclass
-from db.manager import messages
-from db.manager import settings
+from db.manager import devices, messages, settings
 from utils import EventRegistry
 
 # temp
@@ -34,6 +33,18 @@ class MessageObject:
 
     def to_json(self):
         return json.dumps(self.to_dict())
+
+    @staticmethod
+    def from_json(data):
+        message_dict = json.loads(data)
+        message = None
+        if message_dict['message'] is not None:
+            message = Message(
+                text=message_dict['message']['text'],
+                chat_id=message_dict['message']['chat_id']
+            )
+        message_obj = MessageObject(message=message, sender_uuid=message_dict['sender_uuid'])
+        return message_obj
 
 
 class MessageService:
@@ -73,18 +84,40 @@ class MessageService:
         except Exception as e:
             print('MessageService.send_message:', e)
 
-    @staticmethod
-    def _handle_device_connected():
-        # bluetooth_service = get_bluetooth_service()
-        print('This is MessageService. I know that you connected a new device. I have to stop you here and ask some questions, but I\'ll figure out how to do that in a hot minute.')
+    def _handle_device_connected(self):
+        print('MessageService._handle_device_connected: running.')
+        my_device_uuid = settings.get_device_uuid()
+        self_intro = MessageObject(message=None, sender_uuid=my_device_uuid)
+        self_intro_json = self_intro.to_json()
+        self.bluetooth_service.send_bytes(self_intro_json)
 
     def _handle_message_received(self, data):
 
-        message_obj = json.loads(data)
-        text = message_obj['message']['text']
+        message_obj = MessageObject.from_json(data)
 
         # Database part
-        messages.create(FAKE_CHAT_ID, FAKE_DEVICE_UUID, text)
+        sender_device = devices.get(message_obj.sender_uuid)
+        print('The sender of this message is', sender_device)
+
+        if not sender_device:
+            print('Device unknown. Adding new record...')
+
+            remote_device_obj = self.bluetooth_service.connected_socket.getRemoteDevice()
+
+            devices.create(
+                device_uuid=message_obj.sender_uuid,
+                name=remote_device_obj.name,
+                address=remote_device_obj.address,
+            )
+            sender_device = devices.get(message_obj.sender_uuid)
+
+        if message_obj.message:
+            messages.create(
+                chat_id=message_obj.message.chat_id,
+                device_uuid=sender_device.uuid,
+                text=message_obj.message.text,
+            )
 
         # Frontend part
-        self.event_registry.emit_event('MESSAGE_RECEIVED', text)
+        if message_obj.message:
+            self.event_registry.emit_event('MESSAGE_RECEIVED', message_obj.message.text)

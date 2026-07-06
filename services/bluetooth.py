@@ -206,11 +206,5 @@ class BluetoothService:
 
         self.start_reading_input_stream()
 
-        print('Inside _handle_connection.')
-        print('My socket is', self.connected_socket)
-        print('Connected device is', self.connected_socket.getRemoteDevice())
-        print('Introduce myself')
-        print('Who are you?')
-
     def _handle_receive(self, data):
         self.event_registry.emit_event('MESSAGE_RECEIVED', data)

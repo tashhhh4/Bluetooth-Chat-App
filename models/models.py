@@ -48,6 +48,7 @@ class Chat(Base):
 
     members = relationship('Member', back_populates='chat', cascade='all, delete-orphan')
     messages = relationship('Message', back_populates='chat', cascade='all, delete-orphan')
+    devices = relationship('Device', secondary='chat_devices', viewonly=True, lazy='selectin')
 
     def __init__(self, devices):
         if not devices:

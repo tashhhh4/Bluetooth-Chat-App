@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql import func
 
@@ -58,6 +58,8 @@ class Chat(Base):
 class Member(Base):
     """ A Device which is a Member of a Chat. """
     __tablename__ = 'chat_devices'
+
+    __table_args__ = (UniqueConstraint('device_uuid', 'chat_id'),)
 
     id = Column(Integer, primary_key=True)
     device_uuid = Column(ForeignKey('devices.uuid', ondelete='CASCADE'))

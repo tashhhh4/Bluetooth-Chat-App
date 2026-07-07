@@ -32,11 +32,15 @@ def initialize_window():
         @run_on_ui_thread
         def _configure_android_window(_):
             activity = PythonActivity.mActivity
-            activity.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+            window = activity.getWindow()
+
+            # Prevent keyboard from covering up inputs
+            window.setSoftInputMode(LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         schedule(_configure_android_window)
 
-        # Todo: Fix the app being drawn underneath the top status bar
+
+# Todo: Fix the app being drawn underneath the top status bar
 
 
 def initialize_permissions():

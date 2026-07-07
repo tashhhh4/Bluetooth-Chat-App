@@ -80,6 +80,7 @@ class ChatView(AppScreen):
 
         # Send Message
         def s(_):
+            logging.info('ChatView: Running Send Button function.')
             text = self.text_input.text
             message_service = get_message_service()
             message_service.send_message(text, self.chat_id)

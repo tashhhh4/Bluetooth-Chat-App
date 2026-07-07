@@ -7,6 +7,7 @@
 
 import json
 import logging
+from typing import LiteralString
 from dataclasses import dataclass
 from db.manager import chats, devices, messages, settings
 from utils import EventRegistry, schedule
@@ -24,10 +25,11 @@ class Message:
 class MessageObject:
     message: Message | None
     sender_uuid: str
+    role: LiteralString['message', 'connection']
 
     def to_dict(self):
         message = self.message.to_dict() if self.message else None
-        return {'message': message, 'sender_uuid': self.sender_uuid}
+        return {'message': message, 'sender_uuid': self.sender_uuid, 'role': self.role}
 
     def to_json(self):
         return json.dumps(self.to_dict())
@@ -41,9 +43,14 @@ class MessageObject:
                 text=message_dict['message']['text'],
                 chat_id=message_dict['message']['chat_id']
             )
-        message_obj = MessageObject(message=message, sender_uuid=message_dict['sender_uuid'])
+        message_obj = MessageObject(
+            message=message,
+            sender_uuid=message_dict['sender_uuid'],
+            role=message_dict['role'],
+        )
         return message_obj
 
+INDENT = '                           '
 
 class MessageService:
 
@@ -57,10 +64,6 @@ class MessageService:
 
         self.bluetooth_service = bluetooth_service
         self.bluetooth_service.event_registry.register_event_callback('CONNECTION_ESTABLISHED', self._handle_device_connected)
-
-        # Whenever the BluetoothService emits the MESSAGE_RECEIVED event,
-        # the MessageService runs its own _handle_message_received function,
-        # which also emits a MESSAGE_RECEIVED event from MessageService
         self.bluetooth_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
 
     # Message API
@@ -69,18 +72,19 @@ class MessageService:
             If there is an exception during transport,
             the message will not be added to the database.
         """
-        my_device_uuid = settings.get_device_uuid()
+        my_device = devices.get_mine()
         try:
             # Transport part
             message_obj = MessageObject(
                 message=Message(text=text, chat_id=chat_id),
-                sender_uuid=my_device_uuid
+                sender_uuid=my_device.uuid,
+                role='message',
             )
             message_json = message_obj.to_json()
             self.bluetooth_service.send_bytes(message_json)
 
             # Database part
-            messages.create(chat_id, my_device_uuid, text)
+            messages.create(chat_id, my_device.uuid, text)
         except Exception as e:
             print('MessageService Error:', e)
 
@@ -109,19 +113,30 @@ class MessageService:
     def _handle_device_connected(self):
         logging.info('[MessageService] Running _handle_device_connected()')
 
-        # Self Introduction Over Bluetooth
+        # Send Connection Message
         my_device_uuid = settings.get_device_uuid()
-        self_intro = MessageObject(message=None, sender_uuid=my_device_uuid)
-        self_intro_json = self_intro.to_json()
-        logging.info(f'MessageService: Sending self introduction message to remote device: {self_intro_json}')
-        self.bluetooth_service.send_bytes(self_intro_json)
+        connection_message = MessageObject(message=None, sender_uuid=my_device_uuid, role='connection')
+        connection_message_json = connection_message.to_json()
+        logging.info(f'MessageService: Sending connection message to remote device: {connection_message_json}')
+        self.bluetooth_service.send_bytes(connection_message_json)
 
     def _handle_message_received(self, data):
         logging.info('[MessageService] Running _handle_message_received()')
 
         message_obj = MessageObject.from_json(data)
         logging.info(('MessageService: Converted message from JSON string to Python Object.\n'
-                      f'                           {message_obj.__repr__()}'))
+                      f'{INDENT}{message_obj.__repr__()}'))
+
+        if message_obj.role == 'message':
+            logging.info('MessageService: Regular communication message received.')
+            self._handle_message_message_received(message_obj)
+
+        elif message_obj.role == 'connection':
+            logging.info('MessageService: Connection initiation message received.')
+            self._handle_connection_message_received(message_obj)
+
+    def _handle_connection_message_received(self, message_obj):
+        logging.info('MessageService: Running _handle_connection_message_received()')
 
         # Database - Add Device if unknown
         sender_device = devices.get(message_obj.sender_uuid)
@@ -137,41 +152,60 @@ class MessageService:
                 address=remote_device_obj.address,
             )
             logging.info(('MessageService: Created new Device record.\n'
-                          f'                           {sender_device.__repr__()}'))
+                          f'{INDENT}{sender_device.__repr__()}'))
         else:
-            logging.info(('MessageService: Message is from a known Device.\n'
-                          f'                           {sender_device.__repr__()}'))
+            logging.info(('MessageService: Connection message was from a known Device.\n'
+                          f'{INDENT}{sender_device.__repr__()}'))
 
         # Database - Create chat with device if not exists
-
-        # So yes, I ONLY want to pop into the Chat View when the connected_socket becomes connected.
-
+        # See if the results from a query of the chats with this device_uuid is not empty
         existing_chats = chats.list_chats(device_uuid=message_obj.sender_uuid)
-        if not existing_chats:
-            target_chat = chats.create([message_obj.sender_uuid])
-            logging.info(('MessageService: New Chat created.\n'
-                          f'                           {target_chat.__repr__()}'))
-        else:
+        if existing_chats:
+            logging.info('MessageService: Retrieved previous Chat with peer Device.')
             target_chat = existing_chats[0]
-        if len(existing_chats) > 1:
-            print('Warning: more than 1 chat with Device', sender_device.name,
-                  'exists and multiple Chat channels with the same Device are not yet supported.')
+            if len(existing_chats) > 1:
+                logging.warning((f'MessageService: more than 1 chat with Device {sender_device.name} '
+                      'exists and multiple Chat channels with the same Device are not yet supported.'))
+        else:
+            target_chat = chats.create([message_obj.sender_uuid])
+            logging.info('MessageService: New Chat created.')
+        logging.info(f'[MessageService] Target Chat set to {target_chat.__repr__()}')
 
-        # Frontend - Jump into Chat View with Chat object
-        # (will currently happen on EVERY single message but I will optimize it later)
+        # Frontend - Jump into Chat View with the Target Chat
         def go(_):
             change_page('Chat', chat_id=target_chat.id, chat_title=target_chat.title)
         schedule(go)
 
-        # Database - Add message content
-        if message_obj.message:
-            messages.create(
-                chat_id=message_obj.message.chat_id,
-                device_uuid=sender_device.uuid,
-                text=message_obj.message.text,
-            )
+    def _handle_message_message_received(self, message_obj):
+        logging.info('MessageService: Running _handle_message_message_received()')
+
+        # Database - Retrieve Sender Device
+        sender_device = devices.get(message_obj.sender_uuid)
+        if not sender_device:
+            logging.error(('MessageService: Received a Message from an unknown Device. This should probably not be '
+                           'possible if the devices connected to each other before trying to send a normal message.'))
+            return
+        logging.info(('MessageService: Successfully retrieved sender Device record.\n'
+                     f'{INDENT}{sender_device.__repr__()}'))
+
+        # Database - Retrieve Target Chat
+        target_chat = chats.get(message_obj.message.chat_id)
+        if not target_chat:
+            logging.error('MessageService: Received a Message to a non-existing Chat.')
+            return
+        logging.info(('MessageService: Successfully retrieved the target Chat record.\n'
+                      f'{INDENT}{target_chat.__repr__()}'))
+
+        # Database - Insert message content
+        new_message = messages.create(
+            chat_id=message_obj.message.chat_id,
+            device_uuid=sender_device.uuid,
+            text=message_obj.message.text,
+        )
+        logging.info(('MessageService: Created new Message record.\n'
+                      f'{INDENT}{new_message.__repr__()}'))
 
         # Frontend - emit message received event
-        if message_obj.message:
-            self.event_registry.emit_event('MESSAGE_RECEIVED', message_obj.message.text)
+        logging.info('[MessageService] emits MESSAGE_RECEIVED')
+        self.event_registry.emit_event('MESSAGE_RECEIVED')
 

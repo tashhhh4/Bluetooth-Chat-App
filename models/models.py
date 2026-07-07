@@ -34,7 +34,7 @@ class Device(Base):
     messages = relationship('Message', back_populates='device')
 
     def __repr__(self):
-        return f'Device[Model](uuid=\'{self.uuid}\', name=\'{self.name}\', address=\'{self.address}\', owner={self.owner})'
+        return f'Model Device(uuid=\'{self.uuid}\', name=\'{self.name}\', address=\'{self.address}\', owner={self.owner})'
 
 class Chat(Base):
     """ A Chat is a room to contain Messages involving the user and one or more other devices. Multiple
@@ -60,7 +60,7 @@ class Chat(Base):
         self.members = [Member(device=d) for d in devices]
 
     def __repr__(self):
-        return f'Chat[Model](id={self.id}, title=\'{self.title}\', datetime=\'{self.datetime}\')'
+        return f'Model Chat>(id={self.id}, title=\'{self.title}\', datetime=\'{self.datetime}\')'
 
 class Member(Base):
     """ A Device which is a Member of a Chat. """
@@ -90,6 +90,10 @@ class Message(Base):
 
     device = relationship('Device', back_populates='messages')
     chat = relationship('Chat', back_populates='messages')
+
+    def __repr__(self):
+        return (f'Model Message(id={self.id}, text=\'{self.text}\', device_uuid=\'{self.device_uuid}\', '
+                'chat_id={self.chat_id}, datetime=\'{self.datetime}\'')
 
 class Setting(Base):
     """" Application-level settings as key-value pairs. """

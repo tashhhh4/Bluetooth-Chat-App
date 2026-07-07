@@ -1,3 +1,4 @@
+import logging
 from kivy.metrics import dp
 from kivy.properties import ListProperty, NumericProperty, StringProperty
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -82,10 +83,11 @@ class ChatView(AppScreen):
             text = self.text_input.text
             message_service = get_message_service()
             message_service.send_message(text, self.chat_id)
-            message_from_self = {'text': text, 'sender': 'You', 'time': 'Just now'}
+            self._load_messages()
         self.send_button.bind(on_press=s)
 
     def populate_messages(self, messages):
+        logging.info('ChatView: Running populate_messages()')
         def c(_):
             self.message_container.clear_widgets()
         def d(_):
@@ -100,16 +102,23 @@ class ChatView(AppScreen):
         self.chat_title = context.get('chat_title')
 
     def on_chat_id(self, _, chat_id):
-        message_service = get_message_service()
-        self.messages = message_service.load_messages(chat_id)
+        logging.info('ChatView: Running on_chat_id')
+        self._load_messages()
 
     def on_chat_title(self, _, chat_title):
         self.headline.text = chat_title
 
     def on_messages(self, _, messages):
+        logging.info('ChatView: Running on_messages()')
         self.populate_messages(messages)
 
-    def _handle_message_received(self, data):
+    def _handle_message_received(self):
+        logging.info('ChatView: Running _handle_message_received()')
+        self._load_messages()
+
+    def _load_messages(self):
+        logging.info('ChatView: Running _load_messages()')
         message_service = get_message_service()
         messages = message_service.load_messages(self.chat_id)
+        logging.info(f'ChatView: Got {len(messages)} messages from MessageService.')
         self.messages = messages

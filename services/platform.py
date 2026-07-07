@@ -15,6 +15,8 @@ from messenger.utils import change_page
 Wraps Android-specific operations and provides fallbacks for testing.
 """
 
+from utils import schedule
+
 def initialize_window():
     if ENVIRONMENT == 'local':
         from kivy.config import Config
@@ -22,8 +24,19 @@ def initialize_window():
         Config.set('graphics', 'height', '740')
 
     else:
+        from android.runnable import run_on_ui_thread
+        from jnius import autoclass
+        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        LayoutParams = autoclass('android.view.WindowManager$LayoutParams')
+
+        @run_on_ui_thread
+        def _configure_android_window(_):
+            activity = PythonActivity.mActivity
+            activity.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
+        schedule(_configure_android_window)
+
         # Todo: Fix the app being drawn underneath the top status bar
-        pass
 
 
 def initialize_permissions():

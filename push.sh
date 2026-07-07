@@ -8,7 +8,7 @@ if test -z "$FILE"
 end
 
 adb push $FILE /data/local/tmp/$FILE; or exit 1
-adb shell run-as com.blu2chat.blu2chat cp /data/local/tmp/$FILE files/app/$FILE; or exit 1
+adb shell run-as com.blu2chat.blu2chat cp -f /data/local/tmp/$FILE files/app/$FILE; or exit 1
 echo "Pushed $FILE."
 adb shell rm /data/local/tmp/$FILE
 echo "Cleaned up tmp dir."

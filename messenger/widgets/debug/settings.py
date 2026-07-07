@@ -20,7 +20,6 @@ class ServiceIDCell(BoxLayout):
 
     def run_settings_test(self):
         service_uuid = config.SERVICE_UUID
-        print('SERVICE UUID:', service_uuid)
         self.label.text = f'SERVICE UUID: {service_uuid}'
 
 

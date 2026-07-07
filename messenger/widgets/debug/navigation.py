@@ -51,11 +51,9 @@ class DebugNavigation(BoxLayout):
         change_page(page_name)
 
     def open_dropdown(self, _):
-        print('Running open_dropdown')
         self.dropdown.open(self)
         schedule(self.position_dropdown)
 
     def position_dropdown(self, _):
-        print('Running position_dropdown')
         self.dropdown.x = 0
         self.dropdown.y = self.menu_button.y - self.dropdown.height

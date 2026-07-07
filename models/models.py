@@ -33,6 +33,9 @@ class Device(Base):
     memberships = relationship('Member', back_populates='device')
     messages = relationship('Message', back_populates='device')
 
+    def __repr__(self):
+        return f'Device[Model](uuid=\'{self.uuid}\', name=\'{self.name}\', address=\'{self.address}\', owner={self.owner})'
+
 class Chat(Base):
     """ A Chat is a room to contain Messages involving the user and one or more other devices. Multiple
         chats with the same Device or Contact are allowed, enabling the user to create as many channels
@@ -55,6 +58,9 @@ class Chat(Base):
             raise ValueError('Chat requires at least one device.')
         self.title = ', '.join(d.name for d in devices)
         self.members = [Member(device=d) for d in devices]
+
+    def __repr__(self):
+        return f'Chat[Model](id={self.id}, title=\'{self.title}\', datetime=\'{self.datetime}\')'
 
 class Member(Base):
     """ A Device which is a Member of a Chat. """

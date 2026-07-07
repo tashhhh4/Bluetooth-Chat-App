@@ -1,5 +1,7 @@
+import logging
 import threading
 import time
+from jnius import JavaException
 from kivy.clock import Clock
 
 def listen(socket, ttl=30, name='socket'):
@@ -35,14 +37,12 @@ def listen_on_thread(socket, ttl=30, name='socket'):
     return thread
 
 def accept(socket, name='accept socket', on_connected=None):
+    logging.info('Running accept()')
     try:
         connected = False
         while not connected:
-            print(f'Listening for incoming connections with {name}.')
             try:
                 client = socket.accept()
-                print('Connection accepted!')
-                print('client is', client)
                 if on_connected:
                     on_connected(client)
                 connected = True
@@ -65,18 +65,19 @@ def accept_on_thread(socket, name='accept socket', on_connected=None):
     return thread
 
 def connect(socket, name='connector socket', on_connected=None):
+    logging.info('Running connect()')
     try:
-        connected = False
-        while not connected:
-            print(f'Probing device for connection with {name}.')
+        while True:
             try:
                 socket.connect()
-                print('Connection established!')
-                connected = True
+                logging.info('Connection established.')
                 if on_connected:
                     on_connected(socket)
+                break
+            except JavaException as j:
+                print('No connection yet.')
             except Exception as e:
-                print('Failed to connect this second.')
+                print('Connect Error:', e)
     except Exception as e:
         print(e)
 
@@ -100,11 +101,10 @@ def read_input_stream(connected_socket, input_stream, name='input stream receive
             bytes_read = input_stream.read(buffer)
             if bytes_read > 0:
                 data = buffer[:bytes_read].decode('utf-8')
-                print('RECEIVED:', data)
                 if on_receive:
                     on_receive(data)
         except Exception as e:
-            print('Receive error:', e)
+            print('Read Input Stream Error:', e)
             break
 
 def read_input_stream_on_thread(connected_socket, input_stream, name='input stream receiver', on_receive=None):

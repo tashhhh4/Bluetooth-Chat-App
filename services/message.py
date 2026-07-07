@@ -4,18 +4,13 @@
 
     Is this the 'protocol' layer?
 """
-# The ChatView should only load the chat and display the messages.
-
-# The MessageService should decide which chat to give the Chat View.
-# The MessageService not the BluetoothService should decide when to pop the Chat View into the user's face.
 
 import json
+import logging
 from dataclasses import dataclass
 from db.manager import chats, devices, messages, settings
-from utils import device_java_obj_to_dict, EventRegistry, schedule
+from utils import EventRegistry, schedule
 from messenger.utils import change_page
-
-FAKE_CHAT_ID = '1' # manually create with debug interface
 
 @dataclass
 class Message:
@@ -59,6 +54,7 @@ class MessageService:
     bluetooth_service = None
 
     def __init__(self, bluetooth_service):
+
         self.bluetooth_service = bluetooth_service
         self.bluetooth_service.event_registry.register_event_callback('CONNECTION_ESTABLISHED', self._handle_device_connected)
 
@@ -67,7 +63,8 @@ class MessageService:
         # which also emits a MESSAGE_RECEIVED event from MessageService
         self.bluetooth_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
 
-    def send_message(self, text):
+    # Message API
+    def send_message(self, text, chat_id):
         """ Does socket message using the active BluetoothService.
             If there is an exception during transport,
             the message will not be added to the database.
@@ -76,60 +73,94 @@ class MessageService:
         try:
             # Transport part
             message_obj = MessageObject(
-                message=Message(text=text, chat_id=FAKE_CHAT_ID),
+                message=Message(text=text, chat_id=chat_id),
                 sender_uuid=my_device_uuid
             )
             message_json = message_obj.to_json()
             self.bluetooth_service.send_bytes(message_json)
 
             # Database part
-            messages.create(FAKE_CHAT_ID, my_device_uuid, text)
+            messages.create(chat_id, my_device_uuid, text)
         except Exception as e:
-            print('MessageService.send_message:', e)
+            print('MessageService Error:', e)
 
+    @staticmethod
+    def load_messages(chat_id):
+        """ Returns messages as {'text': str, 'sender': str, 'time': str} """
+        messages_in_chat = messages.list_messages(chat_id)
+        frontend_messages = []
+        for message_model in messages_in_chat:
+            device = devices.get(message_model.device_uuid)
+            if not device:
+                device_name = 'No Device'
+            elif device.name is None or device.name == '':
+                device_name = 'Unknown Device'
+            else:
+                device_name = device.name
+            message = {
+                'text': message_model.text,
+                'sender': device_name,
+                'time': str(message_model.datetime),
+            }
+            frontend_messages.append(message)
+        return frontend_messages
+
+    # Handlers
     def _handle_device_connected(self):
-        print('MessageService._handle_device_connected: running.')
+        logging.info('[MessageService] Running _handle_device_connected()')
 
         # Self Introduction Over Bluetooth
         my_device_uuid = settings.get_device_uuid()
         self_intro = MessageObject(message=None, sender_uuid=my_device_uuid)
         self_intro_json = self_intro.to_json()
+        logging.info(f'MessageService: Sending self introduction message to remote device: {self_intro_json}')
         self.bluetooth_service.send_bytes(self_intro_json)
 
     def _handle_message_received(self, data):
+        logging.info('[MessageService] Running _handle_message_received()')
 
         message_obj = MessageObject.from_json(data)
+        logging.info(('MessageService: Converted message from JSON string to Python Object.\n'
+                      f'                           {message_obj.__repr__()}'))
 
         # Database - Add Device if unknown
         sender_device = devices.get(message_obj.sender_uuid)
 
         if not sender_device:
-            print('Device unknown. Adding new record...')
+            logging.info('MessageService: New Device discovered.')
 
             remote_device_obj = self.bluetooth_service.connected_socket.getRemoteDevice()
 
-            devices.create(
+            sender_device = devices.create(
                 device_uuid=message_obj.sender_uuid,
                 name=remote_device_obj.name,
                 address=remote_device_obj.address,
             )
-            sender_device = devices.get(message_obj.sender_uuid)
+            logging.info(('MessageService: Created new Device record.\n'
+                          f'                           {sender_device.__repr__()}'))
+        else:
+            logging.info(('MessageService: Message is from a known Device.\n'
+                          f'                           {sender_device.__repr__()}'))
 
         # Database - Create chat with device if not exists
+
+        # So yes, I ONLY want to pop into the Chat View when the connected_socket becomes connected.
+
         existing_chats = chats.list_chats(device_uuid=message_obj.sender_uuid)
-        if len(existing_chats) > 1:
-            print('Warning: more than 1 chat with Device', sender_device.name, 'exists and multiple Chat channels with the same Device are not yet supported.')
         if not existing_chats:
             target_chat = chats.create([message_obj.sender_uuid])
+            logging.info(('MessageService: New Chat created.\n'
+                          f'                           {target_chat.__repr__()}'))
         else:
             target_chat = existing_chats[0]
+        if len(existing_chats) > 1:
+            print('Warning: more than 1 chat with Device', sender_device.name,
+                  'exists and multiple Chat channels with the same Device are not yet supported.')
 
         # Frontend - Jump into Chat View with Chat object
         # (will currently happen on EVERY single message but I will optimize it later)
-        device = self.bluetooth_service.connected_socket.getRemoteDevice()
-        device_dict = device_java_obj_to_dict(device)
         def go(_):
-            change_page('Chat', device=device_dict)
+            change_page('Chat', chat_id=target_chat.id, chat_title=target_chat.title)
         schedule(go)
 
         # Database - Add message content

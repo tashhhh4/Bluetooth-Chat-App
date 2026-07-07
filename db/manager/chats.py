@@ -11,6 +11,7 @@ def create(device_uuids):
         chat = Chat(device_models)
         session.add(chat)
         session.commit()
+        session.refresh(chat)
         return chat
 
 def list_chats(device_uuid=None):

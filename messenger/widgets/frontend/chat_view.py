@@ -1,5 +1,5 @@
 from kivy.metrics import dp
-from kivy.properties import DictProperty, ListProperty
+from kivy.properties import ListProperty, NumericProperty, StringProperty
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.divider import MDDivider
@@ -14,7 +14,8 @@ from .components.message_card import MessageCard
 
 class ChatView(AppScreen):
 
-    device = DictProperty({})
+    chat_id = NumericProperty()
+    chat_title = StringProperty()
     messages = ListProperty([])
 
     def __init__(self, **kwargs):
@@ -65,7 +66,7 @@ class ChatView(AppScreen):
         self.container.add_widget(self.send_message_form)
 
         # Text Input
-        self.text_input = MDTextField(size_hint_x=.8)
+        self.text_input = MDTextField(size_hint_x=.8, )
         self.send_message_form.add_widget(self.text_input)
 
         # Send Button
@@ -78,12 +79,10 @@ class ChatView(AppScreen):
 
         # Send Message
         def s(_):
-            print('Sending message...')
             text = self.text_input.text
             message_service = get_message_service()
-            message_service.send_message(text)
+            message_service.send_message(text, self.chat_id)
             message_from_self = {'text': text, 'sender': 'You', 'time': 'Just now'}
-            self.messages.append(message_from_self)
         self.send_button.bind(on_press=s)
 
     def populate_messages(self, messages):
@@ -97,15 +96,20 @@ class ChatView(AppScreen):
         schedule(d)
 
     def set_context(self, **context):
-        self.device = context.get('device')
+        self.chat_id = context.get('chat_id')
+        self.chat_title = context.get('chat_title')
 
-    def on_device(self, _, device):
-        device_name = device['name'] if device['name'] else 'Unknown Device'
-        self.headline.text = f'Chat with {device_name}'
+    def on_chat_id(self, _, chat_id):
+        message_service = get_message_service()
+        self.messages = message_service.load_messages(chat_id)
+
+    def on_chat_title(self, _, chat_title):
+        self.headline.text = chat_title
 
     def on_messages(self, _, messages):
         self.populate_messages(messages)
 
     def _handle_message_received(self, data):
-        message = {'text': data, 'sender': self.device['name'], 'time': 'Just now'}
-        self.messages.append(message)
+        message_service = get_message_service()
+        messages = message_service.load_messages(self.chat_id)
+        self.messages = messages

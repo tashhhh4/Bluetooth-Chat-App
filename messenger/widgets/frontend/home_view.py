@@ -10,7 +10,7 @@ class HomeView(AppScreen):
         super(HomeView, self).__init__(**kwargs)
 
         # Page Label
-        self.page_label = MDLabel(text='Home Page', font_style='Headline')
+        self.page_label = MDLabel(text='Home Page :D', font_style='Headline')
         self.add_widget(self.page_label)
 
         # Primary Button-Links

@@ -1,3 +1,4 @@
+import logging
 from android.broadcast import BroadcastReceiver
 from jnius import autoclass, cast
 from config import SERVICE_UUID
@@ -16,7 +17,8 @@ ParcelUuid = autoclass('android.os.ParcelUuid')
 PythonActivity = autoclass('org.kivy.android.PythonActivity')
 JavaUUID = autoclass('java.util.UUID')
 
-class BluetoothService:
+
+class BluetoothService :
 
     device_receiver = None
     connected_socket = None
@@ -64,18 +66,13 @@ class BluetoothService:
             ttl=ttl,
             name='Service Listener'
         )
-        print('Started thread:', thread)
 
     @staticmethod
     def query_device_for_service_record(device):
         java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
         service_query_socket = device.createRfcommSocketToServiceRecord(java_uuid)
-        print('Created socket:', service_query_socket)
         try:
             result = service_query_socket.connect()
-            print('After attempting to use connect()')
-            print('Socket is:', service_query_socket)
-            print('Result is:', result)
             return result
         except Exception as e:
             print(e)
@@ -87,13 +84,11 @@ class BluetoothService:
 
         connection_listener_socket = bluetooth_adapter.listenUsingRfcommWithServiceRecord('Blu', java_uuid)
 
-        thread = accept_on_thread(
+        accept_on_thread(
             connection_listener_socket,
             name='Connection Listener',
             on_connected=self._handle_connection,
         )
-        alive = 'Alive' if thread.is_alive() else 'Unalive'
-        print(f'Started thread: {thread.name} ({alive}) with daemon {thread.daemon}. Ident: {thread.ident}')
 
     def connect_to_device(self, address):
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
@@ -106,19 +101,16 @@ class BluetoothService:
 
         connector_socket = device.createRfcommSocketToServiceRecord(java_uuid)
 
-        thread = connect_on_thread(
+        connect_on_thread(
             connector_socket,
             name='Connection Initiator',
             on_connected=self._handle_connection,
         )
-        alive = 'Alive' if thread.is_alive() else 'Unalive'
-        print(f'Started thread: {thread.name} ({alive}) with daemon {thread.daemon}. Ident: {thread.ident}')
 
     def start_reading_input_stream(self):
         if self.connected_socket is None:
             raise IOError('No connection.')
         input_stream = self.connected_socket.getInputStream()
-        print('input_stream is', input_stream)
         thread = read_input_stream_on_thread(
             self.connected_socket,
             input_stream,
@@ -127,15 +119,12 @@ class BluetoothService:
         )
 
     def send_bytes(self, data):
-        print('running send_bytes')
         if self.connected_socket is None:
             raise IOError('No connection.')
         output_stream = self.connected_socket.getOutputStream()
-        print('output_stream is', output_stream)
         try:
             output_stream.write(data.encode('utf-8'))
             output_stream.flush()
-            print('SENT:', data)
         except Exception as e:
             print('send_bytes error:', e)
 
@@ -184,7 +173,6 @@ class BluetoothService:
 
     def _handle_device_found(self, intent):
         # self._turn_discovery_off()
-        print('Running _handle_device_found.')
 
         parcelable = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
         device = cast(BluetoothDevice, parcelable)
@@ -201,10 +189,16 @@ class BluetoothService:
             self._handle_device_found(intent)
 
     def _handle_connection(self, socket):
+        logging.info('[BluetoothService] Running _handle_connection()')
         self.connected_socket = socket
+        logging.info('[BluetoothService] emits CONNECTION_ESTABLISHED')
         self.event_registry.emit_event('CONNECTION_ESTABLISHED')
+
 
         self.start_reading_input_stream()
 
     def _handle_receive(self, data):
+        logging.info('[BluetoothService] Running_handle_receive(data)')
+        logging.info(f'BluetoothService: Received {data}')
+        logging.info('[BluetoothService] emits MESSAGE_RECEIVED')
         self.event_registry.emit_event('MESSAGE_RECEIVED', data)

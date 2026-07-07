@@ -7,7 +7,6 @@ from services.platform import get_bluetooth_service
 from messenger.utils import change_page
 
 def connect_to_device(device):
-    print('Connecting to device...')
     bluetooth_service = get_bluetooth_service()
     bluetooth_service.connect_to_device(device['address'])
 

@@ -5,6 +5,7 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.divider import MDDivider
 from kivymd.uix.label import MDLabel
+from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.widget import MDWidget
 from utils import schedule
@@ -58,9 +59,18 @@ class ChatView(AppScreen):
         self.divider = MDDivider()
         self.header.add_widget(self.divider)
 
+        # Scroll View
+        self.scroll_view = MDScrollView()
+        self.container.add_widget(self.scroll_view)
+
         # List of Messages
-        self.message_container = MDBoxLayout(orientation='vertical', padding=dp(10), spacing=dp(10))
-        self.container.add_widget(self.message_container)
+        self.message_container = MDBoxLayout(
+            orientation='vertical',
+            adaptive_height=True,
+            padding=dp(10),
+            spacing=dp(10)
+        )
+        self.scroll_view.add_widget(self.message_container)
 
         # Message Form
         self.send_message_form = MDBoxLayout(orientation='horizontal', size_hint_y=None, height=dp(40), spacing=dp(5))

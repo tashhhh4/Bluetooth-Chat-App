@@ -84,6 +84,7 @@ class ChatView(AppScreen):
             text = self.text_input.text
             message_service = get_message_service()
             message_service.send_message(text, self.chat_id)
+            self.text_input.text = ''
             self._load_messages()
         self.send_button.bind(on_press=s)
 

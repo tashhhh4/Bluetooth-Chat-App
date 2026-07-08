@@ -84,7 +84,6 @@ class BluetoothManagerView(AppScreen):
         self.load_paired_devices()
 
     def populate_paired_devices_list(self, devices):
-        print('[BluetoothManagerView] Running populate_paired_devices_list')
         paired_devices_list = self.paired_devices_container
 
         def c(_):
@@ -101,14 +100,10 @@ class BluetoothManagerView(AppScreen):
         schedule(d)
 
     def load_paired_devices(self):
-        print('[BluetoothManagerView] Running load_paired_devices()')
         self.bluetooth_service.load_paired_devices()
 
     def on_paired_devices(self, _, devices):
-        print('[BluetoothManagerView] Running on_paired_devices(). middle argument is', _, ' devices is', devices)
         self.populate_paired_devices_list(devices)
 
     def _handle_bonded_devices_updated(self, devices):
-        print('[BluetoothManagerView] Running _handle_bonded_devices_updated()')
-        print('devices BluetoothService gave me are', devices)
         self.paired_devices = devices

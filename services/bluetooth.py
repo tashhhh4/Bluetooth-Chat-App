@@ -8,7 +8,7 @@ from utils import (
     read_input_stream_on_thread,
     EventRegistry
 )
-from services.platform import run_with_permissions
+from services.android import AndroidService
 
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
@@ -36,6 +36,7 @@ class BluetoothService :
 
     def __init__(self):
         self.device_receiver = self._get_device_receiver()
+        self.android_service = self._get_android_service()
 
     @staticmethod
     def turn_discoverability_on(ttl): # max 300
@@ -46,18 +47,14 @@ class BluetoothService :
         activity.startActivity(intent)
 
     def load_paired_devices(self):
-        print('Running BluetoothService load_paired_devices()')
         def l():
-            print('Running callback l() in load_paired_devices')
             bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
             devices_set = bluetooth_adapter.getBondedDevices()
-            print('Retrieved bonded devices. Set is:', devices_set)
             devices_list = [{'name': dev.name, 'address': dev.address} for dev in devices_set]
-            print('Turned devices into formatted list of dicts:', devices_list)
             self.event_registry.emit_event('BONDED_DEVICES_UPDATED', devices_list)
         def d():
             logging.info('BluetoothService: User blocked access to BLUETOOTH_CONNECT.')
-        run_with_permissions(['android.permission.BLUETOOTH_CONNECT'], l, d)
+        self.android_service.run_with_permissions(['android.permission.BLUETOOTH_CONNECT'], l, d)
 
     def listen_for_connections(self):
         def l():
@@ -73,13 +70,13 @@ class BluetoothService :
             )
         def d():
             logging.info('BluetoothService: User blocked access to BLUETOOTH_CONNECT.')
-        run_with_permissions(['android.permission.BLUETOOTH_CONNECT'], l, d)
+        self.android_service.run_with_permissions(['android.permission.BLUETOOTH_CONNECT'], l, d)
 
     def connect_to_device(self, address):
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
         device = bluetooth_adapter.getRemoteDevice(address)
         if not device:
-            print('Device not found!')
+            logging.info('Device not found!')
             return
 
         java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
@@ -111,24 +108,24 @@ class BluetoothService :
             output_stream.write(data.encode('utf-8'))
             output_stream.flush()
         except Exception as e:
-            print('send_bytes error:', e)
+            logging.warning('send_bytes error:', e)
 
     def scan_for_devices(self):
-        print('Scanning for devices...')
+        logging.info('Scanning for devices...')
         self.is_scanning = True
         self._turn_discovery_on()
 
     def stop_scanning(self):
         self._turn_discovery_off()
         self.is_scanning = False
-        print('Scanning stopped.')
+        logging.info('Scanning stopped.')
 
     def _turn_discovery_on(self):
         self.device_receiver = self._get_device_receiver()
         self.device_receiver.start()
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
         bluetooth_adapter.startDiscovery()
-        print('Discovery started.')
+        logging.info('Discovery started.')
 
     def _turn_discovery_off(self):
         if self.device_receiver:
@@ -136,7 +133,7 @@ class BluetoothService :
             self.device_receiver = None
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
         bluetooth_adapter.cancelDiscovery()
-        print('Discovery cancelled.')
+        logging.info('Discovery cancelled.')
 
     def _add_discovered_device(self, device):
         # check if a device with this address is already in our discovered_devices
@@ -156,6 +153,11 @@ class BluetoothService :
         )
         return device_receiver
 
+    def _get_android_service(self):
+        android_service = AndroidService()
+        android_service.event_registry.register_event_callback('PERMISSION_GRANTED', self._handle_permission_granted)
+        return android_service
+
     def _handle_device_found(self, intent):
         # self._turn_discovery_off()
 
@@ -173,17 +175,24 @@ class BluetoothService :
         if action == BluetoothDevice.ACTION_FOUND:
             self._handle_device_found(intent)
 
+    def _handle_permission_granted(self, permission):
+        if permission == 'android.permission.BLUETOOTH_CONNECT':
+            self._handle_bluetooth_connect_permission_granted()
+
+    def _handle_bluetooth_connect_permission_granted(self):
+        self.load_paired_devices()
+
     def _handle_connection(self, socket):
-        logging.info('[BluetoothService] Running _handle_connection()')
+        logging.debug('[BluetoothService] Running _handle_connection()')
         self.connected_socket = socket
-        logging.info('[BluetoothService] emits CONNECTION_ESTABLISHED')
+        logging.debug('[BluetoothService] emits CONNECTION_ESTABLISHED')
         self.event_registry.emit_event('CONNECTION_ESTABLISHED')
 
 
         self.start_reading_input_stream()
 
     def _handle_receive(self, data):
-        logging.info('[BluetoothService] Running_handle_receive(data)')
-        logging.info(f'BluetoothService: Received {data}')
-        logging.info('[BluetoothService] emits MESSAGE_RECEIVED')
+        logging.debug('[BluetoothService] Running_handle_receive(data)')
+        logging.debug(f'BluetoothService: Received {data}')
+        logging.debug('[BluetoothService] emits MESSAGE_RECEIVED')
         self.event_registry.emit_event('MESSAGE_RECEIVED', data)

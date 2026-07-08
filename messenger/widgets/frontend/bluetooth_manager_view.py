@@ -1,3 +1,4 @@
+from kivy.properties import ListProperty
 from kivy.metrics import dp
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDButton, MDButtonText
@@ -13,9 +14,12 @@ from .components.device_card import DeviceCard
 
 class BluetoothManagerView(AppScreen):
 
+    paired_devices = ListProperty([])
+
     def __init__(self, **kwargs):
 
         self.bluetooth_service = get_bluetooth_service()
+        self.bluetooth_service.event_registry.register_event_callback('BONDED_DEVICES_UPDATED', self._handle_bonded_devices_updated)
 
         super(BluetoothManagerView, self).__init__(**kwargs)
 
@@ -43,15 +47,15 @@ class BluetoothManagerView(AppScreen):
         self.divider = MDDivider()
         self.header.add_widget(self.divider)
 
-        # Make Visible Section Card
+        # Make Visible Section Card - DISABLED
         self.make_visible_section = MDCard(style='elevated', size_hint_y=None, height=dp(80))
-        self.container.add_widget(self.make_visible_section)
+        # self.container.add_widget(self.make_visible_section)
 
-        # Make Visible Section Layout
+        # Make Visible Section Layout - DELETE PARENT COMMENT-OUT TO REENABLE
         self.make_visible_layout = MDBoxLayout(orientation='horizontal', padding=dp(10), spacing=dp(20))
         self.make_visible_section.add_widget(self.make_visible_layout)
 
-        # Make Visible Section Caption
+        # Make Visible Section Caption - DELETE PARENT COMMENT-OUT TO REENABLE
         self.make_visible_caption = MDLabel(
             text='Click here to make your device discoverable to other devices using Bluetooth.',
             font_style='Label',
@@ -77,10 +81,10 @@ class BluetoothManagerView(AppScreen):
         self.paired_devices_container = MDBoxLayout(orientation='vertical')
         self.paired_devices_section.add_widget(self.paired_devices_container)
 
-        self.populate_paired_devices_list()
+        self.load_paired_devices()
 
-    def populate_paired_devices_list(self):
-        devices = self.bluetooth_service.get_paired_devices()
+    def populate_paired_devices_list(self, devices):
+        print('[BluetoothManagerView] Running populate_paired_devices_list')
         paired_devices_list = self.paired_devices_container
 
         def c(_):
@@ -95,3 +99,16 @@ class BluetoothManagerView(AppScreen):
 
         schedule(c)
         schedule(d)
+
+    def load_paired_devices(self):
+        print('[BluetoothManagerView] Running load_paired_devices()')
+        self.bluetooth_service.load_paired_devices()
+
+    def on_paired_devices(self, _, devices):
+        print('[BluetoothManagerView] Running on_paired_devices(). middle argument is', _, ' devices is', devices)
+        self.populate_paired_devices_list(devices)
+
+    def _handle_bonded_devices_updated(self, devices):
+        print('[BluetoothManagerView] Running _handle_bonded_devices_updated()')
+        print('devices BluetoothService gave me are', devices)
+        self.paired_devices = devices

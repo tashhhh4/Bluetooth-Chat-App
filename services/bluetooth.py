@@ -5,10 +5,10 @@ from config import SERVICE_UUID
 from utils import (
     accept_on_thread,
     connect_on_thread,
-    listen_on_thread,
     read_input_stream_on_thread,
     EventRegistry
 )
+from services.platform import run_with_permissions
 
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
@@ -16,7 +16,6 @@ Intent = autoclass('android.content.Intent')
 ParcelUuid = autoclass('android.os.ParcelUuid')
 PythonActivity = autoclass('org.kivy.android.PythonActivity')
 JavaUUID = autoclass('java.util.UUID')
-
 
 class BluetoothService :
 
@@ -28,6 +27,7 @@ class BluetoothService :
     discovered_devices = {}
 
     event_registry = EventRegistry([
+        'BONDED_DEVICES_UPDATED',
         'CONNECTION_ESTABLISHED',
         'DISCOVERED_DEVICES_UPDATED',
         'MESSAGE_RECEIVED',
@@ -36,7 +36,6 @@ class BluetoothService :
 
     def __init__(self):
         self.device_receiver = self._get_device_receiver()
-        self.listen_for_connections()
 
     @staticmethod
     def turn_discoverability_on(ttl): # max 300
@@ -46,24 +45,35 @@ class BluetoothService :
 
         activity.startActivity(intent)
 
-    @staticmethod
-    def get_paired_devices():
-        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
-        devices_set = bluetooth_adapter.getBondedDevices()
-        devices_list = [{'name': d.name, 'address': d.address} for d in devices_set]
-        return devices_list
+    def load_paired_devices(self):
+        print('Running BluetoothService load_paired_devices()')
+        def l():
+            print('Running callback l() in load_paired_devices')
+            bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+            devices_set = bluetooth_adapter.getBondedDevices()
+            print('Retrieved bonded devices. Set is:', devices_set)
+            devices_list = [{'name': dev.name, 'address': dev.address} for dev in devices_set]
+            print('Turned devices into formatted list of dicts:', devices_list)
+            self.event_registry.emit_event('BONDED_DEVICES_UPDATED', devices_list)
+        def d():
+            logging.info('BluetoothService: User blocked access to BLUETOOTH_CONNECT.')
+        run_with_permissions(['android.permission.BLUETOOTH_CONNECT'], l, d)
 
     def listen_for_connections(self):
-        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
-        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
+        def l():
+            bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
+            java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
 
-        connection_listener_socket = bluetooth_adapter.listenUsingRfcommWithServiceRecord('Blu', java_uuid)
+            connection_listener_socket = bluetooth_adapter.listenUsingRfcommWithServiceRecord('Blu', java_uuid)
 
-        accept_on_thread(
-            connection_listener_socket,
-            name='Connection Listener',
-            on_connected=self._handle_connection,
-        )
+            accept_on_thread(
+                connection_listener_socket,
+                name='Connection Listener',
+                on_connected=self._handle_connection,
+            )
+        def d():
+            logging.info('BluetoothService: User blocked access to BLUETOOTH_CONNECT.')
+        run_with_permissions(['android.permission.BLUETOOTH_CONNECT'], l, d)
 
     def connect_to_device(self, address):
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()

@@ -10,7 +10,6 @@ from kivy.app import App
 from config import ENVIRONMENT
 from utils import schedule
 
-
 def initialize_window():
     if ENVIRONMENT == 'local':
         from kivy.config import Config
@@ -55,6 +54,38 @@ def initialize_permissions():
         ])
     else:
         logging.info('Skipped requesting Android permissions.')
+
+def run_with_permissions(permissions, callback, on_deny=None):
+    """ If all the needed permissions are already granted, immediately run callback().
+        Otherwise, initiate a permission request and pass in callback() to be run when done.
+        The optional on_deny() handler can be run if the user does not grant the permissions.
+    """
+    print('Running run_with_permissions()')
+    print('The permissions I want to check are', permissions)
+    from android.permissions import check_permission, request_permissions
+    # if all(check_permission(p) for p in permissions):
+    all_granted = True
+    for p in permissions:
+        print(p, 'is', check_permission(p))
+        if not check_permission(p):
+            print('Not all permissions were granted.')
+            all_granted = False
+            break
+    if all_granted:
+        print('All permissions are already granted.')
+        callback()
+        return
+
+    def _handle_permission_result(_, grants):
+        print('Running run_with_permissions() -> _handle_permission_result()')
+        print('permissions:', _, 'grants:', grants)
+        if all(grants):
+            callback()
+        else:
+            if on_deny:
+                on_deny()
+
+    request_permissions(permissions, _handle_permission_result)
 
 def get_bluetooth_service():
     """ Returns an instance of `services.bluetooth.BluetoothService,

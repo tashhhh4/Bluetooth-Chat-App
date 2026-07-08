@@ -1,3 +1,5 @@
+from utils import EventRegistry
+
 EXPLANATION = ' — not implemented in FakeBluetoothService'
 
 class FakeBluetoothService:
@@ -6,6 +8,7 @@ class FakeBluetoothService:
     _callbacks = {
         'DISCOVERED_DEVICES_UPDATED': [],
     }
+    event_registry = EventRegistry(['DISCOVERED_DEVICES_UPDATED'])
 
     @staticmethod
     def scan_for_devices():

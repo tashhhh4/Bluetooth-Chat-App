@@ -1,7 +1,6 @@
 import logging
 import threading
 import time
-from jnius import JavaException
 from kivy.clock import Clock
 
 def listen(socket, ttl=30, name='socket'):
@@ -65,6 +64,8 @@ def accept_on_thread(socket, name='accept socket', on_connected=None):
     return thread
 
 def connect(socket, name='connector socket', on_connected=None):
+    from jnius import JavaException
+
     logging.info('Running connect()')
     try:
         while True:

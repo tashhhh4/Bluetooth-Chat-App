@@ -1,21 +1,15 @@
-""" This module is responsible for separating out imports that will cause the app
-    to crash when a library isn't available due to being run on Android vs. PC.
-    It also instantiates and returns singletons of BluetoothService and MessageService.
-    It contains additional initialization functions that run on app startup.
+""" This module is responsible for wrapping Android-specific operations and providing
+    placeholders that allow the app to continue to be tested on the local development PC
+    with limited functionality. It provides the appropriate platform-dependant
+    initialization behavior for several start-up functions. It instantiates and returns
+    singletons of the services classes that encapsulate complicated low-level APIs.
 """
 
 import logging
 from kivy.app import App
 from config import ENVIRONMENT
-from services.message import MessageService
-from utils import device_java_obj_to_dict, schedule
-from messenger.utils import change_page
-
-"""
-Wraps Android-specific operations and provides fallbacks for testing.
-"""
-
 from utils import schedule
+
 
 def initialize_window():
     if ENVIRONMENT == 'local':
@@ -39,9 +33,11 @@ def initialize_window():
 
         schedule(_configure_android_window)
 
-
 # Todo: Fix the app being drawn underneath the top status bar
-
+def get_top_inset():
+    if ENVIRONMENT == 'local':
+        return 0
+    return 10
 
 def initialize_permissions():
     """ Runs request_permissions() if running on Android, else does nothing. """
@@ -89,12 +85,18 @@ def get_bluetooth_service():
     return bluetooth_service
 
 def get_message_service():
-    """ Returns the one true instance of MessageService. """
+    """ Returns the one true instance of MessageService, or a placeholder. """
     existing_obj = App.get_running_app().message_service
     if existing_obj:
         return existing_obj
 
     bluetooth_service = get_bluetooth_service()
+
+    if ENVIRONMENT == 'local':
+        from services.fake_message import FakeMessageService
+        return FakeMessageService(bluetooth_service)
+
+    from services.message import MessageService
     message_service = MessageService(bluetooth_service)
     return message_service
 

@@ -1,8 +1,12 @@
 from kivy.app import App
+from kivy.metrics import dp
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.screenmanager import MDScreenManager
 import config
 from messenger.widgets.debug.navigation import DebugNavigation
+from services.platform import get_top_inset
+from .utils import fit_height
+
 
 class RootLayout(MDBoxLayout):
     def __init__(self, pages, **kwargs):
@@ -10,6 +14,8 @@ class RootLayout(MDBoxLayout):
         self.pages = pages
 
         super(RootLayout, self).__init__(**kwargs)
+
+        self.padding = (0, dp(get_top_inset()), 0, 0)
 
         app = App.get_running_app()
         self.md_bg_color = app.theme_cls.backgroundColor
@@ -20,6 +26,7 @@ class RootLayout(MDBoxLayout):
 
         # Header Space for anywhere in app
         self.header_container = MDBoxLayout(orientation='horizontal', size_hint_y=None)
+        fit_height(self.header_container)
         self.container.add_widget(self.header_container)
 
         if config.ENVIRONMENT in ['local', 'debug']:

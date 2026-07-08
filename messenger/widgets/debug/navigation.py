@@ -17,14 +17,14 @@ class DebugNavigation(BoxLayout):
 
         self.orientation = 'horizontal'
         self.size_hint_y = None
-        self.height = dp(90)
+        self.height = dp(50)
 
         self.menu_button = Button(
             text='| | |',
             size_hint=(None, None),
             size=(dp(80), dp(90)),
             background_color=(0, 0, 0, 1),
-            height=dp(90),
+            height=dp(50),
         )
         self.title = Label(text='Debug Views', size_hint_x=1)
 

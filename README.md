@@ -7,36 +7,46 @@
 #### Local
 _Runs on my local development machine, (CachyOS Linux with KDE desktop environment)._
 - A window pops up over the desktop when this version is run.
-- Bluetooth adapters for Android are excluded from this build.
+- Bluetooth adapters and permissions libraries for Android are excluded from this build.
 - Useful for rapid development/debugging of the UI widgets.
 Command to test the app:
 ```fish
 uv run main.py
 ```
 
-#### Debug (installs and runs through Android Bridge Debug (adb))
+#### Debug
 1. Build the app:
 ```fish
+# Sets the appropriate JDK version and runs buildozer
 ./build.sh
-# The build script is necessary to ensure that the correct Java SDK
-# is activated before the build command is executed.
+```
+
+1.5 Push individual files (much faster than creating a new build):
+```fish
+# Replaces the exact file specified using adb push and adb shell ... cp
+./push.sh path/of/file.py
 ```
 
 2. Check if the device is connected:
-_So far it only seems to work with a USBC to USBC connection._
 ```fish
 adb devices
-# should see some ID number or something
 ```
 
-3. Activate the logs, filtering for logs coming from the Python app:
+3. Perform streamed install
+```fish
+# Runs buildozer deploy (very slow and sometimes fails)
+./deploy.sh
+```
+
+3.5 Perform faster streamed install
+```fish
+# Reinstalls in seconds
+adb install bin/latest-version-of-debug.apk
+```
+
+4. Activate the logs, filtering for logs coming from the Python app:
 ```fish
 adb logcat | grep python
-```
-
-4. Install the app:
-```fish
-buildozer android deploy
 ```
 
 5. Make the app on the phone start:
@@ -45,11 +55,11 @@ _You can also click on the app from the phone._
 buildozer android run
 ```
 
-Bonus: Install the latest build and launch the app in one step (speeds up development cycle):
+5.5 Restart the app through adb:
 ```fish
-buildozer android deploy run
+# Runs force-stop and start through adb
+./restart.sh
 ```
-
 
 #### Troubleshooting
 _Fixes for issues encountered while developing._

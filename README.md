@@ -40,8 +40,16 @@ adb devices
 
 3.5 Perform faster streamed install
 ```fish
-# Reinstalls in seconds
+# Reinstall AND RESET runtime permissions and user data
 adb install bin/latest-version-of-debug.apk
+# Reinstall WITHOUT resetting runtime permissions or user data
+adb install -r bin/latest-version-of-debug.apk
+```
+
+3.75 Uninstall through adb
+```fish
+# Combine with the above command to quickly reinstall the app after a new build.
+adb uninstall com.blu2chat.blu2chat
 ```
 
 4. Activate the logs, filtering for logs coming from the Python app:

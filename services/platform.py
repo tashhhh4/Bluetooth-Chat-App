@@ -56,18 +56,6 @@ def initialize_permissions():
     else:
         logging.info('Skipped requesting Android permissions.')
 
-
-def get_ble_scanner():
-    """ Returns a class that implements all the methods of `/services/bluetooth_discovery.py`,
-        but it may work differently depending on the environment.
-    """
-    if ENVIRONMENT == 'local':
-        from services.fake_bluetooth_discovery import FakeBLEScanner
-        return FakeBLEScanner()
-
-    from services.bluetooth_discovery import BLEScanner
-    return BLEScanner()
-
 def get_bluetooth_service():
     """ Returns an instance of `services.bluetooth.BluetoothService,
         or a fake placeholder class.
@@ -99,8 +87,3 @@ def get_message_service():
     from services.message import MessageService
     message_service = MessageService(bluetooth_service)
     return message_service
-
-def get_transport():
-    """ Returns something (a class) that can be used to initiate send() and recv(),
-        or a fake class allowing the code to continue to be debugged on desktop.
-    """

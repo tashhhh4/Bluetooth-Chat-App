@@ -1,1 +1,0 @@
-# Refactor socket/bluetooth related code here later

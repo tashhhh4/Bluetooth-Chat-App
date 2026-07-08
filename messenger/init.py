@@ -1,4 +1,3 @@
-from kivymd.uix.screenmanager import MDScreenManager
 from .widgets.root_widget import RootLayout
 from .pages import DEBUG_PAGES, PAGES, VIEWS
 

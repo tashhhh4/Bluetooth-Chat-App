@@ -53,31 +53,6 @@ class BluetoothService :
         devices_list = [{'name': d.name, 'address': d.address} for d in devices_set]
         return devices_list
 
-    @staticmethod
-    def listen_for_service_record(ttl):
-        bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
-        bluetooth_adapter.cancelDiscovery()
-        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
-
-        service_listener_socket = bluetooth_adapter.listenUsingRfcommWithServiceRecord('Blu2', java_uuid)
-
-        thread = listen_on_thread(
-            service_listener_socket,
-            ttl=ttl,
-            name='Service Listener'
-        )
-
-    @staticmethod
-    def query_device_for_service_record(device):
-        java_uuid = JavaUUID.fromString(str(SERVICE_UUID))
-        service_query_socket = device.createRfcommSocketToServiceRecord(java_uuid)
-        try:
-            result = service_query_socket.connect()
-            return result
-        except Exception as e:
-            print(e)
-        return None
-
     def listen_for_connections(self):
         bluetooth_adapter = BluetoothAdapter.getDefaultAdapter()
         java_uuid = JavaUUID.fromString(str(SERVICE_UUID))

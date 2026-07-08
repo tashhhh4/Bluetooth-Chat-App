@@ -1,4 +1,4 @@
-from messenger.widgets.debug.bluetooth import DebugBluetooth
+# from messenger.widgets.debug.bluetooth import DebugBluetooth
 from messenger.widgets.debug.chat import DebugChat
 from messenger.widgets.debug.chats import DebugChats
 from messenger.widgets.debug.devices import DebugDevices
@@ -9,7 +9,7 @@ from messenger.widgets.frontend.chat_view import ChatView
 from messenger.widgets.frontend.home_view import HomeView
 
 DEBUG_PAGES = {
-    'Bluetooth': DebugBluetooth,
+    # 'Bluetooth': DebugBluetooth,
     'Devices and Contacts': DebugDevices,
     'Messages': DebugMessages,
     'Chats': DebugChats,

@@ -1,6 +1,7 @@
 """ The responsibility of this 'service' is to tie message transport
     logic together with database operations in one place, and to keep
-    as much logic and complexity out of the 'frontend' as possible.
+    backend logic out of the frontend while also keeping frontend
+    logic out of the backend.
 
     Is this the 'protocol' layer?
 """
@@ -108,6 +109,12 @@ class MessageService:
             }
             frontend_messages.append(message)
         return frontend_messages
+
+    @staticmethod
+    def load_chats():
+        """ Returns all your chats in a list. """
+        chat_list = chats.list_chats()
+        return chat_list
 
     # Handlers
     def _handle_device_connected(self):

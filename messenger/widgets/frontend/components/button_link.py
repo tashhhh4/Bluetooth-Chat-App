@@ -11,7 +11,6 @@ class ButtonLink(MDBoxLayout):
         self.button_layout = MDAnchorLayout(anchor_x='center')
         self.add_widget(self.button_layout)
 
-        # Connect Button
         self.button = MDButton(
             style='elevated',
         )

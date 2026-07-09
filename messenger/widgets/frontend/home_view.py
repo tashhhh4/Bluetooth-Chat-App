@@ -33,3 +33,8 @@ class HomeView(AppScreen):
                 ButtonLink(button_text='Connect Devices', target_page='Bluetooth Manager')
             )
         )
+        schedule(
+            lambda _: self.button_links_container.add_widget(
+                ButtonLink(button_text='Chats', target_page='Chats')
+            )
+        )

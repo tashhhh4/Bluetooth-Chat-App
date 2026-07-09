@@ -10,7 +10,7 @@ class FakeBluetoothService:
     _callbacks = {
         'DISCOVERED_DEVICES_UPDATED': [],
     }
-    event_registry = EventRegistry(['DISCOVERED_DEVICES_UPDATED'])
+    event_registry = EventRegistry(['DISCOVERED_DEVICES_UPDATED', 'BONDED_DEVICES_UPDATED'])
 
     @staticmethod
     def scan_for_devices():
@@ -39,7 +39,7 @@ class FakeBluetoothService:
         logging.debug(TAG + 'Turn Bluetooth discovery mode off' + EXPLANATION)
 
     @staticmethod
-    def get_paired_devices():
+    def load_paired_devices():
         logging.debug(TAG + 'Get paired Bluetooth devices' + EXPLANATION)
         return []
 

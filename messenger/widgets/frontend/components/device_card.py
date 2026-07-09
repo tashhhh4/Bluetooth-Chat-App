@@ -4,7 +4,6 @@ from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
 from services.platform import get_bluetooth_service
-from messenger.utils import change_page
 
 def connect_to_device(device):
     bluetooth_service = get_bluetooth_service()
@@ -39,7 +38,6 @@ class DeviceCard(MDCard):
             size_hint_x=None,
             width=dp(100),
             height=dp(40),
-            pos_hint={'x_center': 0.5},
         )
         self.button_container.add_widget(self.button)
         self.button_text = MDButtonText(text='Connect')

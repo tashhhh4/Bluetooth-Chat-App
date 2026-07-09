@@ -17,7 +17,7 @@ class Blu2App(MDApp):
         initialize_database(self.user_data_dir)
 
     def build(self):
-        self.theme_cls.material_style = 'M3'
+        self.theme_cls.material_style = 'M2'
         self.theme_cls.theme_style = 'Light'
         self.theme_cls.primary_palette = 'Blue'
 

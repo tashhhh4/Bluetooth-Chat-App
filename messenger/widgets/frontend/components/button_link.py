@@ -1,23 +1,24 @@
-from kivy.metrics import dp
+from kivymd.uix.anchorlayout import MDAnchorLayout
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDButton, MDButtonText
 from messenger.utils import change_page
 
-class ButtonLink(MDButton):
-
+class ButtonLink(MDBoxLayout):
     def __init__(self, button_text, target_page, **kwargs):
-
-        self.button_text = button_text
-        self.target_page = target_page
 
         super(ButtonLink, self).__init__(**kwargs)
 
-        self.font_size = dp(20)
-        self.height = dp(80)
-        self.pos_hint = {'center_x': .5}
-        self.size_hint_x = .8
+        self.button_layout = MDAnchorLayout(anchor_x='center')
+        self.add_widget(self.button_layout)
 
-        self.button_label = MDButtonText(text=self.button_text, width=dp(300))
-        self.add_widget(self.button_label)
+        # Connect Button
+        self.button = MDButton(
+            style='elevated',
+        )
+        self.button_layout.add_widget(self.button)
+        self.button_text = MDButtonText(text=button_text, font_style='Title')
+        self.button.add_widget(self.button_text)
 
-    def on_press(self):
-        change_page(self.target_page)
+        ### Button Action ###
+
+        self.button.bind(on_press=lambda _: change_page(target_page))

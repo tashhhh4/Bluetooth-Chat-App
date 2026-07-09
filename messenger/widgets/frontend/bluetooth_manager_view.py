@@ -11,6 +11,7 @@ from utils import schedule
 from ..app_screen import AppScreen
 from .components.back_link import BackLink
 from .components.device_card import DeviceCard
+from .components.screen_container import ScreenContainer
 
 class BluetoothManagerView(AppScreen):
 
@@ -24,7 +25,7 @@ class BluetoothManagerView(AppScreen):
         super(BluetoothManagerView, self).__init__(**kwargs)
 
         # Top-level Container
-        self.container = MDBoxLayout(orientation='vertical', padding=dp(10), spacing=dp(20))
+        self.container = ScreenContainer()
         self.add_widget(self.container)
 
         # Header

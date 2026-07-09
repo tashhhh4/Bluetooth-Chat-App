@@ -13,6 +13,7 @@ from services.platform import get_message_service
 from ..app_screen import AppScreen
 from .components.back_link import BackLink
 from .components.message_card import MessageCard
+from .components.screen_container import ScreenContainer
 
 class ChatView(AppScreen):
 
@@ -28,7 +29,7 @@ class ChatView(AppScreen):
         super(ChatView, self).__init__(**kwargs)
 
         # Top-level Container
-        self.container = MDBoxLayout(orientation='vertical', padding=dp(10), spacing=dp(20))
+        self.container = ScreenContainer()
         self.add_widget(self.container)
 
         # Header

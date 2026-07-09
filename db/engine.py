@@ -1,22 +1,20 @@
-from config import DELETE_TABLES
 from pathlib import Path
-from kivy.app import App
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import models
+from config import DELETE_TABLES
 
 _engine = None
 _Session = None
 
-def initialize_database():
+def initialize_database(user_data_dir):
     global _engine
     global _Session
 
     if _engine is not None:
         return
 
-    app = App.get_running_app()
-    data_dir = Path(app.user_data_dir)
+    data_dir = Path(user_data_dir)
     database_path = data_dir / 'b2.sqlite'
     _engine = create_engine(f'sqlite:///{database_path}')
     _Session = sessionmaker(bind=_engine, expire_on_commit=False)

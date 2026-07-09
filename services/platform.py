@@ -7,27 +7,33 @@ from kivy.app import App
 from config import ENVIRONMENT
 from utils import schedule
 
-def initialize_window():
+def configure_desktop_window():
+    from kivy.config import Config
+    Config.set('graphics', 'width', '360')
+    Config.set('graphics', 'height', '740')
+
+def configure_android_window():
+    from android.runnable import run_on_ui_thread
+    from jnius import autoclass
+    PythonActivity = autoclass('org.kivy.android.PythonActivity')
+    LayoutParams = autoclass('android.view.WindowManager$LayoutParams')
+
+    @run_on_ui_thread
+    def _configure_android_window(_):
+        activity = PythonActivity.mActivity
+        window = activity.getWindow()
+
+        # Prevent keyboard from covering up inputs
+        window.setSoftInputMode(LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
+    schedule(_configure_android_window)
+
+def configure_window():
     if ENVIRONMENT == 'local':
-        from kivy.config import Config
-        Config.set('graphics', 'width', '360')
-        Config.set('graphics', 'height', '740')
+        configure_desktop_window()
 
     else:
-        from android.runnable import run_on_ui_thread
-        from jnius import autoclass
-        PythonActivity = autoclass('org.kivy.android.PythonActivity')
-        LayoutParams = autoclass('android.view.WindowManager$LayoutParams')
-
-        @run_on_ui_thread
-        def _configure_android_window(_):
-            activity = PythonActivity.mActivity
-            window = activity.getWindow()
-
-            # Prevent keyboard from covering up inputs
-            window.setSoftInputMode(LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-
-        schedule(_configure_android_window)
+        configure_android_window()
 
 # Todo: Fix the app being drawn underneath the top status bar
 def get_top_inset():

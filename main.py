@@ -1,8 +1,7 @@
-from services.platform import initialize_window
+from services.platform import configure_window
 from db.engine import initialize_database
 
-initialize_window()
-initialize_database()
+configure_window()
 
 from kivymd.app import MDApp
 from messenger.init import get_root_widget
@@ -15,6 +14,7 @@ class Blu2App(MDApp):
 
         self.bluetooth_service = None
         self.message_service = None
+        initialize_database(self.user_data_dir)
 
     def build(self):
         self.theme_cls.material_style = 'M3'
@@ -35,5 +35,8 @@ class Blu2App(MDApp):
 
     def get_screen(self, page_name):
         return self.root.screen_manager.get_screen(page_name)
+
+    def on_resume(self):
+        configure_window()
 
 Blu2App().run()

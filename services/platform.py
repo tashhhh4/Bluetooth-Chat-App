@@ -1,11 +1,8 @@
-""" This module is responsible for wrapping Android-specific operations and providing
-    placeholders that allow the app to continue to be tested on the local development PC
-    with limited functionality. It provides the appropriate platform-dependant
-    initialization behavior for several start-up functions. It instantiates and returns
-    singletons of the services classes that encapsulate complicated low-level APIs.
+""" This module is responsible for choosing the correct version of a Service
+    and instantiating singletons. A Service is a class that encapsulates
+    complicated low-level APIs such as Bluetooth and and Android Permissions.
 """
 
-import logging
 from kivy.app import App
 from config import ENVIRONMENT
 from utils import schedule
@@ -38,26 +35,9 @@ def get_top_inset():
         return 0
     return 10
 
-def initialize_permissions():
-    """ Runs request_permissions() if running on Android, else does nothing. """
-    if ENVIRONMENT != 'local':
-        from android.permissions import request_permissions, Permission
-        request_permissions([
-            Permission.BLUETOOTH,
-            Permission.BLUETOOTH_ADMIN,
-            Permission.BLUETOOTH_ADVERTISE,
-            Permission.BLUETOOTH_CONNECT,
-            Permission.BLUETOOTH_SCAN,
-            Permission.ACCESS_BACKGROUND_LOCATION,
-            Permission.ACCESS_COARSE_LOCATION,
-            Permission.ACCESS_FINE_LOCATION,
-        ])
-    else:
-        logging.info('Skipped requesting Android permissions.')
-
 def get_bluetooth_service():
-    """ Returns an instance of `services.bluetooth.BluetoothService,
-        or a fake placeholder class.
+    """ Returns the one true instance of `services.bluetooth.BluetoothService,
+        or a placeholder.
     """
     existing_obj = App.get_running_app().bluetooth_service
     if existing_obj:
@@ -72,7 +52,9 @@ def get_bluetooth_service():
     return bluetooth_service
 
 def get_message_service():
-    """ Returns the one true instance of MessageService, or a placeholder. """
+    """ Returns the one true instance of `services.message.MessageService`,
+        or a placeholder.
+    """
     existing_obj = App.get_running_app().message_service
     if existing_obj:
         return existing_obj

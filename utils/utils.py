@@ -1,6 +1,5 @@
 import logging
 import threading
-import time
 from kivy.clock import Clock
 
 def accept(socket, name='accept socket', on_connected=None):

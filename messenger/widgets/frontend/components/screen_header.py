@@ -55,7 +55,7 @@ class ScreenHeader(MDBoxLayout):
         bind_height_to_texture_height(self.screen_title)
         self.headline_container.add_widget(self.screen_title)
 
-        # Screen Subtitle, Stotus Hint or Tooltip
+        # Screen Subtitle, Status Hint or Tooltip
         if subtitle:
             self.screen_subtitle = MDLabel(text=subtitle)
             bind_height_to_texture_height(self.screen_subtitle)

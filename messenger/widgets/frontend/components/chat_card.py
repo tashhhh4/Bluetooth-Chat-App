@@ -4,6 +4,8 @@ from kivymd.uix.card import MDCard
 from messenger.widgets.utils import bind_height_to_content_height
 from messenger.utils import change_page
 
+from pprint import pprint
+
 class ChatCard(MDCard):
 
     def __init__(self, chat, **kwargs):

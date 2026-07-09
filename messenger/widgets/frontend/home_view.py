@@ -3,6 +3,7 @@ from kivymd.uix.label import MDLabel
 from ..app_screen import AppScreen
 from .components.button_link import ButtonLink
 from .components.screen_container import ScreenContainer
+from .components.screen_header import ScreenHeader
 
 class HomeView(AppScreen):
 
@@ -14,9 +15,9 @@ class HomeView(AppScreen):
         self.container = ScreenContainer()
         self.add_widget(self.container)
 
-        # Page Label
-        self.page_label = MDLabel(text='Home Page :D', font_style='Headline')
-        self.container.add_widget(self.page_label)
+        # Header
+        self.header = ScreenHeader(title='Home', back_link=False)
+        self.container.add_widget(self.header)
 
         # Primary Button-Links
         self.button_links_container = MDBoxLayout(orientation='vertical')

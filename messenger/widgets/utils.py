@@ -8,6 +8,23 @@ def fit_height(widget):
     """ Sets a widget to grow its height according to its children. """
     widget.bind(minimum_height=widget.setter('height'))
 
+def bind_height_to_content_height(layout_widget):
+    """ Sets the height of a widget according to the height of its contents.
+        Works on BoxLayout and GridLayout.
+        The 'minimum_height' property is automatically calculated
+        from fixed-height children + padding + spacing.
+        The 'height' property is set to update accordingly.
+    """
+    layout_widget.size_hint_y = None
+    layout_widget.bind(minimum_height=layout_widget.setter('height'))
+
+def bind_height_to_texture_height(rendered_widget):
+    """ Sets the height of a widget according to the height of its rendered content.
+        Works on Label.
+    """
+    rendered_widget.size_hint_y = None
+    rendered_widget.bind(texture_size=lambda i, s: setattr(i, 'height', s[1]))
+
 def wrap_text(widget):
     """ Wraps text in the given widget.
         Only works if the widget has a fixed width.

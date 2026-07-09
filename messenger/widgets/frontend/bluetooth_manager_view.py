@@ -12,6 +12,7 @@ from ..app_screen import AppScreen
 from .components.back_link import BackLink
 from .components.device_card import DeviceCard
 from .components.screen_container import ScreenContainer
+from .components.screen_header import ScreenHeader
 
 class BluetoothManagerView(AppScreen):
 
@@ -29,24 +30,8 @@ class BluetoothManagerView(AppScreen):
         self.add_widget(self.container)
 
         # Header
-        self.header = MDBoxLayout(orientation='vertical', size_hint_y=None, height=dp(40))
+        self.header = ScreenHeader(title='Bluetooth Connections', back_link=True, back_loc='Home')
         self.container.add_widget(self.header)
-
-        # Headline Container
-        self.headline_container = MDBoxLayout(orientation='horizontal')
-        self.header.add_widget(self.headline_container)
-
-        # Back Link
-        self.back_link = BackLink('Home', icon='arrow-left')
-        self.headline_container.add_widget(self.back_link)
-
-        # Headline
-        self.headline = MDLabel(text='Bluetooth Connections', font_style='Headline')
-        self.headline_container.add_widget(self.headline)
-
-        # Divider
-        self.divider = MDDivider()
-        self.header.add_widget(self.divider)
 
         # Make Visible Section Card - DISABLED
         self.make_visible_section = MDCard(style='elevated', size_hint_y=None, height=dp(80))

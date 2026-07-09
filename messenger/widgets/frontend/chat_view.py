@@ -14,6 +14,7 @@ from ..app_screen import AppScreen
 from .components.back_link import BackLink
 from .components.message_card import MessageCard
 from .components.screen_container import ScreenContainer
+from .components.screen_header import ScreenHeader
 
 class ChatView(AppScreen):
 
@@ -33,32 +34,8 @@ class ChatView(AppScreen):
         self.add_widget(self.container)
 
         # Header
-        self.header = MDBoxLayout(orientation='vertical', size_hint_y=None, height=dp(40))
+        self.header = ScreenHeader(subtitle='Connected... ?', back_link=True, back_loc='Home')
         self.container.add_widget(self.header)
-
-        # Headline Container
-        self.headline_container = MDBoxLayout(orientation='horizontal')
-        self.header.add_widget(self.headline_container)
-
-        # Back Link
-        self.back_link = BackLink('Home', icon='arrow-left')
-        self.headline_container.add_widget(self.back_link)
-
-        # Headline
-        self.headline = MDLabel(text='[loading device info]', font_style='Headline')
-        self.headline_container.add_widget(self.headline)
-
-        # Connection Status
-        self.connection_hint = MDLabel(
-            text='Connected... ?',
-            size_hint_y=None,
-            height=dp(18),
-        )
-        self.headline_container.add_widget(self.connection_hint)
-
-        # Divider
-        self.divider = MDDivider()
-        self.header.add_widget(self.divider)
 
         # Scroll View
         self.scroll_view = MDScrollView()
@@ -119,7 +96,7 @@ class ChatView(AppScreen):
         self._load_messages()
 
     def on_chat_title(self, _, chat_title):
-        self.headline.text = chat_title
+        self.header.title = chat_title
 
     def on_messages(self, _, messages):
         logging.info('ChatView: Running on_messages()')

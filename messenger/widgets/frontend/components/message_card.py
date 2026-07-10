@@ -4,8 +4,6 @@ from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
 from messenger.widgets.utils import bind_height_to_texture_height, bind_height_to_content_height
 
-import kivymd
-
 class MessageCard(MDCard):
 
     def __init__(self, message, **kwargs):

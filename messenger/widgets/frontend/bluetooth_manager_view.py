@@ -67,8 +67,6 @@ class BluetoothManagerView(AppScreen):
         self.paired_devices_container = MDBoxLayout(orientation='vertical')
         self.paired_devices_section.add_widget(self.paired_devices_container)
 
-        self.load_paired_devices()
-
     def populate_paired_devices_list(self, devices):
         paired_devices_list = self.paired_devices_container
 
@@ -90,6 +88,9 @@ class BluetoothManagerView(AppScreen):
 
     def on_paired_devices(self, _, devices):
         self.populate_paired_devices_list(devices)
+
+    def on_pre_enter(self):
+        self.load_paired_devices()
 
     def _handle_bonded_devices_updated(self, devices):
         self.paired_devices = devices

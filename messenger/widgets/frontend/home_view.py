@@ -1,4 +1,3 @@
-from kivy.properties import ListProperty
 from kivymd.uix.boxlayout import MDBoxLayout
 from utils import schedule
 from ..app_screen import AppScreen
@@ -7,8 +6,6 @@ from .components.screen_header import ScreenHeader
 from .components.button_link import ButtonLink
 
 class HomeView(AppScreen):
-
-    paired_devices = ListProperty([])
 
     def __init__(self, **kwargs):
 

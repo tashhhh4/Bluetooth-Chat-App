@@ -2,10 +2,7 @@ from kivymd.uix.label import MDLabel
 from kivy.metrics import dp
 from kivymd.uix.card import MDCard
 from messenger.widgets.utils import bind_height_to_content_height
-from messenger.utils import change_page
 from services.platform import get_message_service
-
-from pprint import pprint
 
 class ChatCard(MDCard):
 

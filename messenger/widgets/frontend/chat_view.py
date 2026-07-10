@@ -129,6 +129,9 @@ class ChatView(AppScreen):
         logging.info('ChatView: Running on_messages()')
         self.populate_messages(messages)
 
+    def on_pre_enter(self):
+        self._load_messages()
+
     def _load_messages(self):
         logging.info('ChatView: Running _load_messages()')
         message_service = get_message_service()

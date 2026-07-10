@@ -41,10 +41,13 @@ class ChatsView(AppScreen):
             chat_card = ChatCard(chat)
             self.chats_container.add_widget(chat_card)
 
-    def on_chats(self, _, chats):
-        self.populate_chats_list(chats)
-
     def load_chats(self):
         message_service = get_message_service()
         chats = message_service.load_chats()
         self.chats = chats
+
+    def on_chats(self, _, chats):
+        self.populate_chats_list(chats)
+
+    def on_pre_enter(self):
+        self.load_chats()

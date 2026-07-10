@@ -205,9 +205,10 @@ class DebugChats(DebugLayout):
             self.device_cards.append(card)
 
         num_children = len(self.device_selection_list.children)
-        remainder = 3 % num_children
-        for r in range(remainder):
-            self.device_selection_list.add_widget(Widget())
+        if num_children > 0:
+            remainder = 3 % num_children
+            for r in range(remainder):
+                self.device_selection_list.add_widget(Widget())
 
     def on_pre_enter(self, *args):
         self.load_chats()

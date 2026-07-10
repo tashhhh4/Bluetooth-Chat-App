@@ -16,6 +16,10 @@ class DeviceCard(MDCard):
 
         super(DeviceCard, self).__init__(**kwargs)
 
+        self.size_hint_y = None
+        self.height = dp(80)
+        self.padding = dp(12)
+
         # Top-level Container
         self.container = MDBoxLayout(orientation='horizontal')
         self.add_widget(self.container)
@@ -25,7 +29,7 @@ class DeviceCard(MDCard):
         self.container.add_widget(self.device_info)
 
         # Device Name and Address
-        self.device_info.add_widget(MDLabel(text=str(device['name']), halign='left'))
+        self.device_info.add_widget(MDLabel(text=str(device['name']), halign='left', font_style='Title'))
         self.device_info.add_widget(MDLabel(text=device['address'], halign='left'))
 
         # Connect Button Container -- Right Column

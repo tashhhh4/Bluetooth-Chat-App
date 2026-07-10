@@ -110,8 +110,6 @@ class DebugDevices(DebugLayout):
         bind_height_to_content_height(self.devices_list)
         self.scroller.add_widget(self.devices_list)
 
-        self.load_devices()
-
         ### Bind Actions ###
 
         # Refresh Button
@@ -153,9 +151,9 @@ class DebugDevices(DebugLayout):
             x_button.bind(on_press=x)
             row.add_widget(x_button)
 
-    def on_devices(self, _, value):
-        self.populate_devices(value)
-
     def load_devices(self):
-        self.devices = devices_manager.list_devices()
-        print('devices listed are', self.devices)
+        devices = devices_manager.list_devices()
+        self.populate_devices(devices)
+
+    def on_pre_enter(self):
+        self.load_devices()

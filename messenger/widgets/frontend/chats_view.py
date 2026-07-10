@@ -37,6 +37,7 @@ class ChatsView(AppScreen):
         self.load_chats()
 
     def populate_chats_list(self, chats):
+        self.chats_container.clear_widgets()
         for chat in chats:
             chat_card = ChatCard(chat)
             self.chats_container.add_widget(chat_card)

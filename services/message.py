@@ -114,7 +114,7 @@ class MessageService:
             # Database part - Add message
             messages.create(chat_id, my_device.uuid, text)
         except Exception as e:
-            logging.error('MessageService Error:', e)
+            logging.error(f'MessageService Error: {e}')
 
     @staticmethod
     def load_messages(chat_id):
@@ -144,8 +144,11 @@ class MessageService:
         return chat_list
 
     def open_chat_view(self, chat_id):
+        print('Running MessageService open_chat_view')
         chat = chats.get(chat_id)
+        print('The chat is', chat)
         device = self.get_device_for_chat(chat_id)
+        print('The device is', device)
         change_page('Chat', chat_id=chat.id, chat_title=chat.title, peer_device=device)
 
     # Handlers

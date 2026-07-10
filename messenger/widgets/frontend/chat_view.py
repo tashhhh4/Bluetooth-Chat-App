@@ -7,7 +7,7 @@ from kivy.properties import (
     StringProperty
 )
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.button import MDButton, MDButtonText, MDIconButton
 from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.widget import MDWidget
@@ -26,6 +26,8 @@ class ChatView(AppScreen):
     messages = ListProperty([])
 
     def __init__(self, **kwargs):
+
+        self.connected = False
 
         message_service = get_message_service()
         message_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
@@ -56,18 +58,16 @@ class ChatView(AppScreen):
         self.scroll_view.add_widget(self.message_container)
 
         # Message Form
-        self.send_message_form = MDBoxLayout(orientation='horizontal', size_hint_y=None, height=dp(40), spacing=dp(5))
+        self.send_message_form = MDBoxLayout(orientation='horizontal', size_hint_y=None, height=dp(42), spacing=dp(5))
         self.container.add_widget(self.send_message_form)
 
         # Text Input
-        self.text_input = MDTextField(size_hint_x=.8, )
+        self.text_input = MDTextField(size_hint_y=1)
         self.send_message_form.add_widget(self.text_input)
 
         # Send Button
-        self.send_button = MDButton(style='filled')
+        self.send_button = MDIconButton(style='filled', icon='send')
         self.send_message_form.add_widget(self.send_button)
-        self.send_button_label = MDButtonText(text='Send', size_hint_x=.2)
-        self.send_button.add_widget(self.send_button_label)
 
         self.check_connection()
 
@@ -76,6 +76,10 @@ class ChatView(AppScreen):
         # Send Message
         def s(_):
             logging.info('ChatView: Running Send Button function.')
+            self.check_connection()
+            if not self.connected:
+                return
+
             text = self.text_input.text
             message_service = get_message_service()
             message_service.send_message(text, self.chat_id)
@@ -103,9 +107,11 @@ class ChatView(AppScreen):
                 logging.debug(f'ChatView: Connected with {device.__repr__()}')
                 logging.debug(f'ChatView: My Peer device is {self.peer_device.__repr__()}')
                 if device == self.peer_device:
+                    self.connected = True
                     self.header.screen_subtitle.text = 'Connected'
                 else:
                     logging.debug(f'ChatView: Sorry, but your connected Device is in another Chat.')
+                    self.connected = False
                     self.header.screen_subtitle.text = 'Not Connected'
         else:
             self.header.screen_subtitle.text = 'Not Connected'
@@ -130,7 +136,10 @@ class ChatView(AppScreen):
         self.populate_messages(messages)
 
     def on_pre_enter(self):
-        self._load_messages()
+        if self.chat_id:
+            self._load_messages()
+        if self.peer_device:
+            self.check_connection()
 
     def _load_messages(self):
         logging.info('ChatView: Running _load_messages()')

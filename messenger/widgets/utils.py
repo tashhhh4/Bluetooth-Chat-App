@@ -27,7 +27,7 @@ def bind_height_to_texture_height(rendered_widget):
 
 def wrap_text(widget):
     """ Wraps text in the given widget.
-        Only works if the widget has a fixed width.
+        Works on Label.
     """
     widget.bind(
         size=lambda ins, _: setattr(

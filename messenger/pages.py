@@ -11,10 +11,10 @@ from messenger.widgets.frontend.home_view import HomeView
 
 DEBUG_PAGES = {
     # 'Bluetooth': DebugBluetooth,
-    'Devices and Contacts': DebugDevices,
-    'Messages': DebugMessages,
-    'Chats': DebugChats,
-    'Settings': DebugSettings,
+    'Debug Devices': DebugDevices,
+    'Debug Messages': DebugMessages,
+    'Debug Chats': DebugChats,
+    'Debug Settings': DebugSettings,
 }
 
 PAGES = {

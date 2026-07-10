@@ -59,7 +59,7 @@ def update(device_uuid, name=None, owner=None, remove_owner=False):
         session.commit()
         return device
 
-def delete_device(uuid):
+def delete(uuid):
     """ Forget a Device. """
     with get_session() as session:
         device = session.get(Device, uuid)

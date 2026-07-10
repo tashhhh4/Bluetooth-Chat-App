@@ -1,8 +1,10 @@
 from kivy.metrics import dp
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
+from kivymd.uix.button import MDIconButton
 from messenger.pages import DEBUG_PAGES
 from messenger.utils import change_page
 from messenger.widgets.utils import add_background
@@ -19,21 +21,26 @@ class DebugNavigation(BoxLayout):
         self.size_hint_y = None
         self.height = dp(50)
 
-        self.menu_button = Button(
-            text='| | |',
-            size_hint=(None, None),
-            size=(dp(80), dp(90)),
-            background_color=(0, 0, 0, 1),
-            height=dp(50),
-        )
-        self.title = Label(text='Debug Views', size_hint_x=1)
+        # Menu Button
+        self.menu_button_container = AnchorLayout(anchor_y='center', size_hint_x=None)
+        self.add_widget(self.menu_button_container)
+        self.menu_button = MDIconButton(icon='menu', theme_icon_color='Custom', icon_color=(1, 1, 1, 1))
+        self.menu_button.bind(on_press=self.open_dropdown)
+        self.menu_button_container.add_widget(self.menu_button)
 
-        self.add_widget(self.menu_button)
+        # Bar Title
+        self.title = Label(text='Debug Views', size_hint_x=1)
         self.add_widget(self.title)
 
-        self.dropdown = DropDown()
-        self.menu_button.bind(on_press=self.open_dropdown)
+        # Home Button
+        self.home_button_container = AnchorLayout(anchor_y='center', size_hint_x=None)
+        self.add_widget(self.home_button_container)
+        self.home_button = MDIconButton(icon='home', theme_icon_color='Custom', icon_color=(1, 1, 1, 1))
+        self.home_button.bind(on_press=lambda _: self.open_page('Home'))
+        self.home_button_container.add_widget(self.home_button)
 
+        # Dropdown
+        self.dropdown = DropDown()
         for page_name in DEBUG_PAGES.keys():
             button = Button(
                 text=page_name,

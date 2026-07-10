@@ -1,6 +1,7 @@
 # Manually edit database entries for Devices and Contacts
 
 from kivy.metrics import dp
+from kivy.properties import ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -8,10 +9,13 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 from .components.debug_layout import DebugLayout
-from ..utils import add_background, add_rows, fit_height
+from ..utils import add_background, add_rows, fit_height, bind_height_to_content_height, bind_height_to_texture_height
 from db.manager import contacts, devices
 
 class DebugDevices(DebugLayout):
+
+    device_list = ListProperty([])
+
     def __init__(self, **kwargs):
         super(DebugDevices, self).__init__(**kwargs)
 
@@ -19,11 +23,9 @@ class DebugDevices(DebugLayout):
         self.container = BoxLayout(orientation='vertical')
         self.add_widget(self.container)
 
-        # Header with Refresh Button
-        self.header = BoxLayout(size_hint_y=None, height=dp(50))
-        self.refresh_button = Button(text='Refresh Page')
-        self.header.add_widget(self.refresh_button)
-        self.container.add_widget(self.header)
+        # Refresh Button
+        self.refresh_button = Button(text='Refresh Page', size_hint_y=None, height=dp(40))
+        self.container.add_widget(self.refresh_button)
 
         # Scrolling Container
         self.scroll_view = ScrollView()
@@ -39,8 +41,6 @@ class DebugDevices(DebugLayout):
             orientation='vertical',
             spacing=10,
             padding=10,
-            size_hint_y=None,
-            height=400,
         )
         add_background(self.devices_form, (1, 0, 0, .3))
         self.devices_form_title = Label(text='DEVICES')

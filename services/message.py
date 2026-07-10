@@ -10,17 +10,16 @@ import json
 import logging
 from typing import LiteralString
 from dataclasses import dataclass
-from db.manager import chats, devices, messages, settings
+from db.manager import chats, devices, members, messages, settings
 from utils import EventRegistry, schedule
 from messenger.utils import change_page
 
 @dataclass
 class Message:
     text: str
-    chat_id: int
 
     def to_dict(self):
-        return {'text': self.text, 'chat_id': self.chat_id}
+        return {'text': self.text}
 
 @dataclass
 class MessageObject:
@@ -42,7 +41,6 @@ class MessageObject:
         if message_dict['message'] is not None:
             message = Message(
                 text=message_dict['message']['text'],
-                chat_id=message_dict['message']['chat_id']
             )
         message_obj = MessageObject(
             message=message,
@@ -68,23 +66,45 @@ class MessageService:
         self.bluetooth_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
 
     # Message API
+    @staticmethod
+    def get_chat_for_device(device_uuid):
+        existing_chats = chats.list_chats(device_uuid=device_uuid)
+        if not existing_chats:
+            raise RuntimeError(f'MessageService: No Chat with Device {device_uuid} found.')
+        if len(existing_chats) > 1:
+            logging.warning((f'MessageService: more than 1 chat with Device {device_uuid} '
+                             'exists and multiple Chat channels with the same Device are not supported.'))
+        return existing_chats[0]
+
+    @staticmethod
+    def get_device_for_chat(chat_id):
+        devices_in_chat = members.list_devices(chat_id)
+        if not devices_in_chat:
+            raise RuntimeError(f'MessageService: No Device found in Chat #{chat_id}.')
+        if len(devices_in_chat) > 1:
+            logging.warning((f'More than 1 external Device found in Chat #{chat_id}, '
+                             'but group chats are not supported.'))
+        return devices_in_chat[0]
+
     def send_message(self, text, chat_id):
         """ Does socket message using the active BluetoothService.
             If there is an exception during transport,
             the message will not be added to the database.
         """
-        my_device = devices.get_mine()
         try:
+            # Database part - Get Device Records
+            my_device = devices.get_mine()
+
             # Transport part
             message_obj = MessageObject(
-                message=Message(text=text, chat_id=chat_id),
+                message=Message(text=text),
                 sender_uuid=my_device.uuid,
                 role='message',
             )
             message_json = message_obj.to_json()
             self.bluetooth_service.send_bytes(message_json)
 
-            # Database part
+            # Database part - Add message
             messages.create(chat_id, my_device.uuid, text)
         except Exception as e:
             print('MessageService Error:', e)
@@ -196,16 +216,14 @@ class MessageService:
                      f'{INDENT}{sender_device.__repr__()}'))
 
         # Database - Retrieve Target Chat
-        target_chat = chats.get(message_obj.message.chat_id)
-        if not target_chat:
-            logging.error('MessageService: Received a Message to a non-existing Chat.')
-            return
+        target_chat = self.get_chat_for_device(sender_device.uuid)
+
         logging.info(('MessageService: Successfully retrieved the target Chat record.\n'
                       f'{INDENT}{target_chat.__repr__()}'))
 
         # Database - Insert message content
         new_message = messages.create(
-            chat_id=message_obj.message.chat_id,
+            chat_id=target_chat.id,
             device_uuid=sender_device.uuid,
             text=message_obj.message.text,
         )
@@ -215,4 +233,3 @@ class MessageService:
         # Frontend - emit message received event
         logging.info('[MessageService] emits MESSAGE_RECEIVED')
         self.event_registry.emit_event('MESSAGE_RECEIVED')
-

@@ -12,10 +12,16 @@ def create(device_id, chat_id):
         return member
 
 def list_members(chat_id):
-    """ Lists all the Devices belonging to a particular Chat. """
+    """ Lists all the Members belonging to a particular Chat. """
     with get_session() as session:
         chat = session.get(Chat, chat_id)
         return chat.members
+
+def list_devices(chat_id):
+    """ Lists all the Devices from the Members in the Chat. """
+    with get_session() as session:
+        chat = session.get(Chat, chat_id)
+        return chat.devices
 
 def list_memberships(device_id):
     """ List all Chats in which a Device is found. """

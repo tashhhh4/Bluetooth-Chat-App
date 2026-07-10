@@ -3,6 +3,7 @@ from kivy.metrics import dp
 from kivymd.uix.card import MDCard
 from messenger.widgets.utils import bind_height_to_content_height
 from messenger.utils import change_page
+from services.platform import get_message_service
 
 from pprint import pprint
 
@@ -20,6 +21,6 @@ class ChatCard(MDCard):
         self.add_widget(self.label)
 
         def g(_):
-            change_page('Chat', chat_id=chat.id, chat_title=chat.title)
-
+            message_service = get_message_service()
+            message_service.open_chat_view(chat_id=chat.id)
         self.bind(on_press=g)

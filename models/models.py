@@ -36,6 +36,9 @@ class Device(Base):
     def __repr__(self):
         return f'Model Device(uuid=\'{self.uuid}\', name=\'{self.name}\', address=\'{self.address}\', owner={self.owner})'
 
+    def __eq__(self, other):
+        return self.uuid == other.uuid
+
 class Chat(Base):
     """ A Chat is a room to contain Messages involving the user and one or more other devices. Multiple
         chats with the same Device or Contact are allowed, enabling the user to create as many channels

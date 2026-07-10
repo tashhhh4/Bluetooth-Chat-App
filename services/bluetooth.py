@@ -29,6 +29,7 @@ class BluetoothService :
     event_registry = EventRegistry([
         'BONDED_DEVICES_UPDATED',
         'CONNECTION_ESTABLISHED',
+        'CONNECTION_LOST',
         'DISCOVERED_DEVICES_UPDATED',
         'MESSAGE_RECEIVED',
         ], 'BluetoothService.event_registry'
@@ -98,6 +99,7 @@ class BluetoothService :
             input_stream,
             name='Input Stream Reader',
             on_receive=self._handle_receive,
+            on_disconnect=self._handle_connection_lost,
         )
 
     def send_bytes(self, data):
@@ -188,8 +190,11 @@ class BluetoothService :
         logging.debug('[BluetoothService] emits CONNECTION_ESTABLISHED')
         self.event_registry.emit_event('CONNECTION_ESTABLISHED')
 
-
         self.start_reading_input_stream()
+
+    def _handle_connection_lost(self):
+        logging.debug('BluetoothService: emits CONNECTION_LOST.')
+        self.event_registry.emit_event('CONNECTION_LOST')
 
     def _handle_receive(self, data):
         logging.debug('[BluetoothService] Running_handle_receive(data)')

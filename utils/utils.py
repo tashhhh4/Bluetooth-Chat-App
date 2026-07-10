@@ -62,26 +62,47 @@ def connect_on_thread(socket, name='connector socket', on_connected=None):
     thread.start()
     return thread
 
-def read_input_stream(connected_socket, input_stream, name='input stream receiver', on_receive=None):
+def read_input_stream(
+    connected_socket,
+    input_stream,
+    name='input stream receiver',
+    on_receive=None,
+    on_disconnect=None
+):
     buffer = bytearray(1024)
-    while connected_socket:
-        try:
+
+    try:
+        while True:
             bytes_read = input_stream.read(buffer)
+
+            if bytes_read == -1:
+                logging.info('read_input_stream(): Input Stream closed.')
+                break
+
             if bytes_read > 0:
                 data = buffer[:bytes_read].decode('utf-8')
                 if on_receive:
                     on_receive(data)
-        except Exception as e:
-            print('Read Input Stream Error:', e)
-            break
 
-def read_input_stream_on_thread(connected_socket, input_stream, name='input stream receiver', on_receive=None):
+    except Exception as e:
+        print('Read Input Stream Error:', e)
+
+    finally:
+        try:
+            connected_socket.close()
+        except Exception:
+            pass
+
+        if on_disconnect:
+            on_disconnect()
+
+def read_input_stream_on_thread(connected_socket, input_stream, name='input stream receiver', on_receive=None, on_disconnect=None):
     """ Creates a thread to run `receive_and_read`.
         Returns the new active thread.
     """
     thread = threading.Thread(
         target=read_input_stream,
-        args=(connected_socket, input_stream, name, on_receive),
+        args=(connected_socket, input_stream, name, on_receive, on_disconnect),
         daemon=True,
         name=name + ' thread',
     )

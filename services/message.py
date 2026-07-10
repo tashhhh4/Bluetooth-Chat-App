@@ -54,15 +54,22 @@ INDENT = '                           '
 class MessageService:
 
     event_registry = EventRegistry(
-        ['MESSAGE_RECEIVED'],
+        [
+            'MESSAGE_RECEIVED',
+            'DEVICE_CONNECTED',
+            'DEVICE_DISCONNECTED',
+        ],
         'MessageService.event_registry'
     )
     bluetooth_service = None
+    connected_state = ''
+    connected_device = None
 
     def __init__(self, bluetooth_service):
 
         self.bluetooth_service = bluetooth_service
         self.bluetooth_service.event_registry.register_event_callback('CONNECTION_ESTABLISHED', self._handle_device_connected)
+        self.bluetooth_service.event_registry.register_event_callback('CONNECTION_LOST', self._handle_device_disconnected)
         self.bluetooth_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
 
     # Message API
@@ -107,7 +114,7 @@ class MessageService:
             # Database part - Add message
             messages.create(chat_id, my_device.uuid, text)
         except Exception as e:
-            print('MessageService Error:', e)
+            logging.error('MessageService Error:', e)
 
     @staticmethod
     def load_messages(chat_id):
@@ -136,6 +143,11 @@ class MessageService:
         chat_list = chats.list_chats()
         return chat_list
 
+    def open_chat_view(self, chat_id):
+        chat = chats.get(chat_id)
+        device = self.get_device_for_chat(chat_id)
+        change_page('Chat', chat_id=chat.id, chat_title=chat.title, peer_device=device)
+
     # Handlers
     def _handle_device_connected(self):
         logging.info('[MessageService] Running _handle_device_connected()')
@@ -146,6 +158,15 @@ class MessageService:
         connection_message_json = connection_message.to_json()
         logging.info(f'MessageService: Sending connection message to remote device: {connection_message_json}')
         self.bluetooth_service.send_bytes(connection_message_json)
+
+        self.connected_state = 'CONNECTED'
+        self.event_registry.emit_event('DEVICE_CONNECTED')
+
+    def _handle_device_disconnected(self):
+        logging.info('[MessageService] Disconnected from remote device.')
+        self.connected_state = 'DISCONNECTED'
+        self.connected_device = None
+        self.event_registry.emit_event('DEVICE_DISCONNECTED')
 
     def _handle_message_received(self, data):
         logging.info('[MessageService] Running _handle_message_received()')
@@ -184,6 +205,9 @@ class MessageService:
             logging.info(('MessageService: Connection message was from a known Device.\n'
                           f'{INDENT}{sender_device.__repr__()}'))
 
+        # Own State - Set Connected Device
+        self.connected_device = sender_device
+
         # Database - Create chat with device if not exists
         # See if the results from a query of the chats with this device_uuid is not empty
         existing_chats = chats.list_chats(device_uuid=message_obj.sender_uuid)
@@ -198,10 +222,8 @@ class MessageService:
             logging.info('MessageService: New Chat created.')
         logging.info(f'[MessageService] Target Chat set to {target_chat.__repr__()}')
 
-        # Frontend - Jump into Chat View with the Target Chat
-        def go(_):
-            change_page('Chat', chat_id=target_chat.id, chat_title=target_chat.title)
-        schedule(go)
+        # Frontend - Jump into Chat View
+        schedule(lambda _: self.open_chat_view(target_chat.id))
 
     def _handle_message_message_received(self, message_obj):
         logging.info('MessageService: Running _handle_message_message_received()')

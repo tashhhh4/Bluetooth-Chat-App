@@ -4,10 +4,6 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 
-def fit_height(widget):
-    """ Sets a widget to grow its height according to its children. """
-    widget.bind(minimum_height=widget.setter('height'))
-
 def bind_height_to_content_height(layout_widget):
     """ Sets the height of a widget according to the height of its contents.
         Works on BoxLayout and GridLayout.

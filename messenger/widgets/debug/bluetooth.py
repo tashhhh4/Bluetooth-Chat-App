@@ -6,7 +6,7 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from utils import schedule
 from .components.debug_layout import DebugLayout
-from ..utils import add_background, fit_height
+from ..utils import add_background, bind_height_to_content_height
 from messenger.utils import change_page
 from services.platform import get_bluetooth_service
 
@@ -97,7 +97,7 @@ class DebugBluetooth(DebugLayout):
             size_hint_y=None,
             spacing=dp(5),
         )
-        fit_height(self.paired_devices_container)
+        bind_height_to_content_height(self.paired_devices_container)
         self.container.add_widget(self.paired_devices_container)
 
         # Heading
@@ -112,7 +112,7 @@ class DebugBluetooth(DebugLayout):
 
         # List
         self.paired_devices_list = BoxLayout(orientation='vertical', size_hint_y=None)
-        fit_height(self.paired_devices_container)
+        bind_height_to_content_height(self.paired_devices_container)
         self.paired_devices_container.add_widget(self.paired_devices_list)
         self.populate_paired_devices_list()
 
@@ -122,7 +122,7 @@ class DebugBluetooth(DebugLayout):
             size_hint_y=None,
             spacing=dp(5)
         )
-        fit_height(self.available_devices_container)
+        bind_height_to_content_height(self.available_devices_container)
         self.container.add_widget(self.available_devices_container)
 
         # Heading
@@ -137,7 +137,7 @@ class DebugBluetooth(DebugLayout):
 
         # List
         self.available_devices_list = BoxLayout(orientation='vertical', size_hint_y=None)
-        fit_height(self.available_devices_list)
+        bind_height_to_content_height(self.available_devices_list)
         self.available_devices_container.add_widget(self.available_devices_list)
 
         # Spacer

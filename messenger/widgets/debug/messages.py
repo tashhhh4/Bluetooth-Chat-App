@@ -7,7 +7,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 from kivy.uix.widget import Widget
 from .components.debug_layout import DebugLayout
-from ..utils import fit_height, add_background, wrap_text
+from ..utils import add_background, bind_height_to_content_height, wrap_text
 from db.manager import chats, devices, messages
 
 class DebugMessages(DebugLayout):
@@ -41,7 +41,7 @@ class DebugMessages(DebugLayout):
 
         # Messages section
         self.message_container = BoxLayout(orientation='vertical', spacing=dp(10))
-        fit_height(self.message_container)
+        bind_height_to_content_height(self.message_container)
         self.scroll_view.add_widget(self.message_container)
 
         # Input Form

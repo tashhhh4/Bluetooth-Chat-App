@@ -13,8 +13,8 @@ class ScreenHeader(MDBoxLayout):
         Supports a primary title and an optional subtitle.
     """
 
-    title = StringProperty('')
-    subtitle = StringProperty('')
+    title = StringProperty()
+    subtitle = StringProperty(allownone=True)
 
     def __init__(
             self,
@@ -24,6 +24,10 @@ class ScreenHeader(MDBoxLayout):
             back_loc='Home',
             **kwargs
     ):
+
+        self.title = title
+        self.subtitle = subtitle
+
         super(ScreenHeader, self).__init__(**kwargs)
 
         self.orientation = 'vertical'
@@ -69,4 +73,14 @@ class ScreenHeader(MDBoxLayout):
         self.screen_title.text = title
 
     def on_subtitle(self, _, subtitle):
-        self.screen_subtitle.text = subtitle
+        if subtitle:
+            if not hasattr(self, 'screen_subtitle'):
+                self.screen_subtitle = MDLabel(text=subtitle)
+                bind_height_to_texture_height(self.screen_subtitle)
+                self.headline_container.add_widget(self.screen_subtitle)
+            else:
+                self.screen_subtitle.text = subtitle
+        else:
+            if hasattr(self, 'screen_subtitle'):
+                self.headline_container.remove_widget(self.screen_subtitle)
+                del self.screen_subtitle

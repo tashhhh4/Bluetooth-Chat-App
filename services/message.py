@@ -144,11 +144,8 @@ class MessageService:
         return chat_list
 
     def open_chat_view(self, chat_id):
-        print('Running MessageService open_chat_view')
         chat = chats.get(chat_id)
-        print('The chat is', chat)
         device = self.get_device_for_chat(chat_id)
-        print('The device is', device)
         change_page('Chat', chat_id=chat.id, chat_title=chat.title, peer_device=device)
 
     # Handlers

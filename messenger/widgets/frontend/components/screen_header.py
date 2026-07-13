@@ -4,6 +4,7 @@ from kivymd.uix.anchorlayout import MDAnchorLayout
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.divider import MDDivider
 from kivymd.uix.label import MDLabel
+from utils import schedule
 from .back_link import BackLink
 from messenger.widgets.utils import bind_height_to_content_height, bind_height_to_texture_height
 
@@ -77,10 +78,13 @@ class ScreenHeader(MDBoxLayout):
             if not hasattr(self, 'screen_subtitle'):
                 self.screen_subtitle = MDLabel(text=subtitle)
                 bind_height_to_texture_height(self.screen_subtitle)
-                self.headline_container.add_widget(self.screen_subtitle)
+                schedule(lambda _: self.headline_container.add_widget(self.screen_subtitle))
             else:
                 self.screen_subtitle.text = subtitle
         else:
             if hasattr(self, 'screen_subtitle'):
-                self.headline_container.remove_widget(self.screen_subtitle)
-                del self.screen_subtitle
+                def d(_):
+                    if hasattr(self, 'screen_subtitle'):
+                        self.headline_container.remove_widget(self.screen_subtitle)
+                        del self.screen_subtitle
+                schedule(d)

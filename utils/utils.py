@@ -33,7 +33,7 @@ def accept_on_thread(socket, name='accept socket', on_connected=None):
 def connect(socket, name='connector socket', on_connected=None):
     from jnius import JavaException
 
-    logging.info('Running connect()')
+    logging.info(f'Running connect() with {name}.')
     try:
         while True:
             try:
@@ -43,11 +43,13 @@ def connect(socket, name='connector socket', on_connected=None):
                     on_connected(socket)
                 break
             except JavaException as j:
-                print('No connection yet.')
+                logging.info('No connection yet.')
             except Exception as e:
-                print('Connect Error:', e)
+                logging.error(f'Connect Error: {e}')
     except Exception as e:
-        print(e)
+        logging.error(str(e))
+    finally:
+        logging.info(f'Stopped running connect() on {name}.')
 
 def connect_on_thread(socket, name='connector socket', on_connected=None):
     """ Creates a thread that runs `connect`.

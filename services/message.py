@@ -220,7 +220,7 @@ class MessageService:
         else:
             target_chat = chats.create([message_obj.sender_uuid])
             logging.info('MessageService: New Chat created.')
-        logging.info(f'[MessageService] Target Chat set to {target_chat.__repr__()}')
+        logging.debug(f'MessageService: Target Chat set to {target_chat.__repr__()}')
 
         # Frontend - Jump into Chat View
         schedule(lambda _: self.open_chat_view(target_chat.id))
@@ -234,13 +234,13 @@ class MessageService:
             logging.error(('MessageService: Received a Message from an unknown Device. This should probably not be '
                            'possible if the devices connected to each other before trying to send a normal message.'))
             return
-        logging.info(('MessageService: Successfully retrieved sender Device record.\n'
+        logging.debug(('MessageService: Successfully retrieved sender Device record.\n'
                      f'{INDENT}{sender_device.__repr__()}'))
 
         # Database - Retrieve Target Chat
         target_chat = self.get_chat_for_device(sender_device.uuid)
 
-        logging.info(('MessageService: Successfully retrieved the target Chat record.\n'
+        logging.debug(('MessageService: Successfully retrieved the target Chat record.\n'
                       f'{INDENT}{target_chat.__repr__()}'))
 
         # Database - Insert message content

@@ -119,19 +119,21 @@ class ChatView(AppScreen):
                     logging.debug('ChatView: Devices match.')
                     self.connected = True
                     self.header.subtitle = 'Connected'
-                    self.connection_status_container.clear_widgets()
+                    schedule(lambda _: self.connection_status_container.clear_widgets())
                 else:
                     logging.debug('ChatView: Sorry, but your connected Device is in another Chat.')
                     self.connected = False
                     self.header.subtitle = None
-                    self.connection_status_container.clear_widgets()
-                    self.connection_status_container.add_widget(
-                        ConnectionStatusCard(
-                            blue_text='[b]You are currently connected to a different device.[/b]',
-                            black_text=f'Click here to disconnect from {device.name} and connect to {self.peer_device.name}',
-                            peer_device=self.peer_device,
+                    def r(_):
+                        self.connection_status_container.clear_widgets()
+                        self.connection_status_container.add_widget(
+                            ConnectionStatusCard(
+                                blue_text='[b]You are currently connected to a different device.[/b]',
+                                black_text=f'Click here to disconnect from {device.name} and connect to {self.peer_device.name}',
+                                peer_device=self.peer_device,
+                            )
                         )
-                    )
+                    schedule(r)
         else:
             logging.debug('ChatView: Not connected.')
             self.connected = False

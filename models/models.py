@@ -37,6 +37,10 @@ class Device(Base):
         return f'Model Device(uuid=\'{self.uuid}\', name=\'{self.name}\', address=\'{self.address}\', owner={self.owner})'
 
     def __eq__(self, other):
+        if other is None:
+            return False
+        if not isinstance(other, Device):
+            return NotImplemented
         return self.uuid == other.uuid
 
 class Chat(Base):
@@ -63,7 +67,7 @@ class Chat(Base):
         self.members = [Member(device=d) for d in devices]
 
     def __repr__(self):
-        return f'Model Chat>(id={self.id}, title=\'{self.title}\', datetime=\'{self.datetime}\')'
+        return f'Model Chat(id={self.id}, title=\'{self.title}\', datetime=\'{self.datetime}\')'
 
 class Member(Base):
     """ A Device which is a Member of a Chat. """

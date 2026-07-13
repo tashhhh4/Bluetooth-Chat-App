@@ -11,8 +11,9 @@ from kivymd.uix.button import MDIconButton
 from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.widget import MDWidget
-from utils import schedule, bind_height_to_content_height
+from utils import schedule
 from services.platform import get_message_service
+from messenger.widgets.utils import bind_height_to_content_height
 from ..app_screen import AppScreen
 from .components.connection_status_card import ConnectionStatusCard
 from .components.message_card import MessageCard
@@ -115,11 +116,12 @@ class ChatView(AppScreen):
                 logging.debug(f'ChatView: Connected with {device.__repr__()}')
                 logging.debug(f'ChatView: My Peer device is {self.peer_device.__repr__()}')
                 if device == self.peer_device:
+                    logging.debug('ChatView: Devices match.')
                     self.connected = True
                     self.header.subtitle = 'Connected'
                     self.connection_status_container.clear_widgets()
                 else:
-                    logging.debug(f'ChatView: Sorry, but your connected Device is in another Chat.')
+                    logging.debug('ChatView: Sorry, but your connected Device is in another Chat.')
                     self.connected = False
                     self.header.subtitle = None
                     self.connection_status_container.clear_widgets()
@@ -131,10 +133,11 @@ class ChatView(AppScreen):
                         )
                     )
         else:
+            logging.debug('ChatView: Not connected.')
             self.connected = False
             self.header.subtitle = None
             self.connection_status_container.clear_widgets()
-            self.connection_status_card.add_widget(
+            self.connection_status_container.add_widget(
                 ConnectionStatusCard(
                     blue_text='[b]You are not connected to this device.[/b]',
                     black_text='Connect to continue your conversation.',
@@ -165,7 +168,6 @@ class ChatView(AppScreen):
         if self.chat_id:
             self._load_messages()
         if self.peer_device:
-            self.connection_status_box.peer_device = self.peer_device
             self.check_connection()
 
     def _load_messages(self):

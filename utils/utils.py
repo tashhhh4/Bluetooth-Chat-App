@@ -145,6 +145,11 @@ class EventRegistry:
             raise TypeError(f'No event called {event_name} in {self.name}')
         self._callbacks[event_name].append(callback)
 
+    def unregister_event_callback(self, event_name, callback):
+        if event_name not in self._callbacks:
+            raise TypeError(f'No event called {event_name} in {self.name}')
+        self._callbacks[event_name].remove(callback)
+
     def emit_event(self, event_name, *args, **kwargs):
         """ Calls all the functions at _callbacks[event_name], with arguments if applicable. """
         for callback in self._callbacks[event_name]:

@@ -1,6 +1,7 @@
 import logging
 from kivy.metrics import dp
 from kivy.properties import (
+    BooleanProperty,
     ListProperty,
     NumericProperty,
     ObjectProperty,
@@ -26,10 +27,9 @@ class ChatView(AppScreen):
     chat_title = StringProperty()
     peer_device = ObjectProperty()
     messages = ListProperty([])
+    connected = BooleanProperty(False)
 
     def __init__(self, **kwargs):
-
-        self.connected = False
 
         message_service = get_message_service()
         message_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
@@ -92,6 +92,26 @@ class ChatView(AppScreen):
             self._load_messages()
         self.send_button.bind(on_press=s)
 
+    def update_connection_box(self, connected, device):
+        print('Running update_connection_box')
+        self.connection_status_container.clear_widgets()
+        if connected and device == self.peer_device:
+            self.header.subtitle = 'Connected'
+        elif connected and device != self.peer_device:
+            self.header.subtitle = None
+            connection_status_card = ConnectionStatusCard(
+                blue_text='[b]You are currently connected to a different device.[/b]',
+                black_text=f'Click here to disconnect from {device.name} and connect to {self.peer_device.name}',
+            )
+            self.connection_status_container.add_widget(connection_status_card)
+        else:
+            self.header.subtitle = None
+            connection_status_card = ConnectionStatusCard(
+                blue_text='[b]You are not connected to this device.[/b]',
+                black_text='Connect to continue your conversation.',
+            )
+            self.connection_status_container.add_widget(connection_status_card)
+
     def populate_messages(self, messages):
         logging.info('ChatView: Running populate_messages()')
         def c(_):
@@ -110,6 +130,8 @@ class ChatView(AppScreen):
         """
         logging.debug('ChatView: Polling MessageService for connection status.')
         message_service = get_message_service()
+        connected = False
+        device = None
         if message_service.connected_state == 'CONNECTED':
             device = message_service.connected_device
             if device:
@@ -117,40 +139,24 @@ class ChatView(AppScreen):
                 logging.debug(f'ChatView: My Peer device is {self.peer_device.__repr__()}')
                 if device == self.peer_device:
                     logging.debug('ChatView: Devices match.')
-                    self.connected = True
-                    self.header.subtitle = 'Connected'
-                    schedule(lambda _: self.connection_status_container.clear_widgets())
+                    connected = True
                 else:
                     logging.debug('ChatView: Sorry, but your connected Device is in another Chat.')
-                    self.connected = False
-                    self.header.subtitle = None
-                    def r(_):
-                        self.connection_status_container.clear_widgets()
-                        self.connection_status_container.add_widget(
-                            ConnectionStatusCard(
-                                blue_text='[b]You are currently connected to a different device.[/b]',
-                                black_text=f'Click here to disconnect from {device.name} and connect to {self.peer_device.name}',
-                                peer_device=self.peer_device,
-                            )
-                        )
-                    schedule(r)
+                    connected = False
         else:
             logging.debug('ChatView: Not connected.')
-            self.connected = False
-            self.header.subtitle = None
-            self.connection_status_container.clear_widgets()
-            self.connection_status_container.add_widget(
-                ConnectionStatusCard(
-                    blue_text='[b]You are not connected to this device.[/b]',
-                    black_text='Connect to continue your conversation.',
-                    peer_device=self.peer_device,
-                )
-            )
+            connected = False
+
+        self.connected = connected
+        self.update_connection_box(connected, device)
 
     def set_context(self, **context):
         self.chat_id = context.get('chat_id')
         self.chat_title = context.get('chat_title')
         self.peer_device = context.get('peer_device')
+
+    def on_connection(self, _, value):
+        self.update_connection_box(value, self.peer_device)
 
     def on_chat_id(self, _, chat_id):
         logging.info('ChatView: Running on_chat_id')
@@ -167,10 +173,18 @@ class ChatView(AppScreen):
         self.populate_messages(messages)
 
     def on_pre_enter(self):
-        if self.chat_id:
-            self._load_messages()
-        if self.peer_device:
-            self.check_connection()
+        message_service = get_message_service()
+        message_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
+        message_service.event_registry.register_event_callback('DEVICE_CONNECTED', self._handle_device_connected)
+        message_service.event_registry.register_event_callback('DEVICE_DISCONNECTED', self._handle_device_disconnected)
+        self._load_messages()
+        self.check_connection()
+
+    def on_pre_leave(self):
+        message_service = get_message_service()
+        message_service.event_registry.unregister_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
+        message_service.event_registry.unregister_event_callback('DEVICE_CONNECTED', self._handle_device_connected)
+        message_service.event_registry.unregister_event_callback('DEVICE_DISCONNECTED', self._handle_device_disconnected)
 
     def _load_messages(self):
         logging.info('ChatView: Running _load_messages()')
@@ -180,11 +194,13 @@ class ChatView(AppScreen):
         self.messages = messages
 
     def _handle_message_received(self):
-        logging.info('ChatView: Running _handle_message_received()')
+        logging.debug('ChatView: Running _handle_message_received()')
         self._load_messages()
 
     def _handle_device_connected(self):
+        logging.debug('ChatView: Running _handle_device_connected()')
         self.check_connection()
 
     def _handle_device_disconnected(self):
+        logging.debug('ChatView: Running _handle_device_disconnected()')
         self.check_connection()

@@ -4,7 +4,6 @@ from kivymd.uix.anchorlayout import MDAnchorLayout
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.divider import MDDivider
 from kivymd.uix.label import MDLabel
-from utils import schedule
 from .back_link import BackLink
 from messenger.widgets.utils import bind_height_to_content_height, bind_height_to_texture_height
 
@@ -19,7 +18,7 @@ class ScreenHeader(MDBoxLayout):
 
     def __init__(
             self,
-            title='Screen Title',
+            title='screen title',
             subtitle=None,
             back_link=True,
             back_loc='Home',
@@ -27,7 +26,6 @@ class ScreenHeader(MDBoxLayout):
     ):
 
         self.title = title
-        self.subtitle = subtitle
 
         super(ScreenHeader, self).__init__(**kwargs)
 
@@ -60,31 +58,29 @@ class ScreenHeader(MDBoxLayout):
         bind_height_to_texture_height(self.screen_title)
         self.headline_container.add_widget(self.screen_title)
 
-        # Screen Subtitle, Status Hint or Tooltip
-        if subtitle:
-            self.screen_subtitle = MDLabel(text=subtitle)
-            bind_height_to_texture_height(self.screen_subtitle)
-            self.headline_container.add_widget(self.screen_subtitle)
+        # Subtitle Container and Attachment Point
+        self.subtitle_container = MDBoxLayout()
+        bind_height_to_content_height(self.subtitle_container)
+        self.headline_container.add_widget(self.subtitle_container)
 
         # Divider
         self.divider = MDDivider()
         self.add_widget(self.divider)
 
+        ### Set Property ###
+        # Screen Subtitle, Status Hint or Tooltip
+        self.subtitle = subtitle
+
+    def update_subtitle(self, subtitle):
+        print('Running screen_header.update_subtitle')
+        self.subtitle_container.clear_widgets()
+        if subtitle:
+            screen_subtitle = MDLabel(text=subtitle)
+            bind_height_to_texture_height(screen_subtitle)
+            self.subtitle_container.add_widget(screen_subtitle)
+
     def on_title(self, _, title):
         self.screen_title.text = title
 
     def on_subtitle(self, _, subtitle):
-        if subtitle:
-            if not hasattr(self, 'screen_subtitle'):
-                self.screen_subtitle = MDLabel(text=subtitle)
-                bind_height_to_texture_height(self.screen_subtitle)
-                schedule(lambda _: self.headline_container.add_widget(self.screen_subtitle))
-            else:
-                self.screen_subtitle.text = subtitle
-        else:
-            if hasattr(self, 'screen_subtitle'):
-                def d(_):
-                    if hasattr(self, 'screen_subtitle'):
-                        self.headline_container.remove_widget(self.screen_subtitle)
-                        del self.screen_subtitle
-                schedule(d)
+        self.update_subtitle(subtitle)

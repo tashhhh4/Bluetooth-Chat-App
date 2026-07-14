@@ -143,6 +143,9 @@ class MessageService:
         chat_list = chats.list_chats()
         return chat_list
 
+    def connect_to_device(self, address):
+        self.bluetooth_service.connect_to_device(address)
+
     def open_chat_view(self, chat_id):
         chat = chats.get(chat_id)
         device = self.get_device_for_chat(chat_id)
@@ -158,9 +161,6 @@ class MessageService:
         connection_message_json = connection_message.to_json()
         logging.info(f'MessageService: Sending connection message to remote device: {connection_message_json}')
         self.bluetooth_service.send_bytes(connection_message_json)
-
-        self.connected_state = 'CONNECTED'
-        self.event_registry.emit_event('DEVICE_CONNECTED')
 
     def _handle_device_disconnected(self):
         logging.info('[MessageService] Disconnected from remote device.')
@@ -205,11 +205,12 @@ class MessageService:
             logging.info(('MessageService: Connection message was from a known Device.\n'
                           f'{INDENT}{sender_device.__repr__()}'))
 
-        # Own State - Set Connected Device
+        # Own State - Set Connected Device, connected state, and notify subscribers
         self.connected_device = sender_device
+        self.connected_state = 'CONNECTED'
+        self.event_registry.emit_event('DEVICE_CONNECTED')
 
         # Database - Create chat with device if not exists
-        # See if the results from a query of the chats with this device_uuid is not empty
         existing_chats = chats.list_chats(device_uuid=message_obj.sender_uuid)
         if existing_chats:
             logging.info('MessageService: Retrieved previous Chat with peer Device.')

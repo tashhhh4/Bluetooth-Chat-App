@@ -1,5 +1,4 @@
 from kivy.metrics import dp
-from kivy.properties import ObjectProperty
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.card import MDCard
@@ -9,18 +8,16 @@ from messenger.widgets.utils import (
     bind_height_to_texture_height,
     wrap_text,
 )
-from services.platform import get_bluetooth_service
+from services.platform import get_message_service
 
 def connect_to_device(device):
     print('[ConnectionStatusCard.connect_to_device]', device)
-    bluetooth_service = get_bluetooth_service()
-    bluetooth_service.connect_to_device(device.address)
+    message_service = get_message_service()
+    message_service.connect_to_device(device.address)
 
 class ConnectionStatusCard(MDCard):
 
-    peer_device = ObjectProperty()
-
-    def __init__(self, blue_text, black_text, peer_device, **kwargs):
+    def __init__(self, blue_text, black_text, **kwargs):
 
         super(ConnectionStatusCard, self).__init__(**kwargs)
 

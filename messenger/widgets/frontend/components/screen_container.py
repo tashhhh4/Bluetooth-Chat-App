@@ -9,7 +9,6 @@ class ScreenContainer(MDBoxLayout):
         the user with a set of related information and functionality.
     """
 
-
     def __init__(self, **kwargs):
         super(ScreenContainer, self).__init__(**kwargs)
 

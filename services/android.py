@@ -3,10 +3,13 @@ from utils import EventRegistry
 
 class AndroidService:
 
-    event_registry = EventRegistry([
-        'PERMISSION_GRANTED'
-        ], 'AndroidService.event_registry'
-    )
+    def __init__(self):
+
+        self.event_registry = EventRegistry(
+            [
+                'PERMISSION_GRANTED'
+            ], 'AndroidService.event_registry'
+        )
 
     def run_with_permissions(self, permissions, callback, on_deny=None):
         """ If all the needed permissions are already granted, immediately run callback().

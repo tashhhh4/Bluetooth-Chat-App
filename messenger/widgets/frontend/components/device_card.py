@@ -10,6 +10,7 @@ def connect_to_device(device):
     bluetooth_service.connect_to_device(device['address'])
 
 class DeviceCard(MDCard):
+
     def __init__(self, device, **kwargs):
 
         self.device = device

@@ -4,6 +4,7 @@ from kivymd.uix.button import MDButton, MDButtonText
 from messenger.utils import change_page
 
 class ButtonLink(MDBoxLayout):
+
     def __init__(self, button_text, target_page, **kwargs):
 
         super(ButtonLink, self).__init__(**kwargs)

@@ -88,24 +88,25 @@ class ChatView(AppScreen):
         self.send_button.bind(on_press=s)
 
     def update_connection_box(self, connected, device):
-        print('Running update_connection_box')
-        self.connection_status_container.clear_widgets()
-        if connected and device == self.peer_device:
-            self.header.subtitle = 'Connected'
-        elif connected and device != self.peer_device:
-            self.header.subtitle = None
-            connection_status_card = ConnectionStatusCard(
-                blue_text='[b]You are currently connected to a different device.[/b]',
-                black_text=f'Click here to disconnect from {device.name} and connect to {self.peer_device.name}',
-            )
-            self.connection_status_container.add_widget(connection_status_card)
-        else:
-            self.header.subtitle = None
-            connection_status_card = ConnectionStatusCard(
-                blue_text='[b]You are not connected to this device.[/b]',
-                black_text='Connect to continue your conversation.',
-            )
-            self.connection_status_container.add_widget(connection_status_card)
+        def r(connected, device):
+            self.connection_status_container.clear_widgets()
+            if connected and device == self.peer_device:
+                self.header.subtitle = 'Connected'
+            elif connected and device != self.peer_device:
+                self.header.subtitle = None
+                connection_status_card = ConnectionStatusCard(
+                    blue_text='[b]You are currently connected to a different device.[/b]',
+                    black_text=f'Click here to disconnect from {device.name} and connect to {self.peer_device.name}',
+                )
+                self.connection_status_container.add_widget(connection_status_card)
+            else:
+                self.header.subtitle = None
+                connection_status_card = ConnectionStatusCard(
+                    blue_text='[b]You are not connected to this device.[/b]',
+                    black_text='Connect to continue your conversation.',
+                )
+                self.connection_status_container.add_widget(connection_status_card)
+        schedule(lambda _: r(connected, device))
 
     def populate_messages(self, messages):
         logging.info('ChatView: Running populate_messages()')

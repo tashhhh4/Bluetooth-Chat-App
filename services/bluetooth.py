@@ -19,23 +19,22 @@ JavaUUID = autoclass('java.util.UUID')
 
 class BluetoothService :
 
-    device_receiver = None
-    connected_socket = None
-
-    is_scanning = False
-
-    discovered_devices = {}
-
-    event_registry = EventRegistry([
-        'BONDED_DEVICES_UPDATED',
-        'CONNECTION_ESTABLISHED',
-        'CONNECTION_LOST',
-        'DISCOVERED_DEVICES_UPDATED',
-        'MESSAGE_RECEIVED',
-        ], 'BluetoothService.event_registry'
-    )
-
     def __init__(self):
+
+        self.is_scanning = False
+        self.discovered_devices = {}
+        self.connected_socket = None
+
+        self.event_registry = EventRegistry(
+            [
+                'BONDED_DEVICES_UPDATED',
+                'CONNECTION_ESTABLISHED',
+                'CONNECTION_LOST',
+                'DISCOVERED_DEVICES_UPDATED',
+                'MESSAGE_RECEIVED',
+            ], 'BluetoothService.event_registry'
+        )
+
         self.device_receiver = self._get_device_receiver()
         self.android_service = self._get_android_service()
 

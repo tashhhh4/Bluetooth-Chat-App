@@ -53,19 +53,19 @@ INDENT = '                           '
 
 class MessageService:
 
-    event_registry = EventRegistry(
-        [
-            'MESSAGE_RECEIVED',
-            'DEVICE_CONNECTED',
-            'DEVICE_DISCONNECTED',
-        ],
-        'MessageService.event_registry'
-    )
-    bluetooth_service = None
-    connected_state = ''
-    connected_device = None
-
     def __init__(self, bluetooth_service):
+
+        self.connected_state = ''
+        self.connected_device = None
+
+        self.event_registry = EventRegistry(
+            [
+                'MESSAGE_RECEIVED',
+                'DEVICE_CONNECTED',
+                'DEVICE_DISCONNECTED',
+            ],
+            'MessageService.event_registry'
+        )
 
         self.bluetooth_service = bluetooth_service
         self.bluetooth_service.event_registry.register_event_callback('CONNECTION_ESTABLISHED', self._handle_device_connected)

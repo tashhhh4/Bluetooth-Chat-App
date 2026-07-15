@@ -9,11 +9,9 @@ dependencies = [
     "kivy>=2.3.1",
     "kivymd",
     "pip>=26.1.2",
+    "pytest>=9.1.1",
     "sqlalchemy==1.4.49",
 ]
 
 [tool.uv.sources]
-kivymd = {
-    git = "https://github.com/kivymd/KivyMD.git",
-    rev = "365aa9b96eee63e0e29c04de297dd222f478fce5",
-}
+kivymd = {git = "https://github.com/kivymd/KivyMD.git", rev = "365aa9b96eee63e0e29c04de297dd222f478fce5"}

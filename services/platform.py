@@ -4,13 +4,23 @@
 """
 
 from kivy.app import App
-from config import ENVIRONMENT
+from config import ENVIRONMENT, RUN_TESTS
 from utils import schedule
 
 def configure_desktop_window():
     from kivy.config import Config
     Config.set('graphics', 'width', '360')
     Config.set('graphics', 'height', '740')
+
+def run_tests():
+    if ENVIRONMENT == 'debug' and RUN_TESTS is True:
+        import unittest
+        from pathlib import Path
+        project_root = Path(__file__).resolve().parent.parent
+        loader = unittest.TestLoader()
+        suite = loader.discover(start_dir=str(project_root), pattern='test*.py')
+        runner = unittest.TextTestRunner(verbosity=2)
+        runner.run(suite)
 
 def configure_android_window():
     from android.runnable import run_on_ui_thread

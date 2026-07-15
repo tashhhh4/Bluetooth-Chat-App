@@ -4,6 +4,9 @@ from kivy.utils import platform
 # Delete all the tables upon launching
 DELETE_TABLES = False
 
+# Run pytest tests upon launching
+RUN_TESTS = True
+
 # Determine execution environment
 if platform == 'android':
     ENVIRONMENT = 'debug'

@@ -9,6 +9,7 @@ from utils import (
     EventRegistry
 )
 from services.android import AndroidService
+from services.connection import Connection
 
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
@@ -23,7 +24,7 @@ class BluetoothService :
 
         self.is_scanning = False
         self.discovered_devices = {}
-        self.connected_socket = None
+        self.connection = Connection(None)
 
         self.event_registry = EventRegistry(
             [
@@ -90,11 +91,11 @@ class BluetoothService :
         )
 
     def start_reading_input_stream(self):
-        if self.connected_socket is None:
+        if self.connection.socket is None:
             raise IOError('No connection.')
-        input_stream = self.connected_socket.getInputStream()
+        input_stream = self.connection.socket.getInputStream()
         thread = read_input_stream_on_thread(
-            self.connected_socket,
+            self.connection.socket,
             input_stream,
             name='Input Stream Reader',
             on_receive=self._handle_receive,
@@ -102,9 +103,9 @@ class BluetoothService :
         )
 
     def send_bytes(self, data):
-        if self.connected_socket is None:
+        if self.connection.socket is None:
             raise IOError('No connection.')
-        output_stream = self.connected_socket.getOutputStream()
+        output_stream = self.connection.socket.getOutputStream()
         try:
             output_stream.write(data.encode('utf-8'))
             output_stream.flush()
@@ -185,7 +186,7 @@ class BluetoothService :
 
     def _handle_connection(self, socket):
         logging.debug('[BluetoothService] Running _handle_connection()')
-        self.connected_socket = socket
+        self.connection.socket = socket
         logging.debug('[BluetoothService] emits CONNECTION_ESTABLISHED')
         self.event_registry.emit_event('CONNECTION_ESTABLISHED')
 

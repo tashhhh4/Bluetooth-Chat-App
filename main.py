@@ -1,6 +1,7 @@
-from services.platform import configure_window
+from services.platform import configure_window, run_tests
 from db.engine import initialize_database
 
+run_tests()
 configure_window()
 
 from kivymd.app import MDApp

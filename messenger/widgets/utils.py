@@ -11,6 +11,7 @@ def bind_height_to_content_height(layout_widget):
         from fixed-height children + padding + spacing.
         The 'height' property is set to update accordingly.
     """
+    layout_widget.height = layout_widget.minimum_height
     layout_widget.size_hint_y = None
     layout_widget.bind(minimum_height=layout_widget.setter('height'))
 
@@ -19,6 +20,8 @@ def bind_height_to_texture_height(rendered_widget):
         Works on Label.
     """
     rendered_widget.size_hint_y = None
+    rendered_widget.texture_update()
+    rendered_widget.height = rendered_widget.texture_size[1]
     rendered_widget.bind(texture_size=lambda i, s: setattr(i, 'height', s[1]))
 
 def wrap_text(widget):

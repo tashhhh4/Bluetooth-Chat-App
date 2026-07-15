@@ -61,18 +61,17 @@ class ScreenHeader(MDBoxLayout):
         # Subtitle Container and Attachment Point
         self.subtitle_container = MDBoxLayout()
         bind_height_to_content_height(self.subtitle_container)
-        self.headline_container.add_widget(self.subtitle_container)
+        self.add_widget(self.subtitle_container)
 
         # Divider
         self.divider = MDDivider()
         self.add_widget(self.divider)
 
-        ### Set Property ###
+        ## Set Property ###
         # Screen Subtitle, Status Hint or Tooltip
         self.subtitle = subtitle
 
     def update_subtitle(self, subtitle):
-        print('Running screen_header.update_subtitle')
         self.subtitle_container.clear_widgets()
         if subtitle:
             screen_subtitle = MDLabel(text=subtitle)

@@ -31,11 +31,6 @@ class ChatView(AppScreen):
 
     def __init__(self, **kwargs):
 
-        message_service = get_message_service()
-        message_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
-        message_service.event_registry.register_event_callback('DEVICE_CONNECTED', self._handle_device_connected)
-        message_service.event_registry.register_event_callback('DEVICE_DISCONNECTED', self._handle_device_disconnected)
-
         super(ChatView, self).__init__(**kwargs)
 
         # Top-level Container

@@ -103,14 +103,7 @@ class BluetoothService :
         )
 
     def send_bytes(self, data):
-        if self.connection.socket is None:
-            raise IOError('No connection.')
-        output_stream = self.connection.socket.getOutputStream()
-        try:
-            output_stream.write(data.encode('utf-8'))
-            output_stream.flush()
-        except Exception as e:
-            logging.warning('send_bytes error:', e)
+        self.connection.send_bytes(data)
 
     def scan_for_devices(self):
         logging.info('Scanning for devices...')

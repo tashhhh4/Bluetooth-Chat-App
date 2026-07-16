@@ -116,7 +116,7 @@ class MessageService:
                 role='message',
             )
             message_json = message_obj.to_json()
-            self.bluetooth_service.send_bytes(message_json)
+            self.bluetooth_service.connection.send_bytes(message_json)
 
             # Database part - Add message
             messages.create(chat_id, my_device.uuid, text)

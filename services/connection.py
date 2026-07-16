@@ -28,13 +28,6 @@ class Connection:
     @socket.setter
     def socket(self, value):
         self._socket = value
-        if value is None:
-            if self.first_initialization:
-                self.first_initialization = False
-                return
-            self.event_registry.emit_event('CONNECTION_LOST')
-        else:
-            self.event_registry.emit_event('CONNECTION_ESTABLISHED', self.socket)
 
     def send_bytes(self, data):
         if self.socket is None:
@@ -58,13 +51,14 @@ class Connection:
             on_disconnect=self._handle_disconnect,
         )
 
-    def _handle_connection(self, socket):
+    def handle_connection(self, socket):
         self.socket = socket
-        self.event_registry.emit_event('CONNECTION_ESTABLISHED')
         self._start_reading_input_stream()
+        self.event_registry.emit_event('CONNECTION_ESTABLISHED', self.socket)
 
     def _handle_disconnect(self):
         self.socket = None
+        self.event_registry.emit_event('CONNECTION_LOST')
 
     def _handle_receive(self, data):
         logging.debug('[Connection] Running _handle_receive()')

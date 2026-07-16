@@ -33,7 +33,7 @@ class BluetoothService :
         self.device_receiver = self._get_device_receiver()
         self.android_service = self._get_android_service()
 
-        self.connection = Connection(None, self)
+        self.connection = Connection(None)
         self.connection.event_registry.register_event_callback(
             'CONNECTION_LOST', self._handle_connection_lost
         )
@@ -168,8 +168,9 @@ class BluetoothService :
         self.load_paired_devices()
 
     def _handle_connection(self, socket):
-        logging.debug('[BluetoothService] Running _handle_connection()')
-        self.event_registry.emit_event('CONNECTION_ESTABLISHED', socket)
+        self.connection.handle_connection(socket)
+        print('after running connection.handle_connection')
+        self.event_registry.emit_event('CONNECTION_ESTABLISHED')
 
     def _handle_connection_lost(self):
         self.event_registry.emit_event('CONNECTION_LOST')

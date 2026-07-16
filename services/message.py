@@ -55,6 +55,8 @@ class MessageService:
 
     def __init__(self, bluetooth_service):
 
+        self.connection = None
+
         self.connected_state = ''
         self.connected_device = None
 
@@ -64,12 +66,17 @@ class MessageService:
                 'DEVICE_CONNECTED',
                 'DEVICE_DISCONNECTED',
             ],
-            'MessageService.event_registry'
+            'MessageService.EventRegistry'
         )
 
         self.bluetooth_service = bluetooth_service
         self.bluetooth_service.event_registry.register_event_callback('CONNECTION_ESTABLISHED', self._handle_device_connected)
-        self.bluetooth_service.event_registry.register_event_callback('CONNECTION_LOST', self._handle_device_disconnected)
+
+        # self.bluetooth_service.event_registry.register_event_callback('CONNECTION_LOST', self._handle_device_disconnected)
+        self.bluetooth_service.connection.event_registry.register_event_callback(
+            'CONNECTION_LOST', self._handle_device_disconnected
+        )
+
         self.bluetooth_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
 
     # Message API

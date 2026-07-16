@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 from services.bluetooth import BluetoothService
 from services.connection import Connection
+from services.message import MessageService
 from services.platform import ListHandler
 from utils import EventRegistry
 
@@ -36,6 +37,15 @@ class ServiceTests(unittest.TestCase):
 
     # Tests
 
+    def test_bluetooth_service_initialized(self):
+        bluetooth_service = BluetoothService()
+        self.assertHasAttr(bluetooth_service, 'connection')
+        self.assertIsInstance(bluetooth_service.connection, Connection)
+        self.assertHasAttr(bluetooth_service, 'event_registry')
+        self.assertIsInstance(bluetooth_service.event_registry, EventRegistry)
+        for event in ['CONNECTION_ESTABLISHED', 'CONNECTION_LOST', 'MESSAGE_RECEIVED']:
+            self.assertIn(event, bluetooth_service.event_registry._callbacks.keys())
+
     def test_connection_initialized(self):
         connection = Connection(None)
         self.assertIsNone(connection.socket)
@@ -55,14 +65,12 @@ class ServiceTests(unittest.TestCase):
         with self.assertRaises(IOError):
             connection.send_bytes('data')
 
-    def test_bluetooth_service_initialized(self):
+    def test_message_service_initialized(self):
         bluetooth_service = BluetoothService()
-        self.assertHasAttr(bluetooth_service, 'connection')
-        self.assertIsInstance(bluetooth_service.connection, Connection)
-        self.assertHasAttr(bluetooth_service, 'event_registry')
-        self.assertIsInstance(bluetooth_service.event_registry, EventRegistry)
-        for event in ['CONNECTION_ESTABLISHED', 'CONNECTION_LOST', 'MESSAGE_RECEIVED']:
-            self.assertIn(event, bluetooth_service.event_registry._callbacks.keys())
+        message_service = MessageService(bluetooth_service)
+        self.assertHasAttr(message_service, 'connection')
+        self.assertIsNone(message_service.connection)
+        self.assertIsInstance(message_service.bluetooth_service.connection, Connection)
 
     def test_bluetooth_service_and_connection_event_timing(self):
         bluetooth_service = BluetoothService()
@@ -96,3 +104,15 @@ class ServiceTests(unittest.TestCase):
         self.assertIn('CONNECTION_ESTABLISHED', self.logs[-2])
         self.assertIn('BluetoothService.EventRegistry', self.logs[-1])
         self.assertIn('CONNECTION_ESTABLISHED', self.logs[-1])
+
+    def test_connection_and_message_service_event_timing(self):
+        bluetooth_service = BluetoothService()
+        message_service = MessageService(bluetooth_service)
+
+        # connection emits even after disconnect occurs,
+        # then message_service emits disconnect event
+        message_service.bluetooth_service.connection._handle_disconnect()
+        self.assertIn('Connection.EventRegistry', self.logs[-4])
+        self.assertIn('CONNECTION_LOST', self.logs[-4])
+        self.assertIn('MessageService.EventRegistry', self.logs[-1])
+        self.assertIn('DEVICE_DISCONNECTED', self.logs[-1])

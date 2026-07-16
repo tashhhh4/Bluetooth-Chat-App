@@ -8,7 +8,16 @@ from utils import EventRegistry, read_input_stream_on_thread
 
 class Connection:
 
-    def __init__(self, socket):
+    def __init__(self, socket_service):
+        """ Socket Service must be a class which provides a method like:
+                connect_to_device(address) -> connected_socket
+        """
+
+        self.socket = None
+        self.socket_service = socket_service
+        self.socket_service.event_registry.register_event_callback(
+            'CONNECTION_ESTABLISHED', self._handle_connection
+        )
 
         self.event_registry = EventRegistry(
             [
@@ -17,9 +26,6 @@ class Connection:
                 'MESSAGE_RECEIVED',
             ], 'Connection.EventRegistry'
         )
-
-        self.first_initialization = True
-        self.socket = socket
 
     @property
     def socket(self):
@@ -34,6 +40,9 @@ class Connection:
 
     def get_remote_address(self):
         return self.socket.getRemoteDevice().address
+
+    def initiate_connection(self, address):
+        self.socket_service.connect_to_device(address)
 
     def send_bytes(self, data):
         if self.socket is None:
@@ -57,7 +66,7 @@ class Connection:
             on_disconnect=self._handle_disconnect,
         )
 
-    def handle_connection(self, socket):
+    def _handle_connection(self, socket):
         self.socket = socket
         self._start_reading_input_stream()
         self.event_registry.emit_event('CONNECTION_ESTABLISHED')

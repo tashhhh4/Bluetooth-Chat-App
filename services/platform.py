@@ -7,6 +7,7 @@ import logging
 from kivy.app import App
 from config import ENVIRONMENT, RUN_TESTS
 from utils import schedule
+from services.connection import Connection
 
 class ListHandler(logging.Handler):
     def __init__(self):
@@ -76,6 +77,13 @@ def get_bluetooth_service():
     bluetooth_service = BluetoothService()
     return bluetooth_service
 
+def get_connection():
+    """ Returns a Connection() which uses the BluetoothService as its backbone,
+        but may not necessarily be a singleton.
+    """
+    bluetooth_service = get_bluetooth_service()
+    return Connection(bluetooth_service)
+
 def get_message_service():
     """ Returns the one true instance of `services.message.MessageService`,
         or a placeholder.
@@ -84,13 +92,12 @@ def get_message_service():
     if existing_obj:
         return existing_obj
 
-    bluetooth_service = get_bluetooth_service()
-    connection = bluetooth_service.connection
+    connection = get_connection()
 
     if ENVIRONMENT == 'local':
         from services.fake_message import FakeMessageService
-        return FakeMessageService(connection, bluetooth_service)
+        return FakeMessageService(connection)
 
     from services.message import MessageService
-    message_service = MessageService(connection, bluetooth_service)
+    message_service = MessageService(connection)
     return message_service

@@ -53,7 +53,7 @@ INDENT = '                           '
 
 class MessageService:
 
-    def __init__(self, connection, bluetooth_service):
+    def __init__(self, connection):
 
         self.event_registry = EventRegistry(
             [
@@ -69,14 +69,13 @@ class MessageService:
         self.connected_state = ''
         self.connected_device = None
 
-        self.bluetooth_service = bluetooth_service
-        self.bluetooth_service.connection.event_registry.register_event_callback(
+        self.connection.event_registry.register_event_callback(
             'CONNECTION_ESTABLISHED', self._handle_device_connected
         )
-        self.bluetooth_service.connection.event_registry.register_event_callback(
+        self.connection.event_registry.register_event_callback(
             'CONNECTION_LOST', self._handle_device_disconnected
         )
-        self.bluetooth_service.connection.event_registry.register_event_callback(
+        self.connection.event_registry.register_event_callback(
             'MESSAGE_RECEIVED', self._handle_message_received
         )
 
@@ -102,7 +101,7 @@ class MessageService:
         return devices_in_chat[0]
 
     def send_message(self, text, chat_id):
-        """ Does socket message using the active BluetoothService.
+        """ Does socket message using the active connected socket.
             If there is an exception during transport,
             the message will not be added to the database.
         """
@@ -117,7 +116,7 @@ class MessageService:
                 role='message',
             )
             message_json = message_obj.to_json()
-            self.bluetooth_service.connection.send_bytes(message_json)
+            self.connection.send_bytes(message_json)
 
             # Database part - Add message
             messages.create(chat_id, my_device.uuid, text)
@@ -152,7 +151,7 @@ class MessageService:
         return chat_list
 
     def connect_to_device(self, address):
-        self.bluetooth_service.connect_to_device(address)
+        self.connection.initiate_connection(address)
 
     def open_chat_view(self, chat_id):
         chat = chats.get(chat_id)
@@ -168,7 +167,7 @@ class MessageService:
         connection_message = MessageObject(message=None, sender_uuid=my_device_uuid, role='connection')
         connection_message_json = connection_message.to_json()
         logging.info(f'MessageService: Sending connection message to remote device: {connection_message_json}')
-        self.bluetooth_service.connection.send_bytes(connection_message_json)
+        self.connection.send_bytes(connection_message_json)
 
     def _handle_device_disconnected(self):
         logging.info('[MessageService] Disconnected from remote device.')
@@ -200,8 +199,8 @@ class MessageService:
         if not sender_device:
             logging.info('MessageService: New Device discovered.')
 
-            name = self.bluetooth_service.connection.get_remote_name()
-            address = self.bluetooth_service.connection.get_remote_address()
+            name = self.connection.get_remote_name()
+            address = self.connection.get_remote_address()
 
             sender_device = devices.create(
                 device_uuid=message_obj.sender_uuid,

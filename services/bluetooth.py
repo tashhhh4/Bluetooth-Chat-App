@@ -31,8 +31,6 @@ class BluetoothService :
         self.device_receiver = self._get_device_receiver()
         self.android_service = self._get_android_service()
 
-        self.connection = Connection(None)
-
     @staticmethod
     def turn_discoverability_on(ttl): # max 300
         activity = PythonActivity.mActivity
@@ -157,7 +155,4 @@ class BluetoothService :
         self.load_paired_devices()
 
     def _handle_connection(self, socket):
-        self.connection.handle_connection(socket)
-        print('after running connection.handle_connection')
-        self.event_registry.emit_event('CONNECTION_ESTABLISHED')
-
+        self.event_registry.emit_event('CONNECTION_ESTABLISHED', socket)

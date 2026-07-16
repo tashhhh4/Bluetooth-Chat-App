@@ -41,6 +41,12 @@ class ServiceTests(unittest.TestCase):
         if HIDE_LOGS:
             logger.addHandler(self.console_handler)
 
+    def assertLogContains(self, *terms):
+        """ Passes if any log in self.logs contains all of the terms. """
+        logs = get_logs_with(self.logs, terms)
+        if not logs:
+            raise AssertionError(f'No logs found containing {terms}')
+
     def assertLogComesAfter(self, terms1, terms2):
         """ Passes if the first log containing all of terms1 comes before
             the first log containing all of terms2 in self.logs .
@@ -56,11 +62,22 @@ class ServiceTests(unittest.TestCase):
         if not index1 < index2:
             raise AssertionError(f'Failed to find log containing {terms1} before {terms2}.')
 
-    def assertLogContains(self, *terms):
-        """ Passes if any log in self.logs contains all of the terms. """
-        logs = get_logs_with(self.logs, terms)
-        if not logs:
-            raise AssertionError(f'No logs found containing {terms}')
+    def assertLogsInOrder(self, *term_sets):
+        """ This function may receive any number of tuples representing search terms for logs.
+            It will pass if the first log containing each set of terms comes before the next one
+            in self.logs. The argument is called 'term_sets' but it should be a list or a tuple.
+        """
+        last_index = 0
+        for terms in term_sets:
+            logs = get_logs_with(self.logs, terms)
+            if not logs:
+                raise AssertionError(f'No logs found containing {terms}')
+            hit_index = self.logs.index(logs[0])
+            if not hit_index > last_index:
+                raise AssertionError((
+                    f'Logs not in expected order\nlast (i={last_index}): {self.logs[last_index]}\n'
+                    'current (i={hit_index}): {self.logs[hit_index]}'
+                ))
 
     # Tests
 
@@ -103,16 +120,17 @@ class ServiceTests(unittest.TestCase):
         bluetooth_service = BluetoothService()
         connection = bluetooth_service.connection
 
-        # connection emits event when socket is set to something,
+        # bluetooth_service passes a socket into its _handle_connection,
+        # connection emits event,
         # then bluetooth_service emits event.
         pretend_socket = PretendSocket()
         with patch.object(connection, '_start_reading_input_stream'):
             bluetooth_service._handle_connection(pretend_socket)
         self.assertIs(connection.socket, pretend_socket)
-        self.assertIn('Connection.EventRegistry', self.logs[-2])
-        self.assertIn('CONNECTION_ESTABLISHED', self.logs[-2])
-        self.assertIn('BluetoothService.EventRegistry', self.logs[-1])
-        self.assertIn('CONNECTION_ESTABLISHED', self.logs[-1])
+        self.assertLogComesAfter(
+            ('Connection.EventRegistry', 'CONNECTION_ESTABLISHED'),
+            ('BluetoothService.EventRegistry', 'CONNECTION_ESTABLISHED'),
+        )
 
     def test_connection_and_message_service_event_timing(self):
         bluetooth_service = BluetoothService()
@@ -122,10 +140,10 @@ class ServiceTests(unittest.TestCase):
         # connection emits after disconnect occurs,
         # then message_service emits disconnect event
         connection._handle_disconnect()
-        self.assertIn('Connection.EventRegistry', self.logs[-3])
-        self.assertIn('CONNECTION_LOST', self.logs[-3])
-        self.assertIn('MessageService.EventRegistry', self.logs[-1])
-        self.assertIn('DEVICE_DISCONNECTED', self.logs[-1])
+        self.assertLogComesAfter(
+            ('Connection.EventRegistry', 'CONNECTION_LOST'),
+            ('MessageService.EventRegistry', 'DEVICE_DISCONNECTED'),
+        )
 
         # connection emits MESSAGE_RECEIVED,
         # then message_service emits MESSAGE_RECEIVED
@@ -135,8 +153,8 @@ class ServiceTests(unittest.TestCase):
             connection._handle_receive(data)
         except RuntimeError:
             pass
-        self.assertLogContains('Connection', 'Received', 'test')
-        self.assertLogComesAfter(('Connection', 'Received', 'test'),
-                                 ('Connection.EventRegistry', 'MESSAGE_RECEIVED'))
-        self.assertLogComesAfter(('Connection.EventRegistry', 'MESSAGE_RECEIVED'),
-                                 ('MessageService', '_handle_message_received'))
+        self.assertLogsInOrder(
+            ('Connection', 'Received', 'test'),
+            ('Connection.EventRegistry', 'MESSAGE_RECEIVED'),
+            ('MessageService', '_handle_message_received')
+        )

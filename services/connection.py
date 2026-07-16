@@ -46,7 +46,7 @@ class Connection:
         except Exception as e:
             logging.warning(f'send_bytes error: {e}')
 
-    def start_reading_input_stream(self, on_receive, on_disconnect):
+    def _start_reading_input_stream(self):
         if self.socket is None:
             raise IOError('No connection.')
         input_stream = self.socket.getInputStream()
@@ -55,8 +55,16 @@ class Connection:
             input_stream,
             name='Input Stream Reader',
             on_receive=self._handle_receive,
-            on_disconnect=on_disconnect,
+            on_disconnect=self._handle_disconnect,
         )
+
+    def _handle_connection(self, socket):
+        self.socket = socket
+        self.event_registry.emit_event('CONNECTION_ESTABLISHED')
+        self._start_reading_input_stream()
+
+    def _handle_disconnect(self):
+        self.socket = None
 
     def _handle_receive(self, data):
         logging.debug('[Connection] Running _handle_receive()')

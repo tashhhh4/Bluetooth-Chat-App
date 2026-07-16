@@ -74,7 +74,6 @@ class MessageService:
         self.bluetooth_service.connection.event_registry.register_event_callback(
             'CONNECTION_LOST', self._handle_device_disconnected
         )
-        # self.bluetooth_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
         self.bluetooth_service.connection.event_registry.register_event_callback(
             'MESSAGE_RECEIVED', self._handle_message_received
         )
@@ -199,7 +198,7 @@ class MessageService:
         if not sender_device:
             logging.info('MessageService: New Device discovered.')
 
-            remote_device_obj = self.bluetooth_service.connected_socket.getRemoteDevice()
+            remote_device_obj = self.bluetooth_service.connection.socket.getRemoteDevice()
 
             sender_device = devices.create(
                 device_uuid=message_obj.sender_uuid,

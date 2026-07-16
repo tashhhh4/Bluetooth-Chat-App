@@ -92,9 +92,6 @@ class BluetoothService :
             on_connected=self._handle_connection,
         )
 
-    def send_bytes(self, data):
-        self.connection.send_bytes(data)
-
     def scan_for_devices(self):
         logging.info('Scanning for devices...')
         self.is_scanning = True

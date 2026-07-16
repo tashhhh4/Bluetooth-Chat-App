@@ -111,9 +111,10 @@ class ServiceTests(unittest.TestCase):
 
     def test_message_service_initialized(self):
         bluetooth_service = BluetoothService()
-        message_service = MessageService(bluetooth_service)
+        connection = bluetooth_service.connection
+        message_service = MessageService(connection, bluetooth_service)
         self.assertHasAttr(message_service, 'connection')
-        self.assertIsNone(message_service.connection)
+        self.assertIsInstance(message_service.connection, Connection)
         self.assertIsInstance(message_service.bluetooth_service.connection, Connection)
 
     def test_bluetooth_service_and_connection_event_timing(self):

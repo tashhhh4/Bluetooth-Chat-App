@@ -1,5 +1,6 @@
 import logging
 from utils import EventRegistry
+from services.connection import Connection
 
 TAG = 'FakeBluetoothService: '
 EXPLANATION = ' — not implemented in FakeBluetoothService'
@@ -8,6 +9,7 @@ class FakeBluetoothService:
 
     def __init__(self):
         self.discovered_devices = {}
+        self.connection = Connection(None)
         self.event_registry = EventRegistry(['DISCOVERED_DEVICES_UPDATED', 'BONDED_DEVICES_UPDATED'])
 
     @staticmethod

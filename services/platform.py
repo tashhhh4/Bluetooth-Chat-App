@@ -85,11 +85,12 @@ def get_message_service():
         return existing_obj
 
     bluetooth_service = get_bluetooth_service()
+    connection = bluetooth_service.connection
 
     if ENVIRONMENT == 'local':
         from services.fake_message import FakeMessageService
-        return FakeMessageService(bluetooth_service)
+        return FakeMessageService(connection, bluetooth_service)
 
     from services.message import MessageService
-    message_service = MessageService(bluetooth_service)
+    message_service = MessageService(connection, bluetooth_service)
     return message_service

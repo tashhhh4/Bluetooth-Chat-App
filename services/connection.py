@@ -60,7 +60,7 @@ class Connection:
     def handle_connection(self, socket):
         self.socket = socket
         self._start_reading_input_stream()
-        self.event_registry.emit_event('CONNECTION_ESTABLISHED', self.socket)
+        self.event_registry.emit_event('CONNECTION_ESTABLISHED')
 
     def _handle_disconnect(self):
         self.socket = None

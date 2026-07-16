@@ -26,7 +26,6 @@ class BluetoothService :
                 'CONNECTION_ESTABLISHED',
                 'CONNECTION_LOST',
                 'DISCOVERED_DEVICES_UPDATED',
-                'MESSAGE_RECEIVED',
             ], 'BluetoothService.EventRegistry'
         )
 
@@ -34,9 +33,6 @@ class BluetoothService :
         self.android_service = self._get_android_service()
 
         self.connection = Connection(None)
-        self.connection.event_registry.register_event_callback(
-            'CONNECTION_LOST', self._handle_connection_lost
-        )
 
     @staticmethod
     def turn_discoverability_on(ttl): # max 300

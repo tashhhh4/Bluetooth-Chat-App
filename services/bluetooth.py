@@ -34,7 +34,7 @@ class BluetoothService :
                 'CONNECTION_LOST',
                 'DISCOVERED_DEVICES_UPDATED',
                 'MESSAGE_RECEIVED',
-            ], 'BluetoothService.event_registry'
+            ], 'BluetoothService.EventRegistry'
         )
 
         self.device_receiver = self._get_device_receiver()

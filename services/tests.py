@@ -59,5 +59,9 @@ class ServiceTests(unittest.TestCase):
         bluetooth_service = BluetoothService()
         connection = bluetooth_service.connection
         connection._handle_receive('foo')
+        self.assertIn('foo', self.logs[-5])
+        self.assertIn('Connection.EventRegistry', self.logs[-4])
+        self.assertIn('MESSAGE_RECEIVED', self.logs[-4])
         self.assertIn('foo', self.logs[-2])
+        self.assertIn('BluetoothService.EventRegistry', self.logs[-1])
         self.assertIn('MESSAGE_RECEIVED', self.logs[-1])

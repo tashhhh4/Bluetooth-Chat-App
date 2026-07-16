@@ -18,6 +18,7 @@ class Connection:
             ]
         )
 
+        self.first_initialization = True
         self.socket = socket
 
     @property
@@ -28,6 +29,9 @@ class Connection:
     def socket(self, value):
         self._socket = value
         if value is None:
+            if self.first_initialization:
+                self.first_initialization = False
+                return
             logging.debug(f'Connection: emits CONNECTION_LOST')
             self.event_registry.emit_event('CONNECTION_LOST')
         else:

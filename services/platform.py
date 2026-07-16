@@ -3,9 +3,18 @@
     complicated low-level APIs such as Bluetooth and and Android Permissions.
 """
 
+import logging
 from kivy.app import App
 from config import ENVIRONMENT, RUN_TESTS
 from utils import schedule
+
+class ListHandler(logging.Handler):
+    def __init__(self):
+        super().__init__()
+        self.logs = []
+
+    def emit(self, record):
+        self.logs.append(self.format(record))
 
 def configure_desktop_window():
     from kivy.config import Config

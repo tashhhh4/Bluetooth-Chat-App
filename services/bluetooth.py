@@ -24,7 +24,6 @@ class BluetoothService :
             [
                 'BONDED_DEVICES_UPDATED',
                 'CONNECTION_ESTABLISHED',
-                'CONNECTION_LOST',
                 'DISCOVERED_DEVICES_UPDATED',
             ], 'BluetoothService.EventRegistry'
         )
@@ -162,5 +161,3 @@ class BluetoothService :
         print('after running connection.handle_connection')
         self.event_registry.emit_event('CONNECTION_ESTABLISHED')
 
-    def _handle_connection_lost(self):
-        self.event_registry.emit_event('CONNECTION_LOST')

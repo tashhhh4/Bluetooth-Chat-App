@@ -2,12 +2,7 @@ import logging
 from android.broadcast import BroadcastReceiver
 from jnius import autoclass, cast
 from config import SERVICE_UUID
-from utils import (
-    accept_on_thread,
-    connect_on_thread,
-    read_input_stream_on_thread,
-    EventRegistry
-)
+from utils import accept_on_thread, connect_on_thread, EventRegistry
 from services.android import AndroidService
 from services.connection import Connection
 
@@ -25,6 +20,12 @@ class BluetoothService :
         self.is_scanning = False
         self.discovered_devices = {}
         self.connection = Connection(None)
+        self.connection.event_registry.register_event_callback(
+            'CONNECTION_LOST', self._handle_connection_lost
+        )
+        self.connection.event_registry.register_event_callback(
+            'MESSAGE_RECEIVED', self._handle_receive
+        )
 
         self.event_registry = EventRegistry(
             [
@@ -88,18 +89,6 @@ class BluetoothService :
             connector_socket,
             name='Connection Initiator',
             on_connected=self._handle_connection,
-        )
-
-    def start_reading_input_stream(self):
-        if self.connection.socket is None:
-            raise IOError('No connection.')
-        input_stream = self.connection.socket.getInputStream()
-        thread = read_input_stream_on_thread(
-            self.connection.socket,
-            input_stream,
-            name='Input Stream Reader',
-            on_receive=self._handle_receive,
-            on_disconnect=self._handle_connection_lost,
         )
 
     def send_bytes(self, data):
@@ -181,8 +170,10 @@ class BluetoothService :
         logging.debug('[BluetoothService] Running _handle_connection()')
         self.connection.socket = socket
         self.event_registry.emit_event('CONNECTION_ESTABLISHED')
-
-        self.start_reading_input_stream()
+        self.connection.start_reading_input_stream(
+            self._handle_receive,
+            self._handle_connection_lost
+        )
 
     def _handle_connection_lost(self):
         self.event_registry.emit_event('CONNECTION_LOST')

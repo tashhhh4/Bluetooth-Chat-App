@@ -32,6 +32,13 @@ class ServiceTests(unittest.TestCase):
         connection.socket = None
         self.assertIn('CONNECTION_LOST', self.logs[-1])
 
+    def test_connection_io_errors(self):
+        connection = Connection(None)
+        with self.assertRaises(IOError):
+            connection.start_reading_input_stream(on_receive=None, on_disconnect=None)
+        with self.assertRaises(IOError):
+            connection.send_bytes('data')
+
     def test_bluetooth_service_initialized(self):
         bluetooth_service = BluetoothService()
         self.assertHasAttr(bluetooth_service, 'connection')

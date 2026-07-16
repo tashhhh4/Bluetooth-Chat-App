@@ -1,5 +1,5 @@
 import logging
-from utils import EventRegistry
+from utils import EventRegistry, read_input_stream_on_thread
 
 """ A Connection is an object which owns a `connected_socket`.
     It is responsible for running read_input_stream() and send_bytes(),
@@ -34,7 +34,7 @@ class Connection:
                 return
             self.event_registry.emit_event('CONNECTION_LOST')
         else:
-            self.event_registry.emit_event('CONNECTION_ESTABLISHED')
+            self.event_registry.emit_event('CONNECTION_ESTABLISHED', self.socket)
 
     def send_bytes(self, data):
         if self.socket is None:
@@ -45,3 +45,20 @@ class Connection:
             output_stream.flush()
         except Exception as e:
             logging.warning(f'send_bytes error: {e}')
+
+    def start_reading_input_stream(self, on_receive, on_disconnect):
+        if self.socket is None:
+            raise IOError('No connection.')
+        input_stream = self.socket.getInputStream()
+        read_input_stream_on_thread(
+            self.socket,
+            input_stream,
+            name='Input Stream Reader',
+            on_receive=self._handle_receive,
+            on_disconnect=on_disconnect,
+        )
+
+    def _handle_receive(self, data):
+        logging.debug('[Connection] Running _handle_receive()')
+        logging.debug(f'[Connection] Received {data}')
+        self.event_registry.emit_event('MESSAGE_RECEIVED', data)

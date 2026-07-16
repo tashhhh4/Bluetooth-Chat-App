@@ -180,17 +180,14 @@ class BluetoothService :
     def _handle_connection(self, socket):
         logging.debug('[BluetoothService] Running _handle_connection()')
         self.connection.socket = socket
-        logging.debug('[BluetoothService] emits CONNECTION_ESTABLISHED')
         self.event_registry.emit_event('CONNECTION_ESTABLISHED')
 
         self.start_reading_input_stream()
 
     def _handle_connection_lost(self):
-        logging.debug('BluetoothService: emits CONNECTION_LOST.')
         self.event_registry.emit_event('CONNECTION_LOST')
 
     def _handle_receive(self, data):
         logging.debug('[BluetoothService] Running_handle_receive(data)')
         logging.debug(f'BluetoothService: Received {data}')
-        logging.debug('[BluetoothService] emits MESSAGE_RECEIVED')
         self.event_registry.emit_event('MESSAGE_RECEIVED', data)

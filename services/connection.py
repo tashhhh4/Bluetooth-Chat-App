@@ -15,7 +15,7 @@ class Connection:
                 'CONNECTION_ESTABLISHED',
                 'CONNECTION_LOST',
                 'MESSAGE_RECEIVED',
-            ]
+            ], 'Connection.EventRegistry'
         )
 
         self.first_initialization = True
@@ -32,10 +32,8 @@ class Connection:
             if self.first_initialization:
                 self.first_initialization = False
                 return
-            logging.debug(f'Connection: emits CONNECTION_LOST')
             self.event_registry.emit_event('CONNECTION_LOST')
         else:
-            logging.debug(f'Connection: emits CONNECTION_ESTABLISHED')
             self.event_registry.emit_event('CONNECTION_ESTABLISHED')
 
     def send_bytes(self, data):

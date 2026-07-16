@@ -254,5 +254,4 @@ class MessageService:
                       f'{INDENT}{new_message.__repr__()}'))
 
         # Frontend - emit message received event
-        logging.info('[MessageService] emits MESSAGE_RECEIVED')
         self.event_registry.emit_event('MESSAGE_RECEIVED')

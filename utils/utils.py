@@ -152,6 +152,7 @@ class EventRegistry:
 
     def emit_event(self, event_name, *args, **kwargs):
         """ Calls all the functions at _callbacks[event_name], with arguments if applicable. """
+        logging.debug(f'[{self.name}] emits {event_name}')
         for callback in self._callbacks[event_name]:
             callback(*args, **kwargs)
 

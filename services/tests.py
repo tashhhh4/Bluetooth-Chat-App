@@ -13,6 +13,7 @@ class ServiceTests(unittest.TestCase):
             logging.Formatter('[TEST] [%(levelname)s] [%(asctime)s] %(message)s')
         )
         logging.getLogger().addHandler(self.list_in_memory_handler)
+        self.logs = self.list_in_memory_handler.logs
 
     def tearDown(self):
         logging.getLogger().removeHandler(self.list_in_memory_handler)
@@ -27,8 +28,9 @@ class ServiceTests(unittest.TestCase):
     def test_connection_events(self):
         connection = Connection(None)
         connection.socket = {'name': 'Dummy'} # Should emit CONNECTION_ESTABLISHED
-        self.assertIn('CONNECTION_ESTABLISHED', self.list_in_memory_handler.logs[-1])
-
+        self.assertIn('CONNECTION_ESTABLISHED', self.logs[-1])
+        connection.socket = None
+        self.assertIn('CONNECTION_LOST', self.logs[-1])
 
     def test_bluetooth_service_initialized(self):
         bluetooth_service = BluetoothService()

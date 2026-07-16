@@ -167,7 +167,7 @@ class MessageService:
         connection_message = MessageObject(message=None, sender_uuid=my_device_uuid, role='connection')
         connection_message_json = connection_message.to_json()
         logging.info(f'MessageService: Sending connection message to remote device: {connection_message_json}')
-        self.bluetooth_service.send_bytes(connection_message_json)
+        self.bluetooth_service.connection.send_bytes(connection_message_json)
 
     def _handle_device_disconnected(self):
         logging.info('[MessageService] Disconnected from remote device.')

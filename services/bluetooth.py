@@ -37,9 +37,6 @@ class BluetoothService :
         self.connection.event_registry.register_event_callback(
             'CONNECTION_LOST', self._handle_connection_lost
         )
-        self.connection.event_registry.register_event_callback(
-            'MESSAGE_RECEIVED', self._handle_receive
-        )
 
     @staticmethod
     def turn_discoverability_on(ttl): # max 300
@@ -171,8 +168,3 @@ class BluetoothService :
 
     def _handle_connection_lost(self):
         self.event_registry.emit_event('CONNECTION_LOST')
-
-    def _handle_receive(self, data):
-        logging.debug('[BluetoothService] Running_handle_receive(data)')
-        logging.debug(f'BluetoothService: Received {data}')
-        self.event_registry.emit_event('MESSAGE_RECEIVED', data)

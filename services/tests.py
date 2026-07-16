@@ -8,15 +8,22 @@ from utils import EventRegistry
 class ServiceTests(unittest.TestCase):
 
     def setUp(self):
+        logger = logging.getLogger()
+
+        self.console_handler = next(h for h in logger.handlers if h.__class__.__name__ == 'ConsoleHandler')
+        logger.removeHandler(self.console_handler)
+
         self.list_in_memory_handler = ListHandler()
         self.list_in_memory_handler.setFormatter(
             logging.Formatter('[TEST] [%(levelname)s] [%(asctime)s] %(message)s')
         )
-        logging.getLogger().addHandler(self.list_in_memory_handler)
+        logger.addHandler(self.list_in_memory_handler)
         self.logs = self.list_in_memory_handler.logs
 
     def tearDown(self):
-        logging.getLogger().removeHandler(self.list_in_memory_handler)
+        logger = logging.getLogger()
+        logger.removeHandler(self.list_in_memory_handler)
+        logger.addHandler(self.console_handler)
 
     def test_connection_initialized(self):
         connection = Connection(None)
@@ -47,3 +54,10 @@ class ServiceTests(unittest.TestCase):
         self.assertIsInstance(bluetooth_service.event_registry, EventRegistry)
         for event in ['CONNECTION_ESTABLISHED', 'CONNECTION_LOST', 'MESSAGE_RECEIVED']:
             self.assertIn(event, bluetooth_service.event_registry._callbacks.keys())
+
+    def test_bluetooth_service_and_connection_event_timing(self):
+        bluetooth_service = BluetoothService()
+        connection = bluetooth_service.connection
+        connection._handle_receive('foo')
+        self.assertIn('foo', self.logs[-2])
+        self.assertIn('MESSAGE_RECEIVED', self.logs[-1])

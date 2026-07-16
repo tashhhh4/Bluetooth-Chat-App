@@ -29,6 +29,12 @@ class Connection:
     def socket(self, value):
         self._socket = value
 
+    def get_remote_name(self):
+        return self.socket.getRemoteDevice().name
+
+    def get_remote_address(self):
+        return self.socket.getRemoteDevice().address
+
     def send_bytes(self, data):
         if self.socket is None:
             raise IOError('Socket not set.')

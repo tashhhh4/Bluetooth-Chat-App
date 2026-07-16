@@ -198,12 +198,13 @@ class MessageService:
         if not sender_device:
             logging.info('MessageService: New Device discovered.')
 
-            remote_device_obj = self.bluetooth_service.connection.socket.getRemoteDevice()
+            name = self.bluetooth_service.connection.get_remote_name()
+            address = self.bluetooth_service.connection.get_remote_address()
 
             sender_device = devices.create(
                 device_uuid=message_obj.sender_uuid,
-                name=remote_device_obj.name,
-                address=remote_device_obj.address,
+                name=name,
+                address=address,
             )
             logging.info(('MessageService: Created new Device record.\n'
                           f'{INDENT}{sender_device.__repr__()}'))

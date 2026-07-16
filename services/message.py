@@ -71,13 +71,13 @@ class MessageService:
 
         self.bluetooth_service = bluetooth_service
         self.bluetooth_service.event_registry.register_event_callback('CONNECTION_ESTABLISHED', self._handle_device_connected)
-
-        # self.bluetooth_service.event_registry.register_event_callback('CONNECTION_LOST', self._handle_device_disconnected)
         self.bluetooth_service.connection.event_registry.register_event_callback(
             'CONNECTION_LOST', self._handle_device_disconnected
         )
-
-        self.bluetooth_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
+        # self.bluetooth_service.event_registry.register_event_callback('MESSAGE_RECEIVED', self._handle_message_received)
+        self.bluetooth_service.connection.event_registry.register_event_callback(
+            'MESSAGE_RECEIVED', self._handle_message_received
+        )
 
     # Message API
     @staticmethod

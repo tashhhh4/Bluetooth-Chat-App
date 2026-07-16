@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 from services.bluetooth import BluetoothService
 from services.connection import Connection
-from services.message import MessageService
+from services.message import MessageService, MessageObject, Message
 from services.platform import ListHandler
 from utils import EventRegistry
 
@@ -109,10 +109,26 @@ class ServiceTests(unittest.TestCase):
         bluetooth_service = BluetoothService()
         message_service = MessageService(bluetooth_service)
 
-        # connection emits even after disconnect occurs,
+        # connection emits after disconnect occurs,
         # then message_service emits disconnect event
         message_service.bluetooth_service.connection._handle_disconnect()
         self.assertIn('Connection.EventRegistry', self.logs[-4])
         self.assertIn('CONNECTION_LOST', self.logs[-4])
         self.assertIn('MessageService.EventRegistry', self.logs[-1])
         self.assertIn('DEVICE_DISCONNECTED', self.logs[-1])
+
+        # connection emits MESSAGE_RECEIVED,
+        # then message_service emits MESSAGE_RECEIVED
+        message = MessageObject(Message('test'), sender_uuid='12345', role='message')
+        data = message.to_json()
+        try:
+            message_service.bluetooth_service.connection._handle_receive(data)
+        except RuntimeError:
+            pass
+        self.assertIn('test', self.logs[-9])
+        self.assertIn('Connection.EventRegistry', self.logs[-8])
+        self.assertIn('MESSAGE_RECEIVED', self.logs[-8])
+        self.assertIn('BluetoothService.EventRegistry', self.logs[-5])
+        self.assertIn('MESSAGE_RECEIVED', self.logs[-5])
+        self.assertIn('MessageService', self.logs[-4])
+        self.assertIn('_handle_message_received', self.logs[-4])

@@ -9,7 +9,11 @@ class FakeBluetoothService:
 
     def __init__(self):
         self.discovered_devices = {}
-        self.event_registry = EventRegistry(['DISCOVERED_DEVICES_UPDATED', 'BONDED_DEVICES_UPDATED'])
+        self.event_registry = EventRegistry([
+            'DISCOVERED_DEVICES_UPDATED',
+            'BONDED_DEVICES_UPDATED',
+            'CONNECTION_ESTABLISHED'
+        ])
 
     @staticmethod
     def scan_for_devices():

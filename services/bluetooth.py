@@ -2,9 +2,9 @@ import logging
 from android.broadcast import BroadcastReceiver
 from jnius import autoclass, cast
 from config import SERVICE_UUID
-from utils import accept_on_thread, connect_on_thread, EventRegistry
+from utils import accept_on_thread, connect_on_thread
 from services.android import AndroidService
-from services.connection import Connection
+from services.service import Service
 
 BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
 BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
@@ -13,20 +13,18 @@ ParcelUuid = autoclass('android.os.ParcelUuid')
 PythonActivity = autoclass('org.kivy.android.PythonActivity')
 JavaUUID = autoclass('java.util.UUID')
 
-class BluetoothService :
+class BluetoothService(Service) :
 
     def __init__(self):
 
+        super().__init__(events=[
+            'BONDED_DEVICES_UPDATED',
+            'CONNECTION_ESTABLISHED',
+            'DISCOVERED_DEVICES_UPDATED',
+        ])
+
         self.is_scanning = False
         self.discovered_devices = {}
-
-        self.event_registry = EventRegistry(
-            [
-                'BONDED_DEVICES_UPDATED',
-                'CONNECTION_ESTABLISHED',
-                'DISCOVERED_DEVICES_UPDATED',
-            ], 'BluetoothService.EventRegistry'
-        )
 
         self.device_receiver = self._get_device_receiver()
         self.android_service = self._get_android_service()

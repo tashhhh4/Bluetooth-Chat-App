@@ -1,15 +1,11 @@
 from android.permissions import check_permission, request_permissions
-from utils import EventRegistry
+from services.service import Service
 
-class AndroidService:
+class AndroidService(Service):
 
     def __init__(self):
 
-        self.event_registry = EventRegistry(
-            [
-                'PERMISSION_GRANTED'
-            ], 'AndroidService.event_registry'
-        )
+        super().__init__(events=['PERMISSION_GRANTED'])
 
     def run_with_permissions(self, permissions, callback, on_deny=None):
         """ If all the needed permissions are already granted, immediately run callback().

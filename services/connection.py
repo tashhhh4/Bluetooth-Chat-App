@@ -1,30 +1,29 @@
 import logging
-from utils import EventRegistry, read_input_stream_on_thread
+from services.service import Service
+from utils import read_input_stream_on_thread
 
 """ A Connection is an object which owns a `connected_socket`.
     It is responsible for running read_input_stream() and send_bytes(),
     but it doesn't need to know what method (Bluetooth) is used to establish the connected_socket.
 """
 
-class Connection:
+class Connection(Service):
 
     def __init__(self, socket_service):
         """ Socket Service must be a class which provides a method like:
                 connect_to_device(address) -> connected_socket
         """
 
+        super().__init__(events=[
+            'CONNECTION_ESTABLISHED',
+            'CONNECTION_LOST',
+            'MESSAGE_RECEIVED',
+        ])
+
         self.socket = None
         self.socket_service = socket_service
         self.socket_service.event_registry.register_event_callback(
             'CONNECTION_ESTABLISHED', self._handle_connection
-        )
-
-        self.event_registry = EventRegistry(
-            [
-                'CONNECTION_ESTABLISHED',
-                'CONNECTION_LOST',
-                'MESSAGE_RECEIVED',
-            ], 'Connection.EventRegistry'
         )
 
     @property

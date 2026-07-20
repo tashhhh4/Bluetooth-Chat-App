@@ -3,19 +3,10 @@
     complicated low-level APIs such as Bluetooth and and Android Permissions.
 """
 
-import logging
 from kivy.app import App
 from config import ENVIRONMENT, RUN_TESTS
 from utils import schedule
 from services.connection import Connection
-
-class ListHandler(logging.Handler):
-    def __init__(self):
-        super().__init__()
-        self.logs = []
-
-    def emit(self, record):
-        self.logs.append(self.format(record))
 
 def configure_desktop_window():
     from kivy.config import Config
@@ -23,12 +14,18 @@ def configure_desktop_window():
     Config.set('graphics', 'height', '740')
 
 def run_tests():
-    if ENVIRONMENT == 'debug' and RUN_TESTS is True:
+    if RUN_TESTS is True:
         import unittest
         from pathlib import Path
         project_root = Path(__file__).resolve().parent.parent
         loader = unittest.TestLoader()
-        suite = loader.discover(start_dir=str(project_root), pattern='test*.py')
+        if ENVIRONMENT == 'debug':
+            naming_scheme = 'test*android.py'
+        elif ENVIRONMENT == 'local':
+            naming_scheme = 'test*desktop.py'
+        else:
+            naming_scheme = 'test*.py'
+        suite = loader.discover(start_dir=str(project_root), pattern=naming_scheme)
         runner = unittest.TextTestRunner(verbosity=2)
         runner.run(suite)
 

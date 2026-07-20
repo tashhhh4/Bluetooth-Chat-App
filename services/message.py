@@ -11,7 +11,8 @@ import logging
 from typing import LiteralString
 from dataclasses import dataclass
 from db.manager import chats, devices, members, messages, settings
-from utils import EventRegistry, schedule
+from services.service import Service
+from utils import schedule
 from messenger.utils import change_page
 
 @dataclass
@@ -51,18 +52,15 @@ class MessageObject:
 
 INDENT = '                           '
 
-class MessageService:
+class MessageService(Service):
 
     def __init__(self, connection):
 
-        self.event_registry = EventRegistry(
-            [
-                'MESSAGE_RECEIVED',
-                'DEVICE_CONNECTED',
-                'DEVICE_DISCONNECTED',
-            ],
-            'MessageService.EventRegistry'
-        )
+        super().__init__(events=[
+            'MESSAGE_RECEIVED',
+            'DEVICE_CONNECTED',
+            'DEVICE_DISCONNECTED',
+        ])
 
         self.connection = connection
 

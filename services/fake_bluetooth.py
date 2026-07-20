@@ -1,19 +1,21 @@
 import logging
+from services.service import Service
 from utils import EventRegistry
-from services.connection import Connection
 
 TAG = 'FakeBluetoothService: '
 EXPLANATION = ' — not implemented in FakeBluetoothService'
 
-class FakeBluetoothService:
+class FakeBluetoothService(Service):
 
     def __init__(self):
-        self.discovered_devices = {}
-        self.event_registry = EventRegistry([
+
+        super().__init__(events=[
             'DISCOVERED_DEVICES_UPDATED',
             'BONDED_DEVICES_UPDATED',
             'CONNECTION_ESTABLISHED'
         ])
+
+        self.discovered_devices = {}
 
     @staticmethod
     def scan_for_devices():

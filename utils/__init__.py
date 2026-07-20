@@ -6,4 +6,5 @@ from .utils import (
     read_input_stream_on_thread,
     schedule,
     EventRegistry,
+    TestSuite,
 )

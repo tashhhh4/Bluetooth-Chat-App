@@ -1,10 +1,12 @@
 import logging
-from utils import EventRegistry
+from services.service import Service
 
-class FakeMessageService:
+class FakeMessageService(Service):
 
     def __init__(self, connection):
-        self.event_registry = EventRegistry(['MESSAGE_RECEIVED'])
+
+        super().__init__(events=['MESSAGE_RECEIVED'])
+
         self.connection = connection
 
     def load_chats(self):

@@ -1,3 +1,4 @@
+from services.bluetooth import BluetoothService
 from services.service import Service
 from utils import TestSuite
 
@@ -7,3 +8,5 @@ class DesktopServiceTests(TestSuite):
         service = Service(events=[])
         self.assertTrue(hasattr(service, 'event_registry'))
         self.assertTrue(service.event_registry.name == 'Service.EventRegistry')
+        with self.assertRaises(TypeError):
+            BluetoothService(events=[])

@@ -1,11 +1,10 @@
 import logging
-from services.service import Service
-from utils import EventRegistry
+from services.bluetooth import BluetoothService
 
 TAG = 'FakeBluetoothService: '
 EXPLANATION = ' — not implemented in FakeBluetoothService'
 
-class FakeBluetoothService(Service):
+class FakeBluetoothService(BluetoothService):
 
     def __init__(self):
 

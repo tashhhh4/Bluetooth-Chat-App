@@ -59,20 +59,23 @@ def get_top_inset():
     return 10
 
 def get_bluetooth_service():
-    """ Returns the one true instance of `services.bluetooth.BluetoothService,
-        or a placeholder.
+    """ Returns the BluetoothService class for Android or Desktop,
+        or a placeholder implementing dummy methods.
     """
     existing_obj = App.get_running_app().bluetooth_service
     if existing_obj:
         return existing_obj
 
     if ENVIRONMENT == 'local':
-        from services.fake_bluetooth import FakeBluetoothService
-        return FakeBluetoothService()
+        from services.bluetooth_desktop import DesktopBluetoothService
+        return DesktopBluetoothService()
 
-    from services.bluetooth import BluetoothService
-    bluetooth_service = BluetoothService()
-    return bluetooth_service
+    elif ENVIRONMENT == 'debug':
+        from services.bluetooth_android import AndroidBluetoothService
+        return AndroidBluetoothService()
+
+    from services.bluetooth_fake import FakeBluetoothService
+    return FakeBluetoothService()
 
 def get_connection():
     """ Returns a Connection() which uses the BluetoothService as its backbone,

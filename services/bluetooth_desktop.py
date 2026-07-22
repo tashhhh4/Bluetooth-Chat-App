@@ -1,9 +1,11 @@
 import socket
 import subprocess
 import logging
+from services.bluetooth import BluetoothService
 from utils import accept_on_thread
 
-from services.bluetooth import BluetoothService
+def run_command(*args):
+    return subprocess.run([*args], capture_output=True, text=True, check=True).stdout
 
 class DesktopBluetoothService(BluetoothService):
 
@@ -15,8 +17,22 @@ class DesktopBluetoothService(BluetoothService):
             'DISCOVERED_DEVICES_UPDATED',
         ])
 
+    @staticmethod
+    def whats_my_mac_address():
+        # run bluetoothctl to find out
+        stdout = run_command('bluetoothctl', 'show')
+        address = None
+        for line in stdout.splitlines():
+            if 'Controller' in line:
+                parts = line.split(' ')
+                address = parts[1]
+                break
+        return address
+
     def listen_for_connections(self):
         logging.warning('Listen for connections - not yet implemented in DesktopBluetoothService')
+
+        print(self.whats_my_mac_address())
 
         sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
 
@@ -27,7 +43,6 @@ class DesktopBluetoothService(BluetoothService):
         # )
 
     def load_paired_devices(self):
-        logging.warning('Load Paired Devices - not yet implemented in DesktopBluetoothService')
 
         # run bluetoothctl devices
         command_result = subprocess.run(

@@ -3,11 +3,13 @@ import subprocess
 import logging
 from PySide6.QtBluetooth import (
     QBluetoothAddress,
+    QBluetoothLocalDevice,
     QBluetoothSocket,
     QBluetoothServer,
     QBluetoothServiceInfo,
     QBluetoothUuid,
 )
+from PySide6.QtCore import QUuid
 from services.bluetooth import BluetoothService
 from config import SERVICE_UUID
 #from utils import accept_on_thread_qt
@@ -24,6 +26,9 @@ class DesktopBluetoothService(BluetoothService):
             'CONNECTION_ESTABLISHED',
             'DISCOVERED_DEVICES_UPDATED',
         ])
+
+        self.connection_listener_server = None
+        self.spp_service = None
 
     @staticmethod
     def whats_my_mac_address():
@@ -61,21 +66,73 @@ class DesktopBluetoothService(BluetoothService):
     def listen_for_connections(self):
         logging.warning('Listen for connections - not yet implemented in DesktopBluetoothService')
 
-        address = self.whats_my_mac_address()
-        logging.info(f'My MAC address is {address}')
+        # Create server
+        self.connection_listener_server = QBluetoothServer(QBluetoothServiceInfo.RfcommProtocol)
 
-        #
-        # sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-        # sock.bind((address, 0))
+        local_device = QBluetoothLocalDevice()
+        print('Got local device:', local_device)
 
-        # accept_on_thread_qt(
-        #     sock,
-        #     name='Connection Listener',
-        #     on_connected=self._handle_connection,
-        # )
-        #
-        # rfcommServer = QBluetoothServer(QBluetoothServiceInfo.RfcommProtocol)
-        # rfcommServer.newConnection.connect(self, QOverload<>.of(ChatServer.clientConnected))
+        local_address = local_device.address()
+        print('Got local address directly from Qt API:', local_address)
+
+        self.connection_listener_server.listen(local_address)
+
+        print('Started server.listen on local address', local_address)
+        print('Server port?', self.connection_listener_server.serverPort())
+        print('Server type?', self.connection_listener_server.serverType())
+
+        # Create service
+        self.spp_service = QBluetoothServiceInfo()
+        print('Created a service:', self.spp_service)
+
+        self.spp_service.setServiceName('Blu2')
+        self.spp_service.setServiceDescription('Bluetooth Chat')
+        self.spp_service.setServiceProvider('Blu2')
+
+        print('Set the service\'s basic properties.')
+
+        quuid = QUuid(str(SERVICE_UUID))
+        print('After casting SERVICE_UUID to QUuid.')
+        bquuid = QBluetoothUuid(quuid)
+        print('After casting quuid to a QBluetoothUuid.')
+        self.spp_service.setServiceUuid(bquuid)
+        print('Set the service\'s UUID!')
+        print('Service is complete?', self.spp_service.isComplete())
+        print('Service is valid?', self.spp_service.isValid())
+        print('Socket protocol:', self.spp_service.socketProtocol())
+
+        # Describe the protocol
+        protocols = QBluetoothServiceInfo.Sequence()
+        print('Created protocols Sequence.')
+
+        l2cap = QBluetoothServiceInfo.Sequence()
+        l2cap.append(QBluetoothUuid(QBluetoothUuid.ProtocolUuid.L2cap))
+        print('Created l2cap Sequence.')
+        print('Added to l2cap:', l2cap.first())
+
+        rfcomm = QBluetoothServiceInfo.Sequence()
+        print('Created rfcomm Sequence.')
+        rfcomm.append(QBluetoothUuid(QBluetoothUuid.ProtocolUuid.Rfcomm))
+        channel = self.connection_listener_server.serverPort()
+        print('RFCOMM channel:', channel)
+        rfcomm.append(channel)
+        print('rfcomm is now:', rfcomm.toList())
+
+        protocols.append(l2cap)
+        protocols.append(rfcomm)
+        print('protocols is now:', protocols.toList())
+
+        self.spp_service.setAttribute(
+            QBluetoothServiceInfo.AttributeId.ProtocolDescriptorList.value,
+            protocols
+        )
+        print('Set the service\'s ProtocolDescriptorList.')
+        print('Is the service now complete?', self.spp_service.isComplete())
+
+        # Register the service
+        self.spp_service.registerService(local_address)
+        print('Registered Bluetooth service.')
+        print('Is the service registered?', self.spp_service.isRegistered())
 
     def connect_to_device(self, address):
         sock = QBluetoothSocket(QBluetoothServiceInfo.RfcommProtocol)
